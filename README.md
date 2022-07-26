@@ -1,1 +1,42 @@
 # open-earable
+
+## Arduino Nano 33 BLE - NINA 01
+
+The original Arduino Nano 33 BLE uses the NINA-B306-00B module from u-blox.
+The sister chip NINA-B306-01B is nearly identical but missing a quartz. Out of the box if the regular Arduino Nano 33 BLE bootloader is flashed, mbed os is checking for this specific quartz and since it is missing any sketch upload will brick.
+
+The issue will be fixed long term by the Arduino devs.
+At the moment there are 2 ways of fixing this issue.
+One option is to manually recompile the `libmbed.a` by applying [Patch#509](https://github.com/arduino/ArduinoCore-mbed/pull/509).
+However, this is a tedious process. It requires the cloning of the repositories [ArduinoCore-mbed](https://github.com/arduino/ArduinoCore-mbed), [ArduinoCore-API
+](https://github.com/arduino/ArduinoCore-API), and the installation of the [Mbed CLI](https://os.mbed.com/docs/mbed-os/v6.15/quick-start/build-with-mbed-cli.html).
+
+There is an easier quicker solution.
+In the `Nina` folder is the entry of the `variants` folder for the mbed nano boards of Arduino.
+By replacing the original folder of your Arduino installation with this one, you will be able to use the NINA-B306-01B without any issue.
+
+A detailed tutorial will be provided in the following.
+(Some steps may have been already performed and can be skipped)
+
+### Install Nano Boards via Board Manager
+Firstly you need to install the Arduino Mbed OS Nano Boards with the Board Manager of Arduino.
+For this open Arduino and head to **Tools > Board > Board Manager**.
+There search for **Arduino Mbed OS Nano Boards** and install the Arduino Mbed OS Nano Boards by Arduino.
+
+### Flash Bootloader
+In order to use the module at all you have to flash the Arduino Nano 33 BLE bootloader.
+For this use a DAP Debugger tool of your choice, and connect it to your board according to the schematics.
+Inside Arduino once you selected the correct board and programmer, you can simply flash the bootloader by pressing the **Burn Bootloader** button.
+Now by connecting the board via USB it will show up as "Arduino Nano 33 BLE". If you attempt to flash a program to it before doing the next step, it will brick.
+
+### Replace ARDUINO_NANO33BLE folder in variants
+Download the `Nina` folder. Inside you will find the `ARDUINO_NANO33BLE` folder.
+
+To find where Arduino installed the boards, open Arduino and head to **File > Preferences**.
+There at the bottom there is a path to the `preferences.txt`, you need to head into the directory of that file.
+Once you are inside this directory head to **packages > arduino > hardware > mbed_nano > [VERSION] > variants**.
+(Whereas [VERSION] is the current version of the mbed nano boards firmware)
+
+In the `variants` folder you will find the `ARDUINO_NANO33BLE` folder. Replace it with the provided folder inside the downloaded `Nina` folder.
+
+Note that when you update the Arduino Mbed OS Nano Boards you need to repeat this procedure. This fix is compiled with the version 3.2.0 of the firmware.
