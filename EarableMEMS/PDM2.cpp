@@ -40,7 +40,7 @@ int PDMClass2::begin(int channels, int sampleRate, int ratio)
 
   // Enable high frequency oscillator if not already enabled
   if (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) {
-    NRF_CLOCK->TASKS_HFCLKSTART    = 1;
+    NRF_CLOCK->TASKS_HFCLKSTART = 1;
     while (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) { }
   }
 

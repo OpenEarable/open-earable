@@ -15,6 +15,8 @@ volatile int samplesRead;
 const int pin_pdm_in = 22;
 const int pin_pdm_clk = 29;
 
+unsigned long loop_count = 0;
+
 void setup() {
   Serial.begin(115200);
   while (!Serial);
@@ -40,18 +42,31 @@ void setup() {
 
 void loop() {
   // Wait for samples to be read
+  loop_count++;
   if (samplesRead) {
 
     // Print samples to the serial monitor or plotter
     for (int i = 0; i < samplesRead; i++) {
       if(channels == 2) {
-        Serial.print("L:");
-        Serial.print(sampleBuffer[i]);
-        Serial.print(" R:");
-        i++;
+        if (i < samplesRead/2){
+          Serial.print("L:");
+          Serial.print(sampleBuffer[i]);
+          Serial.print(" R:");
+          Serial.println(0);
+        
+        } else {
+          Serial.print("L:");
+          Serial.print(0);
+          Serial.print(" R:");
+          Serial.println(sampleBuffer[i]);
+        }
+      } else {
+        Serial.println(sampleBuffer[i]);
       }
-      Serial.println(sampleBuffer[i]);
     }
+    loop_count = 0;
+
+    //Serial.println(samplesRead);
 
     // Clear the read count
     samplesRead = 0;
