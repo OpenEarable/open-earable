@@ -34,7 +34,6 @@ public:
 private:
   int _dinPin;
   int _clkPin;
-  int _pwrPin;
 
   int _channels;
   int _samplerate;

@@ -24,14 +24,13 @@ PDMClass2::PDMClass2() {
 
 PDMClass2::~PDMClass2()
 {
-  
+
 }
 
-void PDMClass2::init(int dinPin, int clkPin, int pwrPin)
+void PDMClass2::init(int dinPin, int clkPin)
 {
   _dinPin = dinPin;
   _clkPin = clkPin;
-  _pwrPin = pwrPin;
 }
 
 int PDMClass2::begin(int channels, int sampleRate)
@@ -90,12 +89,6 @@ int PDMClass2::begin(int channels, int sampleRate)
   nrf_pdm_event_clear(NRF_PDM_EVENT_STOPPED);
   nrf_pdm_int_enable(NRF_PDM_INT_STARTED | NRF_PDM_INT_STOPPED);
 
-  if (_pwrPin > -1) {
-    // power the mic on
-    pinMode(_pwrPin, OUTPUT);
-    digitalWrite(_pwrPin, HIGH);
-  }
-
   // clear the buffer
   _doubleBuffer.reset();
 
@@ -107,7 +100,7 @@ int PDMClass2::begin(int channels, int sampleRate)
   // set the buffer for transfer
   // nrf_pdm_buffer_set((uint32_t*)_doubleBuffer.data(), _doubleBuffer.availableForWrite() / (sizeof(int16_t) * _channels));
   // _doubleBuffer.swap();
-  
+
   // enable and trigger start task
   nrf_pdm_enable();
   nrf_pdm_event_clear(NRF_PDM_EVENT_STARTED);
@@ -122,12 +115,6 @@ void PDMClass2::end()
   nrf_pdm_disable();
 
   NVIC_DisableIRQ(PDM_IRQn);
-
-  if (_pwrPin > -1) {
-    // power the mic off
-    digitalWrite(_pwrPin, LOW);
-    pinMode(_pwrPin, INPUT);
-  }
 
   // Don't disable high frequency oscillator since it could be in use by RADIO
 
