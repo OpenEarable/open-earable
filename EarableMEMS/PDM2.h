@@ -6,14 +6,17 @@
 
 #include "PDMDoubleBuffer.h"
 
+#define RATIO80 80
+#define RATIO64 64
+
 class PDMClass2
 {
 public:
   PDMClass2();
   virtual ~PDMClass2();
 
-  void init(int dinPin, int clkPin, int pwrPin);
-  int begin(int channels, int sampleRate);
+  void init(int dinPin, int clkPin);
+  int begin(int channels, int sampleRate, int ratio = RATIO80);
   void end();
 
   virtual int available();

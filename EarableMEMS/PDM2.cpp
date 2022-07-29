@@ -13,6 +13,7 @@
 #define NRF_PDM_FREQ_3200K  (nrf_pdm_freq_t)(0x19000000UL)               ///< PDM_CLK= 3.200 MHz (32 MHz / 10) => Fs= 50000 Hz
 #define NRF_PDM_FREQ_4000K  (nrf_pdm_freq_t)(0x20000000UL)               ///< PDM_CLK= 4.000 MHz (32 MHz /  8) => Fs= 62500 Hz
 
+
 PDMClass2::PDMClass2() {
   _onReceive = NULL;
   _gain = -1;
@@ -24,7 +25,6 @@ PDMClass2::PDMClass2() {
 
 PDMClass2::~PDMClass2()
 {
-
 }
 
 void PDMClass2::init(int dinPin, int clkPin)
@@ -33,7 +33,7 @@ void PDMClass2::init(int dinPin, int clkPin)
   _clkPin = clkPin;
 }
 
-int PDMClass2::begin(int channels, int sampleRate)
+int PDMClass2::begin(int channels, int sampleRate, int ratio)
 {
   _channels = channels;
   _samplerate = sampleRate;
@@ -47,7 +47,24 @@ int PDMClass2::begin(int channels, int sampleRate)
   // configure the sample rate and channels
   switch (sampleRate) {
     case 16000:
-      NRF_PDM->RATIO = ((PDM_RATIO_RATIO_Ratio80 << PDM_RATIO_RATIO_Pos) & PDM_RATIO_RATIO_Msk);
+      // Detrimine ratio to use
+      int rat;
+      switch (ratio) {
+        case RATIO80: {
+          rat = PDM_RATIO_RATIO_Ratio80;
+          break;
+        }
+        case RATIO64: {
+          rat = PDM_RATIO_RATIO_Ratio64;
+          break;
+        }
+        default: {
+          rat = PDM_RATIO_RATIO_Ratio80;
+          break;
+        }
+      }
+
+      NRF_PDM->RATIO = ((rat << PDM_RATIO_RATIO_Pos) & PDM_RATIO_RATIO_Msk);
       nrf_pdm_clock_set(NRF_PDM_FREQ_1280K);
       break;
     case 41667:

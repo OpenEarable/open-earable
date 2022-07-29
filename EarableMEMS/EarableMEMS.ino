@@ -32,7 +32,7 @@ void setup() {
   // - one channel (mono mode)
   // - a 16 kHz sample rate for the Arduino Nano 33 BLE Sense
   // - a 32 kHz or 64 kHz sample rate for the Arduino Portenta Vision Shield
-  if (!PDM2.begin(channels, frequency)) {
+  if (!PDM2.begin(channels, frequency, RATIO64)) {
     Serial.println("Failed to start PDM!");
     while (1);
   }
