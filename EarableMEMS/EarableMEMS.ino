@@ -42,9 +42,7 @@ void setup() {
 
 void loop() {
   // Wait for samples to be read
-  loop_count++;
   if (samplesRead) {
-
     // Print samples to the serial monitor or plotter
     for (int i = 0; i < samplesRead; i++) {
       if(channels == 2) {
@@ -64,9 +62,6 @@ void loop() {
         Serial.println(sampleBuffer[i]);
       }
     }
-    loop_count = 0;
-
-    //Serial.println(samplesRead);
 
     // Clear the read count
     samplesRead = 0;

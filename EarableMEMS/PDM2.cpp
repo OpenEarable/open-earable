@@ -67,8 +67,20 @@ int PDMClass2::begin(int channels, int sampleRate, int ratio)
       NRF_PDM->RATIO = ((rat << PDM_RATIO_RATIO_Pos) & PDM_RATIO_RATIO_Msk);
       nrf_pdm_clock_set(NRF_PDM_FREQ_1280K);
       break;
+    case 31250:
+      // Untested
+      nrf_pdm_clock_set(NRF_PDM_FREQ_2000K);
+      break;
     case 41667:
       nrf_pdm_clock_set(NRF_PDM_FREQ_2667K);
+      break;
+    case 50000:
+      // Untested
+      nrf_pdm_clock_set(NRF_PDM_FREQ_3200K);
+      break;
+    case 62500:
+      // Untested
+      nrf_pdm_clock_set(NRF_PDM_FREQ_4000K);
       break;
     default:
       return 0; // unsupported
