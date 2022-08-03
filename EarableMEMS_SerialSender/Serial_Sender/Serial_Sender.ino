@@ -1,17 +1,15 @@
 #include "PDM2.h"
 
-// Disclaimer!
-// Code for Arduino Plotter nur zu Demonstrationszwecken!
-// Serial print ist nicht schnell genug für buffer!!
-
 // default number of output channels
 static const char channels = 1;
 
 // default PCM output frequency
 static const int frequency = 16000;
 
+const int buffer_size = 1024;
+
 // Buffer to read samples into, each sample is 16-bits
-short sampleBuffer[512];
+byte sampleBuffer[buffer_size];
 
 // Number of audio samples read
 volatile int samplesRead;
@@ -19,13 +17,14 @@ volatile int samplesRead;
 const int pin_pdm_in = 22;
 const int pin_pdm_clk = 29;
 
-unsigned long loop_count = 0;
+bool stream = 0;
 
 void setup() {
   Serial.begin(1000000);
   while (!Serial);
-
+  
   PDM2.init(pin_pdm_in, pin_pdm_clk);
+  PDM2.setBufferSize(buffer_size);
 
   // Configure the data receive callback
   PDM2.onReceive(onPDMdata);
@@ -45,28 +44,19 @@ void setup() {
 }
 
 void loop() {
-  // Wait for samples to be read
-  if (samplesRead) {
-    // Print samples to the serial monitor or plotter
-    for (int i = 0; i < samplesRead; i++) {
-      if(channels == 2) {
-        if (i < samplesRead/2){
-          Serial.print("L:");
-          Serial.print(sampleBuffer[i]);
-          Serial.print(" R:");
-          Serial.println(0);
-        
-        } else {
-          Serial.print("L:");
-          Serial.print(0);
-          Serial.print(" R:");
-          Serial.println(sampleBuffer[i]);
-        }
-      } else {
-        Serial.println(sampleBuffer[i]);
-      }
+  if (Serial.available()) {
+    char data = Serial.read();
+    if (data == '1') {
+      Serial.print('1');
+      stream = true;
+    } else {
+      stream = false;  
     }
-
+  }
+  
+  // Wait for samples to be read
+  if (samplesRead && stream) {
+    Serial.write(sampleBuffer, sizeof(sampleBuffer));
     // Clear the read count
     samplesRead = 0;
   }
