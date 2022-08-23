@@ -1,5 +1,33 @@
 # open-earable
 
+## Table of Contents
+- [Repository Content](#Repository-Content)
+- [Arduino Nano 33 BLE - NINA 01](#Arduino-Nano-33-BLE---NINA-01)
+
+## Repository Content
+- EarableMEMS
+- EarableMEMS_SerialSender
+- Nina
+- OpenEarable
+- edge_ml_earable
+
+### EarableMEMS
+Contains the basic code operate the MEMS PDM mic and send data via serial connection to the Arduino Serial Plotter.
+(Disclaimer: Code not optimized. Serial data will be lost. Testing only)
+
+### EarableMEMS_SerialSender
+Contains C/C++ code and Python script to record data of the MEMS PDM mic via a serial connection.
+
+### Nina
+Contains variant folder for the Arduino Nano 33 BLE.
+(See section [Arduino Nano 33 BLE - NINA 01](#Arduino-Nano-33-BLE---NINA-01))
+
+### OpenEarable
+Contains demo code of for the internal sensors (IMU, BARO) and demo for the speaker.
+
+### edge_ml_earable
+Contains edge ml code for the earable.
+
 ## Arduino Nano 33 BLE - NINA 01
 
 The original Arduino Nano 33 BLE uses the NINA-B306-00B module from u-blox.
