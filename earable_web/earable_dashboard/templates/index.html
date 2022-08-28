@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Earable - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jaames/iro/dist/iro.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.min.js"></script>
+
+    <link rel="shortcut icon" href="/img/icon.png">
+
+    <script src="/js/modules/GLTFLoader.js"></script>
+
+    <link rel="stylesheet" href="/css/dash.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="widget title">
+        <h1>Earable - Dashboard</h1>
+    </div>
+
+    <div class="status widget">
+
+        <div class="label" id="bluetooth">Click to connect to the board</div>
+        <button id="bigButton">Connect!</button>
+        <span class="spacer"></span>
+        <div id="alert" class="alert">
+
+            Packet loss detected!
+            <span id="alert_c" class="closebtn">&times;</span>
+        </div>
+    </div>
+
+    <div class="status widget">
+        <button class="rec_indicator notRec" id="recButton"></button>
+        <div class="label">Rec</div>
+        <div></div>
+        <div class="label">Recording</div>
+        <button id="rec_Button" class="start_rec_col">Start</button>
+        <span class="spacer"></span>
+        <div class="label">Data</div>
+        <button id="downloadButton">Download</button>
+    </div>
+
+    <!-- 3D -->
+    <div class="square_big widget" id="3d">
+        <div class="label">&#128230;3D</div>
+    </div>
+
+    <!-- ACC -->
+    <div class="adj_double square widget">
+        <div class="label">&#128640; Accelerometer</div>
+        <div id="accelerometer" class="adj_doublegraph"></div>
+    </div>
+
+    <!-- Gyro -->
+    <div class="adj_double square widget">
+        <div class="label">&#128171; Gyroscope</div>
+        <div id="gyroscope" class="adj_doublegraph"></div>
+    </div>
+
+
+    <!-- Temperature -->
+    <div class="short widget">
+        <div class="label">&#127777; Temperature - </div>
+        <div class="label" id="temperature-value"></div>
+        <div class="label">&deg;C</div>
+        <div class="shortgraph" id="temperature"></div>
+    </div>
+
+    <!-- Pressure -->
+    <div class="short widget">
+        <div class="label">&#9925; Pressure - </div>
+        <div class="label" id="pressure-value"></div>
+        <div class="label">hPa</div>
+        <div class="shortgraph" id="pressure"></div>
+    </div>
+
+</div>
+
+<script type="module" src="/js/index.js"></script>
+
+</body>
+
+
+</html>

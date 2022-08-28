@@ -1,0 +1,189 @@
+body {
+    font-family: 'Roboto', sans-serif; color: #888888; background: #000000; font-size: small;
+}
+
+#bigButton {
+    background-color: aqua; border: none; color: black; padding: 3px; text-align: center;
+    text-decoration: none; font-size: 15px; margin: 12px 10px;
+    border-radius: 10%; outline:none; font-family: 'Roboto', sans-serif;
+}
+
+#downloadButton {
+    background-color: blue; border: none; color: black; padding: 3px; text-align: center;
+    text-decoration: none; font-size: 15px; margin: 12px 10px;
+    border-radius: 10%; outline:none; font-family: 'Roboto', sans-serif;
+}
+
+#rec_Button {
+    border: none; color: black; padding: 3px; text-align: center;
+    text-decoration: none; font-size: 15px; margin: 12px 10px;
+    border-radius: 10%; outline:none; font-family: 'Roboto', sans-serif;
+}
+
+.start_rec_col {
+    background-color: green;
+}
+
+.stop_rec_col {
+    background-color: red;
+}
+
+.spacer {
+    content:"   ";
+    display:inline-block;
+    width:32px;
+}
+
+.container {
+    width:960px;height:384px;margin-top:30px;margin-bottom:7.5px;  margin: 0 auto;
+}
+
+.widget {
+    background: #111111;
+    border: 1px solid #000000;
+    border-radius: 0px;
+    padding: 12px;
+    margin: 6px;
+    float: left;
+}
+
+.title {
+    width: 885px;
+    text-align: center;
+    padding: 12px;
+    margin: 6px;
+    font-size: 20px;
+}
+
+.status {
+    background-size: 80px;
+    background-position: 98% 50%;
+    background-repeat: no-repeat;
+    width: 885px;  height: 50px;
+    color: white;
+}
+
+.square {
+    width: 192px;  height: 192px;
+    position: relative;
+}
+
+.adj {
+    width: 211px;
+}
+
+.adj_double {
+    width: 460px;
+}
+
+.adj_graph{width: 211px;  height: 177px;}
+.adj_doublegraph{width: 460px;  height: 177px;}
+
+.square_big {
+    width: 384px;  height: 422px;
+    position: relative;
+}
+
+.label {
+    height: 15px;
+    display: inline;
+    font-size: 15px;
+}
+
+.digit {
+    font-size: 30px;
+    color: #888888;
+    float: right;
+}
+
+.short {width: 192px;  height: 96px;}
+.double {width: 423px;  height: 192px;}
+.graph{width: 192px;  height: 177px;}
+.doublegraph{width: 423px;  height: 177px;}
+.shortgraph{width: 192px;  height: 81px;}
+
+#color-picker-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rec_indicator {
+    width: 15px;
+    height: 15px;
+    font-size: 0;
+    background-color: red;
+    border: 0;
+    border-radius: 35px;
+    margin: 2px;
+    outline: none;
+    position: relative;
+    top: 1px;
+    offset-position: auto;
+    offset-anchor: center;
+}
+
+.notRec{
+    background-color: darkred;
+}
+
+.Rec{
+    animation-name: pulse;
+    animation-duration: 1.5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+@keyframes pulse{
+    0%{
+        box-shadow: 0px 0px 5px 0px rgba(173,0,0,.3);
+    }
+    65%{
+        box-shadow: 0px 0px 5px 13px rgba(173,0,0,.3);
+    }
+    90%{
+        box-shadow: 0px 0px 5px 13px rgba(173,0,0,0);
+    }
+}
+
+.alert {
+    display: inline;
+    padding: 15px;
+    background-color: #f44336;
+    color: white;
+    visibility: hidden;
+}
+
+.closebtn {
+    position: relative;
+    top: 3px;
+    margin-left: 20px;
+    color: white;
+    font-weight: bold;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.closebtn:hover {
+    color: black;
+}
+
+.fade-out {
+    animation-name: fadeOut;
+    animation-duration: 6s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+}
+@keyframes fadeOut {
+    0% {
+        opacity:1;
+    }
+    50% {
+        opacity:1;
+    }
+    100% {
+        opacity:0;
+    }
+}
