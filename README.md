@@ -9,6 +9,7 @@
 - EarableMEMS_SerialSender
 - Nina
 - OpenEarable
+- earable_web
 - edge_ml_earable
 
 ### EarableMEMS
@@ -24,6 +25,12 @@ Contains variant folder for the Arduino Nano 33 BLE.
 
 ### OpenEarable
 Contains demo code of for the internal sensors (IMU, BARO) and demo for the speaker.
+
+### earable_web
+Contains 2 web dashboards running with a python server.
+The earable_dashboard offers a graphical dashboard with plots.
+The earable_recorder offers a more simple, efficient UI with direct option to configure sensors.
+Both posses recorder features.
 
 ### edge_ml_earable
 Contains edge ml code for the earable.
