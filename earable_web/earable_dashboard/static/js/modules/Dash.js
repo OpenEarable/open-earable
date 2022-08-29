@@ -1,5 +1,7 @@
 import * as Recorder from './Recorder.js'
 import * as utils from "./utilities.js";
+import "./OBJLoader.js";
+import "./MTLLoader.js";
 
 var SensorMap = {
     accelerometer:
@@ -82,7 +84,8 @@ class Dashboard {
         this.arduinoModel = undefined;
         this.connected = false;
 
-        this.model_name = 'models/Nicla.glb';
+        this.model_name = 'models/model.obj';
+        this.model_textures = 'models/textures.mtl';
 
         // UI elements
         this.bigButton = document.getElementById('bigButton');
@@ -162,53 +165,53 @@ class Dashboard {
 
     init3D() {
         let container = document.getElementById( '3d' );
-        let loader = new THREE.GLTFLoader();
-        this.scene.background = new THREE.Color( 0x111111 );
-        this.renderer.setSize( 384, 384 );
-        this.renderer.setPixelRatio( 4 );
-        container.appendChild( this.renderer.domElement );
-        loader.load( this.model_name,
-            // called when the Arduinio model is loaded
-            function ( gltf ) {
-                // Model
+        var mtlLoader = new THREE.MTLLoader();
+        mtlLoader.load(this.model_textures, function(materials) {
+            materials.preload();
+            let loader = new THREE.OBJLoader();
+            loader.setMaterials(materials);
+            this.scene.background = new THREE.Color( 0x111111 );
+            this.renderer.setSize( 384, 384 );
+            this.renderer.setPixelRatio( 4 );
+            container.appendChild( this.renderer.domElement );
+            loader.load( this.model_name,
+                // called when the Arduinio model is loaded
+                function ( object ) {
+                    // Model
+                    let mesh = object;
+                    let box = new THREE.Box3().setFromObject( mesh );
+                    box.getCenter( mesh.position );
+                    mesh.position.multiplyScalar( - 1 );
+                    let pivot = new THREE.Group();
+                    pivot.rotation.set(...ROTATION_OFFSET);
+                    this.scene.add(pivot);
+                    pivot.add( mesh );
+                    this.arduinoModel = pivot;
 
-                let mesh = gltf.scene;
-                gltf.scene.traverse( function ( child ) {
-
-                } );
-
-                let box = new THREE.Box3().setFromObject( mesh );
-                box.getCenter( mesh.position );
-                mesh.position.multiplyScalar( - 1 );
-                let pivot = new THREE.Group();
-                pivot.rotation.set(...ROTATION_OFFSET);
-                this.scene.add(pivot);
-                pivot.add( mesh );
-                this.arduinoModel = pivot;
-
-                // The X axis is red. The Y axis is blue. The Z axis is green.
-                //let axesHelper = new THREE.AxesHelper( 100 );
-                //this.scene.add( axesHelper );
+                    // The X axis is red. The Y axis is blue. The Z axis is green.
+                    //let axesHelper = new THREE.AxesHelper( 100 );
+                    //this.scene.add( axesHelper );
 
 
-                // Light
-                const color = 0xFFFFFF;
-                const intensity = 2;
-                const light = new THREE.DirectionalLight(color, intensity);
-                light.position.set(-20, 100, 0);
-                light.target.position.set(0, 40, 0);
-                this.scene.add(light);
-                this.scene.add(light.target);
-                var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 1000);
-                this.scene.add(hemiLight);
+                    // Light
+                    const color = 0xFFFFFF;
+                    const intensity = 2;
+                    const light = new THREE.DirectionalLight(color, intensity);
+                    light.position.set(-20, 100, 0);
+                    light.target.position.set(0, 40, 0);
+                    this.scene.add(light);
+                    this.scene.add(light.target);
+                    var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 1000);
+                    this.scene.add(hemiLight);
 
-                // Camera
-                this.camera.position.set(0,30,0);
-                this.camera.rotation.y = 0; // 180
-                this.camera.lookAt(new THREE.Vector3(0,0,0));
-                this.renderer.render(this.scene, this.camera);
-            }.bind(this)
-        );
+                    // Camera
+                    this.camera.position.set(0,200,0);
+                    this.camera.rotation.y = 0; // 180
+                    this.camera.lookAt(new THREE.Vector3(0,0,0));
+                    this.renderer.render(this.scene, this.camera);
+                }.bind(this)
+            );
+        }.bind(this));
     }
 
     msg(m){
@@ -305,15 +308,16 @@ class Dashboard {
         let Ax = SensorMap['accelerometer'].data.Ax.latest() * 0.0174533;
         let Ay = SensorMap['accelerometer'].data.Ay.latest() * 0.0174533;
         let Az = SensorMap['accelerometer'].data.Az.latest() * 0.0174533;
+        Ay, Az = Az, Ay;
         let pitch = Math.atan2((-Ax) , Math.sqrt(Ay * Ay + Az * Az));
         let roll = Math.atan2(Ay , Az);
 
         this.arduinoModel.rotation.set(...ROTATION_OFFSET);
 
         // Model axis not board axis
-        this.arduinoModel.rotation.x += roll;
+        this.arduinoModel.rotation.x -= roll + Math.PI/2;
         this.arduinoModel.rotation.y += 0;
-        this.arduinoModel.rotation.z -= pitch;
+        this.arduinoModel.rotation.z += pitch;
 
         this.renderer.render(this.scene, this.camera);
     }
