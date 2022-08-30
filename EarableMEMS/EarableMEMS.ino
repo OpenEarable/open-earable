@@ -19,12 +19,10 @@ volatile int samplesRead;
 const int pin_pdm_in = 22;
 const int pin_pdm_clk = 29;
 
-unsigned long loop_count = 0;
-
 void setup() {
   Serial.begin(1000000);
   while (!Serial);
-
+  
   PDM2.init(pin_pdm_in, pin_pdm_clk);
 
   // Configure the data receive callback

@@ -9,7 +9,7 @@ import numpy as np
 recording_time = 2  # in seconds
 peak_finder = True
 
-port = 'COM9'
+port = 'COM12'
 baudrate = 1000000
 timeout = 1
 

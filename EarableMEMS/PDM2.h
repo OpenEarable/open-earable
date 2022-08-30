@@ -2,7 +2,10 @@
 #define _PDM2_H_INCLUDED
 
 #include <Arduino.h>
+
+#ifndef analogPinToPinName
 #include <pinDefinitions.h>
+#endif
 
 #include "PDMDoubleBuffer.h"
 

@@ -7,6 +7,7 @@
 ## C++ Libraries
 Recommended C++ Libraries are:
 - STM32duino LSM6DSR
+- Arduino_LPS22HB
 - nRF52_MBED_PWM
 - ArduinoBLE
 - (NimBLE-Arduino)
