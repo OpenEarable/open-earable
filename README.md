@@ -9,6 +9,7 @@
 - EarableMEMS_SerialSender
 - Nina
 - OpenEarable
+- Ultra_Sonic_Scanner
 - earable_web
 - edge_ml_earable
 
@@ -25,6 +26,9 @@ Contains variant folder for the Arduino Nano 33 BLE.
 
 ### OpenEarable
 Contains demo code of for the internal sensors (IMU, BARO) and demo for the speaker.
+
+### Ultra_Sonic_Scanner
+Contains C/C++ code and Python script to record data of the MEMS PDM mic ultrasonic ear image via BLE.
 
 ### earable_web
 Contains 2 web dashboards running with a python server.

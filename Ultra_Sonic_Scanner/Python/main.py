@@ -1,6 +1,7 @@
 import asyncio
 from utils.single_series import single_measurement
 from utils.utils import Timer, csv_writer
+import os
 
 measurements = 8
 plot = False
@@ -25,8 +26,7 @@ async def main():
     print("\n\nSeries over")
 
 
-
-
-
 if __name__ == "__main__":
+    if not os.path.exists(data_path):
+        os.makedirs(data_path)
     asyncio.run(main())
