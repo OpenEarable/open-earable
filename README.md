@@ -1,6 +1,8 @@
 # open-earable
 
 ## Table of Contents
+- [C++ Libraries](#C++-Libraries)
+- [Python Libraries](#Python-Libraries)
 - [Repository Content](#Repository-Content)
 - [Arduino Nano 33 BLE - NINA 01](#Arduino-Nano-33-BLE---NINA-01)
 
