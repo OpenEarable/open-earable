@@ -4,6 +4,21 @@
 - [Repository Content](#Repository-Content)
 - [Arduino Nano 33 BLE - NINA 01](#Arduino-Nano-33-BLE---NINA-01)
 
+## C++ Libraries
+Recommended C++ Libraries are:
+- STM32duino LSM6DSR
+- nRF52_MBED_PWM
+- ArduinoBLE
+- (NimBLE-Arduino)
+
+## Python Libraries
+Recommended Python Libraries are: 
+- numpy
+- matplotlib
+- pyserial
+- Flask
+- bleak
+
 ## Repository Content
 - EarableMEMS
 - EarableMEMS_SerialSender
