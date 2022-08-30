@@ -205,7 +205,7 @@ class Dashboard {
                     this.scene.add(hemiLight);
 
                     // Camera
-                    this.camera.position.set(0,200,0);
+                    this.camera.position.set(0,50,0);
                     this.camera.rotation.y = 0; // 180
                     this.camera.lookAt(new THREE.Vector3(0,0,0));
                     this.renderer.render(this.scene, this.camera);

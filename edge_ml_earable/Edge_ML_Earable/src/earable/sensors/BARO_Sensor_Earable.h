@@ -5,7 +5,7 @@
 #ifndef EDGE_ML_EARABLE_BARO_SENSOR_EARABLE_H
 #define EDGE_ML_EARABLE_BARO_SENSOR_EARABLE_H
 
-#include <Arduino_LPS22HB.h>
+#include "Baro.h"
 
 class BARO_Sensor_Earable {
 public:

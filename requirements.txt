@@ -1,1 +1,4 @@
 Flask~=2.2.2
+bleak~=0.15.1
+numpy~=1.23.2
+matplotlib~=3.5.3

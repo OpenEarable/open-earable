@@ -24,7 +24,7 @@ float BARO_Sensor_Earable::get_pressure() {
         return 0.0;
     }
 
-    return BARO.readPressure();
+    return BARO.readPressure(PASCAL);
 }
 
 float BARO_Sensor_Earable::get_temperature(){
