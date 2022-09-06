@@ -1,7 +1,7 @@
-import * as utils from "./utilities.js";
+import * as utils from "../../utilities.js";
 
 export class Detect {
-    constructor(inter,config, exclude) {
+    constructor(inter, config, exclude) {
         this.interface = inter;
         this.config = config;
         this.exclude = exclude;

@@ -1,5 +1,5 @@
 import * as utils from "./utilities.js";
-import * as config from "../config.js";
+import * as config from "./config.js";
 
 const sensorServiceUuid = '34c2e3bb-34aa-11eb-adc1-0242ac120002';
 const sensorConfigCharacteristicUuid = '34c2e3bd-34aa-11eb-adc1-0242ac120002';

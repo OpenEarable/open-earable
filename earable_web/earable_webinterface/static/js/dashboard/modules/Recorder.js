@@ -1,4 +1,4 @@
-import * as utils from "./utilities.js";
+import * as utils from "../../utilities.js";
 
 
 export class Recorder {
@@ -8,40 +8,53 @@ export class Recorder {
         this.data = {};
         this.on = false;
 
+        this.rec_button = undefined;
+        this.rec_indicator = undefined;
+
         this.register();
     }
 
     register() {
         this.interface.event(this.record, this);
 
-        this.start_button = document.getElementById('startButton');
-        this.start_button.addEventListener('click', function() {
-            console.log("Start Rec");
-            this.clear();
-            this.start();
-        }.bind(this));
+        this.rec_button = document.getElementById('rec_Button');
 
-
-
-        this.stop_button = document.getElementById('stopButton');
-
-        this.stop_button.addEventListener('click', function() {
-            console.log("Stop Rec");
-            this.stop();
+        this.rec_button.addEventListener('click', function() {
+            console.log("Rec Toggle");
+            this.toggle();
         }.bind(this));
 
         document.getElementById('downloadButton').addEventListener('click', function() {
             console.log("Download Rec");
             this.download();
         }.bind(this));
+
+        this.rec_indicator = document.getElementById('recButton');
+    }
+
+    toggle() {
+        if (!this.on) {
+            this.clear();
+            this.start()
+        } else {
+            this.stop();
+        }
     }
 
     start() {
         this.on = true
+
+        this.rec_button.innerHTML = "Stop";
+        utils.swap_html_class(this.rec_button, 'start_rec_col', 'stop_rec_col');
+        utils.swap_html_class(this.rec_indicator, 'notRec', 'Rec');
     }
 
     stop() {
         this.on = false;
+
+        this.rec_button.innerHTML = "Start";
+        utils.swap_html_class(this.rec_indicator, 'Rec', 'notRec');
+        utils.swap_html_class(this.rec_button, 'stop_rec_col', 'start_rec_col');
     }
 
     record(rec_data) {

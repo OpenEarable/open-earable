@@ -1,5 +1,5 @@
 import * as Recorder from './Recorder.js'
-import * as utils from "./utilities.js";
+import * as utils from "../../utilities.js";
 import "./OBJLoader.js";
 import "./MTLLoader.js";
 

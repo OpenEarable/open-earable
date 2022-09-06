@@ -1,4 +1,4 @@
-import * as Interface from './modules/Interface.js'
+import * as Interface from '../Interface.js'
 import * as Manager from './modules/Manager.js'
 import * as Dash from './modules/Dash.js'
 

@@ -1,10 +1,10 @@
-import * as config from "../config.js";
+import * as config from "../../config.js";
 import * as Detect from "./Detect.js";
 
 export class Manager {
     constructor(inter) {
         this.interface = inter;
-        this.detect = new Detect.Detect(inter, config.SENS, config.EXCLUDE_DETECT);
+        this.detect = new Detect.Detect(inter, config.SENS_Dashboard, config.EXCLUDE_DETECT);
 
         this.register();
     }
@@ -29,13 +29,13 @@ export class Manager {
     }
 
     start() {
-        config.SENS.forEach(element => {
+        config.SENS_Dashboard.forEach(element => {
             this.configure(element);
         });
     }
 
     stop() {
-        config.SENS.forEach(element => {
+        config.SENS_Dashboard.forEach(element => {
             element = [element[0], 0];
             this.configure(element);
         });

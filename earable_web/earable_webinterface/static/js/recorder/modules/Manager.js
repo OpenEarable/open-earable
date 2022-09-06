@@ -1,4 +1,4 @@
-import * as config from "../config.js";
+import * as config from "../../config.js";
 
 
 export class Manager {
@@ -28,13 +28,13 @@ export class Manager {
     }
 
     start() {
-        config.SENS.forEach(element => {
+        config.SENS_Recorder.forEach(element => {
             this.configure(element);
         });
     }
 
     stop() {
-        config.SENS.forEach(element => {
+        config.SENS_Recorder.forEach(element => {
             element = [element[0], 0];
             this.configure(element);
         });

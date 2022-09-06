@@ -1,7 +1,5 @@
 import * as Board_Interface from './Board_Interface.js'
 
-
-
 export class Interface {
     constructor(button_id) {
         this.interface = new Board_Interface.Board_Interface(button_id);

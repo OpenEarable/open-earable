@@ -4,9 +4,11 @@ Each sensor needs to be enabled with a configuration command containing the sens
 (Here latency is automatically set to 0)
 */
 
+export const deviceName = "Earable";
+export const timestamped = true;
 
 var SENS_minimal = [
-    [0, 10],
+    [0, 10]
 ]
 
 var SENS_test = [
@@ -23,8 +25,11 @@ var SENS_operation = [
     [3, 6]                 // Temperature
 ]
 
+var SENS_none = []
+
 export var EXCLUDE_DETECT = [
 
 ];
 
-export var SENS = SENS_operation;
+export var SENS_Recorder = SENS_none;
+export var SENS_Dashboard = SENS_none;
