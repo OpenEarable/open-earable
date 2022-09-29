@@ -101,7 +101,7 @@ Note that when you update the Arduino Mbed OS Nano Boards you need to repeat thi
 
 ## Cite
 ```bib
-@inproceedings{10.1145/3345615.3361140,
+@inproceedings{10.1145/3544793.3563415,
 	title        = {OpenEarable: Open Hardware Earable Sensing Platform},
 	author       = {Röddiger, Tobias and King, Tobias and Roodt, Dylan Ray and Clarke, Christopher and Beigl, Michael},
 	year         = 2022,
