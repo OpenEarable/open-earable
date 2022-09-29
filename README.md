@@ -97,3 +97,23 @@ Once you are inside this directory head to **packages > arduino > hardware > mbe
 In the `variants` folder you will find the `ARDUINO_NANO33BLE` folder. Replace it with the provided folder inside the downloaded `Nina` folder.
 
 Note that when you update the Arduino Mbed OS Nano Boards you need to repeat this procedure. This fix is compiled with the version 3.2.0 of the firmware.
+
+
+## Cite
+```bib
+@inproceedings{10.1145/3345615.3361140,
+	title        = {OpenEarable: Open Hardware Earable Sensing Platform},
+	author       = {Röddiger, Tobias and King, Tobias and Roodt, Dylan Ray and Clarke, Christopher and Beigl, Michael},
+	year         = 2022,
+	booktitle    = {Proceedings of the 1st International Workshop on Earable Computing},
+	location     = {Cambridge, United Kingdom},
+	publisher    = {Association for Computing Machinery},
+	address      = {New York, NY, USA},
+	series       = {EarComp’22},
+	pages        = {29–34},
+	doi          = {10.1145/3544793.3563415},
+	url          = {https://doi.org/10.1145/3544793.3563415},
+	numpages     = 6,
+	keywords     = {In-Ear Headphones, IMU, Monitoring}
+}
+```
