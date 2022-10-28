@@ -10,7 +10,7 @@
 #include <cstdint>
 
 const char deviceIdentifier_seeed[] = "Earable";
-const char deviceGeneration_seeed[] = "1.0.0";
+const char deviceGeneration_seeed[] = "2.0.0";
 
 // Sensor Data channels
 BLEService sensorService_seeed("34c2e3bb-34aa-11eb-adc1-0242ac120002");

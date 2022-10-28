@@ -89,10 +89,15 @@ float LPS22HBClass::readPressure(int units)
 
 float LPS22HBClass::readTemperature(void)
 {
+
+  Serial.println("Temperature-raw");
+  Serial.println(i2cRead(LPS22HB_TEMP_OUT_L_REG));
+  Serial.println(i2cRead(LPS22HB_TEMP_OUT_H_REG));
+
   float reading = (i2cRead(LPS22HB_TEMP_OUT_L_REG) << 0) | 
           (i2cRead(LPS22HB_TEMP_OUT_H_REG) << 8);
 
-  return reading/100;
+  return reading / 100;
 }
 
 int LPS22HBClass::i2cRead(uint8_t reg)

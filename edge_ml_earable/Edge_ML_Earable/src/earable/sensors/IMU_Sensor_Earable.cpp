@@ -1,5 +1,5 @@
 //
-// Created by Dylan Ray Roodt on 23.05.2022.
+// Created by Tobias King on 26.10.2022.
 //
 
 #include "IMU_Sensor_Earable.h"
@@ -7,7 +7,7 @@
 extern TwoWire Wire1;
 
 IMU_Sensor_Earable::IMU_Sensor_Earable() {
-    IMU = new LSM6DSRSensor(&Wire1, LSM6DSR_I2C_ADD_L);
+    IMU = new DFRobot_BMX160(&Wire1);
 }
 
 void IMU_Sensor_Earable::start() {
@@ -17,10 +17,8 @@ void IMU_Sensor_Earable::start() {
 
     Wire1.begin();
 
-    if (IMU->begin() == 0) {
+    if (IMU->begin()) {
         available = true;
-        IMU->Enable_X();
-        IMU->Enable_G();
     }
 }
 
@@ -28,34 +26,44 @@ void IMU_Sensor_Earable::end() {
     if (!available) {
         return;
     }
-    IMU->end();
     available = false;
 }
 
 void IMU_Sensor_Earable::get_acc(float& x, float& y, float& z) {
-    // [-4, +4]g -/+0.122 mg
     if (!available) {
         return;
     }
 
-    int32_t accelerometer[3];
-    IMU->Get_X_Axes(accelerometer);
+    IMU->getAllData(&magno_data, &gyro_data, &accel_data);
 
-    x = (float)accelerometer[0];
-    y = (float)accelerometer[1];
-    z = (float)accelerometer[2];
+    x = (float) accel_data.x;
+    y = (float) accel_data.y;
+    z = (float) accel_data.z;
+
 }
 
 void IMU_Sensor_Earable::get_gyro(float& x, float& y, float& z) {
-    // [-2000, +2000] dps +/-70 mdps
     if (!available) {
         return;
     }
 
-    int32_t gyroscope[3];
-    IMU->Get_G_Axes(gyroscope);
+    IMU->getAllData(&magno_data, &gyro_data, &accel_data);
 
-    x = (float)gyroscope[0];
-    y = (float)gyroscope[1];
-    z = (float)gyroscope[2];
+    x = (float) gyro_data.x;
+    y = (float) gyro_data.y;
+    z = (float) gyro_data.z;
 }
+
+void IMU_Sensor_Earable::get_magno(float& x, float& y, float& z) {
+    if (!available) {
+        return;
+    }
+
+    IMU->getAllData(&magno_data, &gyro_data, &accel_data);
+
+    x = (float) magno_data.x;
+    y = (float) magno_data.y;
+    z = (float) magno_data.z;
+}
+
+

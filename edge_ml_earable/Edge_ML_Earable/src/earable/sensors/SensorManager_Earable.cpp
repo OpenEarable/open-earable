@@ -54,6 +54,11 @@ void SensorManager_Earable::start_sensor(int ID) {
             imu_sensor_earable.start();
             break;
         }
+        case IMU_MAGNETOMETER : {
+            activate_pos(module, pos);
+            imu_sensor_earable.start();
+            break;
+        }
         case BARO_PRESSURE : {
             activate_pos(module, pos);
             baro_sensor_earable.start();
@@ -66,6 +71,9 @@ void SensorManager_Earable::start_sensor(int ID) {
         }
         default:
             break;
+    }
+    if (_debug) {
+        _debug->println("Sensor start success");
     }
 }
 
@@ -83,6 +91,13 @@ void SensorManager_Earable::end_sensor(int ID) {
             break;
         }
         case IMU_GYROSCOPE : {
+            deactivate_pos(module, pos);
+            if (all_inactive(module, pos)) {
+                imu_sensor_earable.end();
+            }
+            break;
+        }
+        case IMU_MAGNETOMETER : {
             deactivate_pos(module, pos);
             if (all_inactive(module, pos)) {
                 imu_sensor_earable.end();
@@ -134,6 +149,15 @@ float * SensorManager_Earable::get_float_data(int ID){
             data[0] = 3;
             float x,y,z;
             imu_sensor_earable.get_gyro(x, y, z);
+            data[1] = x;
+            data[2] = y;
+            data[3] = z;
+            break;
+        }
+        case IMU_MAGNETOMETER: {
+            data[0] = 3;
+            float x,y,z;
+            imu_sensor_earable.get_magno(x, y, z);
             data[1] = x;
             data[2] = y;
             data[3] = z;

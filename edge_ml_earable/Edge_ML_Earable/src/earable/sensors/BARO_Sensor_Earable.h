@@ -1,11 +1,13 @@
 //
-// Created by Dylan Ray Roodt on 01.08.2022.
+// Created by Tobias King on 26.10.2022.
 //
 
 #ifndef EDGE_ML_EARABLE_BARO_SENSOR_EARABLE_H
 #define EDGE_ML_EARABLE_BARO_SENSOR_EARABLE_H
 
-#include "Baro.h"
+#include<Adafruit_BMP280.h>
+
+#define BMP280_BARO 0x76
 
 class BARO_Sensor_Earable {
 public:
@@ -19,6 +21,8 @@ public:
     const int sensor_count = 2;
 
 private:
+    Adafruit_BMP280 *Baro;
+
     bool available = false;
 };
 
