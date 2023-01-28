@@ -1,7 +1,3 @@
-//
-// Created by Dylan Ray Roodt on 23.05.2022.
-//
-
 #ifndef SENSORMANAGER_EARABLE_H
 #define SENSORMANAGER_EARABLE_H
 

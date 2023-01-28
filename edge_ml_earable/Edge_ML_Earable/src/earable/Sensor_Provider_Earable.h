@@ -1,7 +1,3 @@
-//
-// Created by Dylan Ray Roodt on 23.05.2022.
-//
-
 #include "sensors/SensorTypes_Earable.h"
 #include "sensors/SensorID_Earable.h"
 #include "BLEHandler_Earable.h"

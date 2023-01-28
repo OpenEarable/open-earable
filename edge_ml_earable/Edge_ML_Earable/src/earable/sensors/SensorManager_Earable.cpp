@@ -1,7 +1,3 @@
-//
-// Created by Dylan Ray Roodt on 23.05.2022.
-//
-
 #include "SensorManager_Earable.h"
 
 BARO_Sensor_Earable baro_sensor_earable;

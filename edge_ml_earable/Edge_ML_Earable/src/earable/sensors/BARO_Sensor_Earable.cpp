@@ -1,7 +1,3 @@
-//
-// Created by Tobias King on 26.10.2022.
-//
-
 #include "BARO_Sensor_Earable.h"
 
 extern TwoWire Wire1;

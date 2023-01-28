@@ -1,7 +1,3 @@
-//
-// Created by Tobias King on 26.10.2022.
-//
-
 #ifndef EDGE_ML_EARABLE_BARO_SENSOR_EARABLE_H
 #define EDGE_ML_EARABLE_BARO_SENSOR_EARABLE_H
 

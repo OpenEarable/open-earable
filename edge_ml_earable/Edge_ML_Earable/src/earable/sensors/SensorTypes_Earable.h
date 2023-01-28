@@ -1,7 +1,3 @@
-//
-// Created by Dylan Ray Roodt on 23.05.2022.
-//
-
 #ifndef SENSORTYPES_EARABLE_H
 #define SENSORTYPES_EARABLE_H
 

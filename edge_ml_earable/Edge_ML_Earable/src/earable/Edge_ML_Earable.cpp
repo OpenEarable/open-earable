@@ -1,6 +1,3 @@
-//
-// Created by Dylan Ray Roodt on 23.05.2022.
-//
 #include "Edge_ML_Earable.h"
 
 Edge_ML_Earable::Edge_ML_Earable() {

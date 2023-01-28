@@ -2,7 +2,7 @@
 #define Edge_ML_BASE_EARABLE_H_
 
 #warning "Using Ble33Nano Earable"
-#include<earable/Edge_ML_Earable.h>
+#include <earable/Edge_ML_Earable.h>
 
 class Edge_ML {
     public:

@@ -1,6 +1,3 @@
-//
-// Created by Dylan Ray Roodt on 23.05.2022.
-//
 #include "Arduino.h"
 
 /*

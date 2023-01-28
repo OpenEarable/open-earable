@@ -1,7 +1,3 @@
-//
-// Created by Tobias King on 26.10.2022.
-//
-
 #ifndef IMU_SENSOR_EARABLE_H
 #define IMU_SENSOR_EARABLE_H
 
