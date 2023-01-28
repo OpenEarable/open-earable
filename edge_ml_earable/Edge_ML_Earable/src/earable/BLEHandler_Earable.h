@@ -35,7 +35,7 @@ private:
     unsigned long _last = -1;
     unsigned long _battery_interval = 1000;
 
-    int _battery_pin = A0;
+    int _battery_pin = A3;
     int _old_battery_level = 0;
 
     int _battery_offset_min = 734;
