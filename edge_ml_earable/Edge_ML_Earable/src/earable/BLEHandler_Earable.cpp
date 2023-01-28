@@ -22,6 +22,10 @@ auto deviceGenerationUuid_earable = "45622512-6468-465a-b141-0b9b0f96b468";
 BLECharacteristic deviceIdentifierCharacteristic_earable(deviceIdentifierUuid_earable, BLERead, sizeof(deviceIdentifier_earable) + 1);
 BLECharacteristic deviceGenerationCharacteristic_earable(deviceGenerationUuid_earable, BLERead, sizeof(deviceGeneration_earable) + 1);
 
+// Battery Level
+BLEService batteryService("180F");
+BLEUnsignedCharCharacteristic batteryLevelChar("2A19", BLERead | BLENotify);
+
 Stream* BLEHandler_Earable::_debug = nullptr;
 
 BLEHandler_Earable::BLEHandler_Earable() {
@@ -50,6 +54,10 @@ bool BLEHandler_Earable::begin() {
         return false;
     }
     bleActive = true;
+
+    // Analog read setup with 1.2V ref
+    pinMode(_battery_pin, INPUT);
+    analogReference(AR_INTERNAL1V2);
 
     // Code for name
     String address = BLE.address();
@@ -90,6 +98,13 @@ bool BLEHandler_Earable::begin() {
     BLE.addService(deviceInfoService_earable);
     deviceIdentifierCharacteristic_earable.writeValue(deviceIdentifier_earable);
     deviceGenerationCharacteristic_earable.writeValue(deviceGeneration_earable);
+
+    // Battery level
+    BLE.setAdvertisedService(batteryService);
+    batteryService.addCharacteristic(batteryLevelChar);
+    BLE.addService(batteryService);
+    batteryLevelChar.setValue(0);
+
     BLE.advertise();
     return true;
 }
@@ -101,13 +116,14 @@ void BLEHandler_Earable::end() {
 }
 
 void BLEHandler_Earable::update() {
+    check_battery();
     BLE.poll();
 }
 
 void BLEHandler_Earable::send(int ID, int *data) {
     // send list of int data as in int16 2 bytes each
     // first element is length of array
-    if (sensorDataCharacteristic_seeed.subscribed()) {
+    if (sensorDataCharacteristic_earable.subscribed()) {
         SensorDataPacket package{};
         int16_t value;
         int length = data[0];
@@ -161,6 +177,30 @@ void BLEHandler_Earable::write_float_at_pos(float value, uint8_t *data, int pos)
 void BLEHandler_Earable::debug(Stream &stream) {
     _debug = &stream;
     //BLE.debug(stream); // Problems with Debug
+}
+
+void BLEHandler_Earable::check_battery() {
+    unsigned long now = millis();
+    if (now - _last > _battery_interval) {
+        update_battery();
+        _last = now;
+    }
+}
+
+void BLEHandler_Earable::update_battery() {
+    int battery = analogRead(_battery_pin);
+
+    battery = constrain(battery, _battery_offset_min, _battery_offset_max);
+    int batteryLevel = map(battery, _battery_offset_min, _battery_offset_max, 0, 100);
+
+    if (batteryLevel != _old_battery_level) {
+        if (_debug) {
+            _debug->print("Battery Level % is now: ");
+            _debug->println(batteryLevel);
+        }
+        batteryLevelChar.setValue(batteryLevel);
+        _old_battery_level = batteryLevel;
+    }
 }
 
 BLEHandler_Earable bleHandler_earable;
