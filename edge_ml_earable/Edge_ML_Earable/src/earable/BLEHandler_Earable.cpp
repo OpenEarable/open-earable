@@ -29,6 +29,7 @@ BLEUnsignedCharCharacteristic batteryLevelChar("2A19", BLERead | BLENotify);
 Stream* BLEHandler_Earable::_debug = nullptr;
 
 BLEHandler_Earable::BLEHandler_Earable() {
+    battery = new Battery_Earable();
 }
 
 // Sensor channel
@@ -55,9 +56,8 @@ bool BLEHandler_Earable::begin() {
     }
     bleActive = true;
 
-    // Analog read setup with 1.2V ref
-    pinMode(_battery_pin, INPUT);
-    analogReference(AR_INTERNAL1V2);
+    // Battery begin
+    battery->begin();
 
     // Code for name
     String address = BLE.address();
@@ -180,26 +180,13 @@ void BLEHandler_Earable::debug(Stream &stream) {
 }
 
 void BLEHandler_Earable::check_battery() {
-    unsigned long now = millis();
-    if (now - _last > _battery_interval) {
-        update_battery();
-        _last = now;
-    }
-}
-
-void BLEHandler_Earable::update_battery() {
-    int battery = analogRead(_battery_pin);
-
-    battery = constrain(battery, _battery_offset_min, _battery_offset_max);
-    int batteryLevel = map(battery, _battery_offset_min, _battery_offset_max, 0, 100);
-
-    if (batteryLevel != _old_battery_level) {
+    if (battery->check_battery()) {
+        int battery_level = battery->get_battery_level();
         if (_debug) {
             _debug->print("Battery Level % is now: ");
-            _debug->println(batteryLevel);
+            _debug->println(battery_level);
         }
-        batteryLevelChar.setValue(batteryLevel);
-        _old_battery_level = batteryLevel;
+        batteryLevelChar.setValue(battery_level);
     }
 }
 
