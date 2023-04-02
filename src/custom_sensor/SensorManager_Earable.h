@@ -19,6 +19,7 @@ public:
         SensorManagerInterface::set_sensors(sensors);
         SensorManagerInterface::set_sensor_counts(SENSOR_COUNT, MODULE_COUNT_PHYSICAL);
 
+        SensorManagerInterface::set_type_int(RETURN_TYPE_INT, INT_TYPE_COUNT);
         SensorManagerInterface::set_type_float(RETURN_TYPE_FLOAT, FLOAT_TYPE_COUNT);
 
         SensorManagerInterface::init();
