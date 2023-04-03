@@ -1,19 +1,68 @@
 #ifndef EDGE_ML_EARABLE_SENSORID_EARABLE_H
 #define EDGE_ML_EARABLE_SENSORID_EARABLE_H
 
-const int IMU_ACCELERATION = 0;
-const int IMU_GYROSCOPE = 1;
-const int IMU_MAGNETOMETER = 4;
-
-const int BARO_PRESSURE = 2;
-const int BARO_TEMP = 3;
-
+#include "EdgeML_Custom.h"
 
 const int SENSOR_COUNT = 5;
 const int MODULE_COUNT_PHYSICAL = 2;
 
-const int MODULE_IMU = 0;
-const int MODULE_BARO = 1;
+// In correct order ID ascending
+enum SensorID {
+    IMU_ACCELERATION,
+    IMU_GYROSCOPE,
+    BARO_PRESSURE,
+    BARO_TEMP,
+    IMU_MAGNETOMETER
+};
+
+// In correct order ID ascending
+enum ModuleID {
+    MODULE_IMU,
+    MODULE_BARO
+};
+
+const SensorConfig CONFIG[SENSOR_COUNT] = {
+        {
+            "ACC",
+            IMU_ACCELERATION,
+            MODULE_IMU,
+            R_TYPE_FLOAT,
+            SCHEME_XYZ,
+            PARSE_TYPE_FLOAT
+        },
+        {
+            "GYRO",
+            IMU_GYROSCOPE,
+            MODULE_IMU,
+            R_TYPE_FLOAT,
+            SCHEME_XYZ,
+            PARSE_TYPE_FLOAT
+        },
+        {
+            "MAG",
+            IMU_MAGNETOMETER,
+            MODULE_IMU,
+            R_TYPE_FLOAT,
+            SCHEME_XYZ,
+            PARSE_TYPE_FLOAT
+        },
+        {
+            "PRESSURE",
+            BARO_PRESSURE,
+            MODULE_BARO,
+            R_TYPE_FLOAT,
+            SCHEME_VAL,
+            PARSE_TYPE_FLOAT
+        },
+        {
+            "TEMPERATURE",
+            BARO_TEMP,
+            MODULE_BARO,
+            R_TYPE_FLOAT,
+            SCHEME_VAL,
+            PARSE_TYPE_FLOAT
+        }
+};
 
 const int IMU_MAP[] = {IMU_ACCELERATION, IMU_GYROSCOPE, IMU_MAGNETOMETER};
 const int BARO_MAP[] = {BARO_PRESSURE, BARO_TEMP};

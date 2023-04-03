@@ -3,13 +3,7 @@
 extern TwoWire Wire1;
 
 IMU_Sensor::IMU_Sensor() {
-    _sensors_ids = IMU_MAP;
-    _module_id = MODULE_IMU;
     IMU = new DFRobot_BMX160(&Wire1);
-
-    for (bool & status : _active) {
-        status = false;
-    }
 }
 
 void IMU_Sensor::start() {

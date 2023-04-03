@@ -3,14 +3,7 @@
 extern TwoWire Wire1;
 
 BARO_Sensor::BARO_Sensor() {
-    _sensors_ids = BARO_MAP;
-    _module_id = MODULE_BARO;
-
     Baro = new Adafruit_BMP280(&Wire1);
-
-    for (bool & status : _active) {
-        status = false;
-    }
 }
 
 void BARO_Sensor::start() {
