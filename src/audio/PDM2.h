@@ -1,0 +1,72 @@
+#ifndef _PDM2_H_INCLUDED
+#define _PDM2_H_INCLUDED
+
+#include <Arduino.h>
+
+#ifndef analogPinToPinName
+#include <pinDefinitions.h>
+#endif
+
+#include "CircularBlockBuffer.h"
+
+class PDMClass2
+{
+public:
+    PDMClass2();
+    virtual ~PDMClass2();
+
+    int start(bool high=false);
+    int start(int channels, int sampleRate, bool high=false);
+
+    void end();
+
+    virtual int available();
+    virtual int read(void* buffer, size_t size);
+
+    void onReceive(void(*)(void));
+
+    //PORTENTA_H7 min -12 max 51
+    //NANO 33 BLE SENSe min 0 max 80
+    //NICLA_VISION min 0 max 8
+    void setGain(int gain);
+
+    void setPins(int dinPin, int clkPin);
+    void setChannels(int channels);
+    void setSampleRate(int sampleRate);
+
+    void setBlockBufferSizes(int blockSize, int blockCount);
+
+    size_t getTotalSize() const;
+    size_t getBlockSize() const;
+    size_t getBlockCount() const;
+
+    uint8_t * getReadPointer();
+    void incrementReadPointer();
+
+    void clearBuffer();
+    void resetBuffer();
+
+    bool checkCollision();
+
+// private:
+    void IrqHandler(bool halftranfer);
+
+private:
+    int _dinPin = 29;
+    int _clkPin = 28;
+
+    int _channels = 1;
+    int _samplerate = 16000;
+
+    int _gain = 20;
+
+    bool _first = true;
+
+    CircularBlockBuffer _blockBuffer;
+
+    void (*_onReceive)(void);
+};
+
+extern PDMClass2 PDM2;
+
+#endif

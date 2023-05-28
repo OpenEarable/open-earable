@@ -3,8 +3,8 @@
 
 #include "EdgeML_Custom.h"
 
-const int SENSOR_COUNT = 5;
-const int MODULE_COUNT_PHYSICAL = 2;
+const int SENSOR_COUNT = 6;
+const int MODULE_COUNT_PHYSICAL = 3;
 
 // In correct order ID ascending
 enum SensorID {
@@ -12,13 +12,15 @@ enum SensorID {
     IMU_GYROSCOPE,
     BARO_PRESSURE,
     BARO_TEMP,
-    IMU_MAGNETOMETER
+    IMU_MAGNETOMETER,
+    PDM_MIC
 };
 
 // In correct order ID ascending
 enum ModuleID {
     MODULE_IMU,
-    MODULE_BARO
+    MODULE_BARO,
+    MODULE_PDM_MIC
 };
 
 const SensorConfig CONFIG[SENSOR_COUNT] = {
@@ -61,6 +63,14 @@ const SensorConfig CONFIG[SENSOR_COUNT] = {
             R_TYPE_FLOAT,
             SCHEME_VAL,
             PARSE_TYPE_FLOAT
+        },
+        {
+            "PDM MIC",
+            PDM_MIC,
+            MODULE_PDM_MIC,
+            R_TYPE_INT,
+            SCHEME_VAL,
+            PARSE_TYPE_INT16
         }
 };
 
