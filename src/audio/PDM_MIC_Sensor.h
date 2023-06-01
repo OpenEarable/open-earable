@@ -28,10 +28,14 @@ public:
     void enable_serial_data();
     void disable_serial_data();
 
+    void enable_chunks();
+    void disable_chunks();
+
     const int sensor_count = 1;
 private:
     bool send_serial = false;
     bool stream = false;
+    bool chunks_disabled = false;
 
     const int _blockSize = 4096;
     int _blockCount = 5;

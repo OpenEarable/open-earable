@@ -15,7 +15,12 @@ public:
         _interface = new SensorManager_Earable();
         _battery = new Battery_Service();
 
+        if (_debug) {
+            _battery->debug(*_debug);
+        }
+
         if (_audio_interface) {
+            _interface->init();
             _interface->set_audio_interface(_audio_interface);
         }
 
@@ -36,7 +41,7 @@ public:
     };
 
     void debug(Stream &stream) {
-        _battery->debug(stream);
+        _debug = &stream;
         edge_ml_generic.debug(stream);
     };
 
@@ -63,10 +68,23 @@ public:
         if (!_audio_interface) return;
         _audio_interface->disable_serial_data();
     };
+
+    void enable_chunks() {
+        if (!_audio_interface) return;
+        _audio_interface->enable_chunks();
+    };
+
+    void disable_chunks() {
+        if (!_audio_interface) return;
+        _audio_interface->disable_chunks();
+    };
+
 private:
     SensorManager_Earable * _interface{};
     Battery_Service * _battery{};
     PDM_MIC_Sensor * _audio_interface{};
+
+    Stream * _debug{};
 };
 
 EdgeML_Earable edge_ml_earable;

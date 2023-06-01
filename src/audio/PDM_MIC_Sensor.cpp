@@ -12,9 +12,11 @@ bool PDM_MIC_Sensor::init() {
 }
 
 void PDM_MIC_Sensor::update() {
-    if (stream && PDM2.available()) {
-        uint8_t * read_pointer = PDM2.getReadPointer();
-        int size = (int)PDM2.getBlockSize();
+    if (!stream) return;
+
+    while (PDM2.available()) {
+        uint8_t *read_pointer = PDM2.getReadPointer();
+        int size = (int) PDM2.getBlockSize();
 
         if (send_serial) {
             Serial.write(read_pointer, size);
@@ -22,6 +24,8 @@ void PDM_MIC_Sensor::update() {
             sdWriter->writeChunk(read_pointer, size);
         }
         PDM2.incrementReadPointer();
+
+        if (chunks_disabled) break;
     }
 }
 
@@ -98,6 +102,14 @@ void PDM_MIC_Sensor::enable_serial_data() {
 
 void PDM_MIC_Sensor::disable_serial_data() {
     send_serial = false;
+}
+
+void PDM_MIC_Sensor::enable_chunks() {
+    chunks_disabled = false;
+}
+
+void PDM_MIC_Sensor::disable_chunks() {
+    chunks_disabled = true;
 }
 
 
