@@ -63,7 +63,7 @@ void PDM_MIC_Sensor::get_int_data(int *intArray, int sensorID) {
     if (sensorID != PDM_MIC) return;
 
     intArray[0] = 1; // 1 Values
-    intArray[1] = 1; // Recording
+    intArray[1] = _active; // Recording
 }
 
 int PDM_MIC_Sensor::get_sensor_count() {
@@ -110,6 +110,10 @@ void PDM_MIC_Sensor::enable_chunks() {
 
 void PDM_MIC_Sensor::disable_chunks() {
     chunks_disabled = true;
+}
+
+void PDM_MIC_Sensor::set_active(int active) {
+    _active = active;
 }
 
 

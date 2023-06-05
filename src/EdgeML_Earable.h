@@ -6,6 +6,9 @@
 #include <battery_service/Battery_Service.h>
 
 #include <audio/PDM_MIC_Sensor.h>
+#include <sd_logger/SD_Logger.h>
+
+#include <utility>
 
 class EdgeML_Earable {
 public:
@@ -19,7 +22,9 @@ public:
             _battery->debug(*_debug);
         }
 
-        if (_audio_interface) {
+        if (_data_logger) {
+            _data_logger->begin();
+        } else if (_audio_interface) {
             _interface->init();
             _interface->set_audio_interface(_audio_interface);
         }
@@ -36,6 +41,7 @@ public:
         edge_ml_generic.update();
 
         if (_audio_interface) {
+            _audio_interface->set_active(edge_ml_generic.get_active());
             _audio_interface->update();
         }
     };
@@ -44,6 +50,17 @@ public:
         _debug = &stream;
         edge_ml_generic.debug(stream);
     };
+
+    // warning sd logging and audio are exlusive!
+    void enable_sd_logging() {
+        _data_logger = new SD_Logger();
+        edge_ml_generic.set_data_callback(SD_Logger::data_callback);
+    }
+
+    void set_logger_file_name(String name) {
+        if (!_data_logger) return;
+        _data_logger->set_name(std::move(name));
+    }
 
     void enable_audio() {
         _audio_interface = new PDM_MIC_Sensor();
@@ -83,6 +100,7 @@ private:
     SensorManager_Earable * _interface{};
     Battery_Service * _battery{};
     PDM_MIC_Sensor * _audio_interface{};
+    SD_Logger * _data_logger{};
 
     Stream * _debug{};
 };

@@ -4,14 +4,6 @@
 
 WAVWriter::WAVWriter() {
     sd = new SdExFat();
-
-    /*
-     *
-     *
-    wavFile.seek(0);
-    ExFatFile file_obj;
-    file_obj.seekCur(0);
-    */
 }
 
 WAVWriter::~WAVWriter() {

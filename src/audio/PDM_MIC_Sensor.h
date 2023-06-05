@@ -31,11 +31,15 @@ public:
     void enable_chunks();
     void disable_chunks();
 
+    void set_active(int active);
+
     const int sensor_count = 1;
 private:
     bool send_serial = false;
     bool stream = false;
     bool chunks_disabled = false;
+
+    int _active = 0;
 
     const int _blockSize = 4096;
     int _blockCount = 5;
