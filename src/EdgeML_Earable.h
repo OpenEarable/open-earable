@@ -51,6 +51,7 @@ public:
         edge_ml_generic.debug(stream);
     };
 
+    // SD LOGGING
     // warning sd logging and audio are exlusive!
     void enable_sd_logging() {
         _data_logger = new SD_Logger();
@@ -62,6 +63,7 @@ public:
         _data_logger->set_name(std::move(name));
     }
 
+    // AUDIO RECORDING
     void enable_audio() {
         _audio_interface = new PDM_MIC_Sensor();
     }
