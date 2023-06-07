@@ -34,7 +34,7 @@ private:
 
     bool _is_open = false;
 
-    String _name = "Test.csv";
+    String _name = "Logging.csv";
 };
 
 
