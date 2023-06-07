@@ -68,6 +68,11 @@ public:
         _audio_interface = new PDM_MIC_Sensor();
     }
 
+    void set_audio_file_name(String name) {
+        if (!_audio_interface) return;
+        _audio_interface->set_name(std::move(name));
+    }
+
     void setSampleRate(int sampleRate) {
         if (!_audio_interface) return;
         _audio_interface->setSampleRate(sampleRate);

@@ -54,6 +54,10 @@ void PDM_MIC_Sensor::end() {
     }
 }
 
+void PDM_MIC_Sensor::set_name(String name) {
+    sdWriter->setName(std::move(name));
+}
+
 void PDM_MIC_Sensor::get_float_data(float *floatArray, int sensorID) {
     // not needed
 }
