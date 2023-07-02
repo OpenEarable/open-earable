@@ -121,6 +121,8 @@ void PDM_MIC_Sensor::set_active(int active) {
 }
 
 void PDM_MIC_Sensor::config_callback(SensorConfigurationPacket *config) {
+    if (config->sensorId != PDM_MIC) return;
+    
     int sample_rate = int(config->latency);
     if (!PDM2.checkSampleRateValid(sample_rate)) {
         sample_rate = sampleRate_default;
