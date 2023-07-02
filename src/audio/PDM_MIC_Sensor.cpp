@@ -1,7 +1,7 @@
 #include "PDM_MIC_Sensor.h"
 
 PDM_MIC_Sensor::PDM_MIC_Sensor() {
-
+    _sampleRate = sampleRate_default;
 }
 
 bool PDM_MIC_Sensor::init() {
@@ -120,6 +120,11 @@ void PDM_MIC_Sensor::set_active(int active) {
     _active = active;
 }
 
-
-
-
+void PDM_MIC_Sensor::config_callback(SensorConfigurationPacket *config) {
+    int sample_rate = int(config->latency);
+    if (!PDM2.checkSampleRateValid(sample_rate)) {
+        sample_rate = sampleRate_default;
+    }
+    _sampleRate = sample_rate;
+    PDM2.setSampleRate(_sampleRate);
+}

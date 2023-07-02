@@ -7,6 +7,8 @@
 #include "WAVWriter.h"
 #include "PDM2.h"
 
+const int sampleRate_default = 41667;  // 16000 Hz / 41667 Hz / 62500 Hz  // Default
+
 class PDM_MIC_Sensor : public SensorInterface {
 public:
     PDM_MIC_Sensor();
@@ -35,8 +37,12 @@ public:
 
     void set_active(int active);
 
+    static void config_callback(SensorConfigurationPacket * config);
+
     const int sensor_count = 1;
 private:
+    static int _sampleRate;
+
     bool send_serial = false;
     bool stream = false;
     bool chunks_disabled = false;
@@ -46,7 +52,6 @@ private:
     const int _blockSize = 4096;
     int _blockCount = 5;
 
-    int _sampleRate = 41667; // 16000 Hz / 41667 Hz / 62500 Hz
     int _gain = 20;
 
     String name = "Recording.wav";

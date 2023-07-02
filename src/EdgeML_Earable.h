@@ -66,6 +66,7 @@ public:
     // AUDIO RECORDING
     void enable_audio() {
         _audio_interface = new PDM_MIC_Sensor();
+        edge_ml_generic.set_config_callback(PDM_MIC_Sensor::config_callback);
     }
 
     void set_audio_file_name(String name) {

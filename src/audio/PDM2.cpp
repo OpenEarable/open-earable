@@ -14,7 +14,6 @@
 #define NRF_PDM_FREQ_3200K  (nrf_pdm_freq_t)(0x19000000UL)               ///< PDM_CLK= 3.200 MHz (32 MHz / 10) => Fs= 50000 Hz [Ratio80 => Fs= 40000 Hz]
 #define NRF_PDM_FREQ_4000K  (nrf_pdm_freq_t)(0x20000000UL)               ///< PDM_CLK= 4.000 MHz (32 MHz /  8) => Fs= 62500 Hz [Ratio80 => Fs= 50000 Hz]
 
-
 PDMClass2::PDMClass2() {
     _onReceive = NULL;
 }
@@ -219,7 +218,6 @@ void PDMClass2::IrqHandler(bool halftranfer) {
             }
 
             // switch to the next buffer
-            //nrf_pdm_buffer_set((uint32_t*)_doubleBuffer.data(), _doubleBuffer.availableForWrite() / (sizeof(int16_t) * _channels));
             nrf_pdm_buffer_set((uint32_t*)_blockBuffer.getNextWritePointer(), _blockBuffer.getBlockSize() / (sizeof(int16_t) * _channels));
 
             // call receive callback if provided
@@ -256,6 +254,15 @@ uint8_t *PDMClass2::getReadPointer() {
 
 void PDMClass2::incrementReadPointer() {
     _blockBuffer.incrementReadPointer();
+}
+
+bool PDMClass2::checkSampleRateValid(int sampleRate) {
+    for (int rate : valid_sample_rates) {
+        if (rate == sampleRate) {
+            return true;
+        }
+    }
+    return false;
 }
 
 extern "C" {

@@ -9,6 +9,18 @@
 
 #include "CircularBlockBuffer.h"
 
+const int valid_sample_rates[] = {
+        16000,
+        20000,
+        25000,
+        31250,
+        33333,
+        40000,
+        41667,
+        50000,
+        62500
+};
+
 class PDMClass2
 {
 public:
@@ -47,6 +59,8 @@ public:
     void resetBuffer();
 
     bool checkCollision();
+
+    bool checkSampleRateValid(int sampleRate);
 
 // private:
     void IrqHandler(bool halftranfer);
