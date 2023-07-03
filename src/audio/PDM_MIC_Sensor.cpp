@@ -121,12 +121,31 @@ void PDM_MIC_Sensor::set_active(int active) {
 }
 
 void PDM_MIC_Sensor::config_callback(SensorConfigurationPacket *config) {
+    // Check for PDM MIC ID
     if (config->sensorId != PDM_MIC) return;
-    
-    int sample_rate = int(config->latency);
+
+    // Get sample rate
+    int sample_rate = int(config->sampleRate);
+
+    // End sensor if sample rate is 0
+    if (sample_rate == 0) {
+        pdm_mic_sensor.end();
+        return;
+    }
+
+    // Check for valid sample rate
     if (!PDM2.checkSampleRateValid(sample_rate)) {
         sample_rate = sampleRate_default;
     }
+    // Set sample rate in PDM2
     _sampleRate = sample_rate;
     PDM2.setSampleRate(_sampleRate);
+
+    // Make sure that pdm mic is not running already!
+    pdm_mic_sensor.end();
+
+    // Start pdm mic
+    pdm_mic_sensor.start();
 }
+
+PDM_MIC_Sensor pdm_mic_sensor;

@@ -5,6 +5,7 @@
 
 const int SENSOR_COUNT = 6;
 const int MODULE_COUNT_PHYSICAL = 3;
+const int SPECIAL_SENSOR_COUNT = 1;
 
 // In correct order ID ascending
 enum SensorID {
@@ -14,6 +15,10 @@ enum SensorID {
     BARO_TEMP,
     IMU_MAGNETOMETER,
     PDM_MIC
+};
+
+const int SpecialSensors[SPECIAL_SENSOR_COUNT] = {
+        PDM_MIC;
 };
 
 // In correct order ID ascending

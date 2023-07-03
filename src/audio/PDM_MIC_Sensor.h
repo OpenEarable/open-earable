@@ -62,5 +62,7 @@ private:
     bool pdm_setup();
 };
 
+extern PDM_MIC_Sensor pdm_mic_sensor;
+
 
 #endif //OPEN_EARABLE_PDM_MIC_SENSOR_H

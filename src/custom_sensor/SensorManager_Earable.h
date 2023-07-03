@@ -20,6 +20,7 @@ public:
 
         SensorManagerInterface::set_modules(modules);
         SensorManagerInterface::set_sensor_counts(SENSOR_COUNT+audio_disabled, MODULE_COUNT_PHYSICAL+audio_disabled);
+        SensorManagerInterface::set_special_sensors(SpecialSensors, SPECIAL_SENSOR_COUNT);
 
         SensorManagerInterface::set_sensor_configs(CONFIG);
     }
