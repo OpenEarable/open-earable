@@ -1,81 +1,69 @@
 #include "PDM_MIC_Sensor.h"
 
+int PDM_MIC_Sensor::_sampleRate = sampleRate_default;;
+bool PDM_MIC_Sensor::_send_serial = false;
+
 PDM_MIC_Sensor::PDM_MIC_Sensor() {
-    _sampleRate = sampleRate_default;
 }
 
 bool PDM_MIC_Sensor::init() {
     pdm_setup();
 
-    if (send_serial) return true;
+    if (_send_serial) return true;
     return sd_setup();
 }
 
 void PDM_MIC_Sensor::update() {
-    if (!stream) return;
+    if (!_stream) return;
 
     while (PDM2.available()) {
         uint8_t *read_pointer = PDM2.getReadPointer();
         int size = (int) PDM2.getBlockSize();
 
-        if (send_serial) {
+        if (_send_serial) {
             Serial.write(read_pointer, size);
         } else {
-            sdWriter->writeChunk(read_pointer, size);
+            _sdWriter->writeChunk(read_pointer, size);
         }
         PDM2.incrementReadPointer();
 
-        if (chunks_disabled) break;
+        if (_chunks_disabled) break;
     }
 }
 
 void PDM_MIC_Sensor::start() {
-    if (stream) {
+    if (_stream) {
         return;
     }
-    stream = true;
-    sdWriter->cleanFile();
-    sdWriter->writeHeader();
+    _stream = true;
+    _sdWriter->cleanFile();
+    _sdWriter->writeHeader();
     PDM2.clearBuffer();
     PDM2.start();
-    if (!send_serial) {
-        sdWriter->startRecording();
+    if (!_send_serial) {
+        _sdWriter->startRecording();
     }
 }
 
 void PDM_MIC_Sensor::end() {
-    if (!stream) {
+    if (!_stream) {
         return;
     }
-    stream = false;
+    _stream = false;
     PDM2.end();
-    if (!send_serial) {
-        sdWriter->endRecording();
+    if (!_send_serial) {
+        _sdWriter->endRecording();
     }
 }
 
 void PDM_MIC_Sensor::set_name(String name) {
-    sdWriter->setName(std::move(name));
-}
-
-void PDM_MIC_Sensor::get_float_data(float *floatArray, int sensorID) {
-    // not needed
-}
-
-void PDM_MIC_Sensor::get_int_data(int *intArray, int sensorID) {
-    // Get status
-    if (sensorID != PDM_MIC) return;
-
-    intArray[0] = 1; // 1 Values
-    intArray[1] = _active; // Recording
-}
-
-int PDM_MIC_Sensor::get_sensor_count() {
-    return sensor_count;
+    _sdWriter->setName(std::move(name));
 }
 
 void PDM_MIC_Sensor::setSampleRate(int sampleRate) {
     _sampleRate = sampleRate;
+    PDM2.setSampleRate(sampleRate);
+    _sdWriter->setSampleRate(sampleRate);
 }
 
 void PDM_MIC_Sensor::setGain(int gain) {
@@ -83,14 +71,10 @@ void PDM_MIC_Sensor::setGain(int gain) {
 }
 
 bool PDM_MIC_Sensor::sd_setup() {
-    sdWriter = new WAVWriter();
-    sdWriter->setName(name);
-    sdWriter->setSampleRate(_sampleRate);
-
-    if (!sdWriter->begin()) {
-        return false;
-    }
-    return true;
+    _sdWriter = new WAVWriter();
+    _sdWriter->setName(_name);
+    _sdWriter->setSampleRate(_sampleRate);
+    return _sdWriter->begin();
 }
 
 bool PDM_MIC_Sensor::pdm_setup() {
@@ -101,23 +85,19 @@ bool PDM_MIC_Sensor::pdm_setup() {
 }
 
 void PDM_MIC_Sensor::enable_serial_data() {
-    send_serial = true;
+    _send_serial = true;
 }
 
 void PDM_MIC_Sensor::disable_serial_data() {
-    send_serial = false;
+    _send_serial = false;
 }
 
 void PDM_MIC_Sensor::enable_chunks() {
-    chunks_disabled = false;
+    _chunks_disabled = false;
 }
 
 void PDM_MIC_Sensor::disable_chunks() {
-    chunks_disabled = true;
-}
-
-void PDM_MIC_Sensor::set_active(int active) {
-    _active = active;
+    _chunks_disabled = true;
 }
 
 void PDM_MIC_Sensor::config_callback(SensorConfigurationPacket *config) {
@@ -137,9 +117,8 @@ void PDM_MIC_Sensor::config_callback(SensorConfigurationPacket *config) {
     if (!PDM2.checkSampleRateValid(sample_rate)) {
         sample_rate = sampleRate_default;
     }
-    // Set sample rate in PDM2
-    _sampleRate = sample_rate;
-    PDM2.setSampleRate(_sampleRate);
+    // Set sample rate in PMD Sensor
+    pdm_mic_sensor.setSampleRate(sample_rate);
 
     // Make sure that pdm mic is not running already!
     pdm_mic_sensor.end();

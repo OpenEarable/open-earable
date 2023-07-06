@@ -4,7 +4,7 @@ CircularBlockBuffer::CircularBlockBuffer() :
         _blockCount(DEFAULT_CBB_TOTAL_COUNT),
         _blockSize(DEFAULT_CBB_BLOCK_SIZE)
 {
-    reset();
+    // reset();
 }
 
 CircularBlockBuffer::CircularBlockBuffer(int blockSize, int blockCount) {

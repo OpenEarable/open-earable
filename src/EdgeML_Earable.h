@@ -25,8 +25,14 @@ public:
         if (_data_logger) {
             _data_logger->begin();
         } else if (_audio_interface) {
-            _interface->init();
-            _interface->set_audio_interface(_audio_interface);
+            bool success = _audio_interface->init();
+            if (_debug) {
+                if (success) {
+                    _debug->println("SD Ready!");
+                } else {
+                    _debug->println("SD FAIL!");
+                }
+            }
         }
 
         _battery->begin();
@@ -41,7 +47,6 @@ public:
         edge_ml_generic.update();
 
         if (_audio_interface) {
-            _audio_interface->set_active(edge_ml_generic.get_active());
             _audio_interface->update();
         }
     };
@@ -102,6 +107,10 @@ public:
     void disable_chunks() {
         if (!_audio_interface) return;
         _audio_interface->disable_chunks();
+    };
+
+    void configure_sensor(SensorConfigurationPacket& config) {
+        edge_ml_generic.configure_sensor(config);
     };
 
 private:

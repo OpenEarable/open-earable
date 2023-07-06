@@ -10,27 +10,16 @@ public:
     void setup() override {
         IMU_Sensor * imu = new IMU_Sensor();
         BARO_Sensor * baro = new BARO_Sensor();
+        DummySensor * dummy = new DummySensor();
 
-        SensorInterface ** modules = new SensorInterface * [MODULE_COUNT_PHYSICAL] {imu, baro, _audio_interface};
-
-        int audio_disabled = 0;
-        if (!_audio_interface) {
-            audio_disabled = -1;
-        }
+        SensorInterface ** modules = new SensorInterface * [MODULE_COUNT_PHYSICAL] {imu, baro, dummy};
 
         SensorManagerInterface::set_modules(modules);
-        SensorManagerInterface::set_sensor_counts(SENSOR_COUNT+audio_disabled, MODULE_COUNT_PHYSICAL+audio_disabled);
+        SensorManagerInterface::set_sensor_counts(SENSOR_COUNT, MODULE_COUNT_PHYSICAL);
         SensorManagerInterface::set_special_sensors(SpecialSensors, SPECIAL_SENSOR_COUNT);
 
         SensorManagerInterface::set_sensor_configs(CONFIG);
     }
-
-    void set_audio_interface(SensorInterface * interface) {
-        _audio_interface = interface;
-    }
-
-private:
-    SensorInterface * _audio_interface = nullptr;
 };
 
 

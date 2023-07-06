@@ -27,6 +27,8 @@ public:
     PDMClass2();
     virtual ~PDMClass2();
 
+    void init(); // Optional
+
     int start(bool high=false);
     int start(int channels, int sampleRate, bool high=false);
 
@@ -70,7 +72,7 @@ private:
     int _clkPin = 28;
 
     int _channels = 1;
-    int _samplerate = 16000;
+    int _sampleRate = 16000;
 
     int _gain = 20;
 

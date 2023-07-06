@@ -18,7 +18,7 @@ enum SensorID {
 };
 
 const int SpecialSensors[SPECIAL_SENSOR_COUNT] = {
-        PDM_MIC;
+        PDM_MIC
 };
 
 // In correct order ID ascending

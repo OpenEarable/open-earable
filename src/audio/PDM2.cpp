@@ -21,6 +21,10 @@ PDMClass2::PDMClass2() {
 PDMClass2::~PDMClass2() {
 }
 
+void PDMClass2::init() {
+    _blockBuffer.reset();
+}
+
 int PDMClass2::start(bool high) {
     // Enable high frequency oscillator if not already enabled
     if (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) {
@@ -29,7 +33,7 @@ int PDMClass2::start(bool high) {
     }
 
     // configure the sample rate and channels
-    switch (_samplerate) {
+    switch (_sampleRate) {
         case 16000:
             NRF_PDM->RATIO = ((PDM_RATIO_RATIO_Ratio80 << PDM_RATIO_RATIO_Pos) & PDM_RATIO_RATIO_Msk);
             nrf_pdm_clock_set(NRF_PDM_FREQ_1280K);
@@ -129,7 +133,7 @@ int PDMClass2::start(bool high) {
 
 int PDMClass2::start(int channels, int sampleRate, bool high) {
     _channels = channels;
-    _samplerate = sampleRate;
+    _sampleRate = sampleRate;
 
     return start(high);
 }
@@ -182,7 +186,7 @@ void PDMClass2::setChannels(int channels) {
 }
 
 void PDMClass2::setSampleRate(int sampleRate) {
-    _samplerate = sampleRate;
+    _sampleRate = sampleRate;
 }
 
 void PDMClass2::setGain(int gain) {
