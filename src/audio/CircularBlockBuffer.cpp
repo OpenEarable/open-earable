@@ -161,7 +161,7 @@ bool CircularBlockBuffer::check_collision_error() const {
 }
 
 bool CircularBlockBuffer::check_collision() const {
-    return _collision;
+    return _writeBlockNext == _readBlock;
 }
 
 void CircularBlockBuffer::_collision_test() {
