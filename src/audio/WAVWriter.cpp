@@ -44,19 +44,19 @@ bool WAVWriter::writeHeader() {
     uint32_t chunkSize = 36;
 
     wavFile.seekSet(0);
-    wavFile.write(_chunkID,4);
-    wavFile.write((byte*)&chunkSize,4);
-    wavFile.write(_format,4);
-    wavFile.write(_subChunk1ID,4);
-    wavFile.write((byte*)&_subChunk1Size,4);
-    wavFile.write((byte*)&_audioFormat,2);
-    wavFile.write((byte*)&_channels,2);
-    wavFile.write((byte*)&_sampleRate,4);
-    wavFile.write((byte*)&_byteRate,4);
-    wavFile.write((byte*)&_blockAlign,2);
-    wavFile.write((byte*)&_bitsPerSample,2);
-    wavFile.write(_subChunk2ID,4);
-    wavFile.write((byte*)&subChunk2Size,4);
+    wavFile.write(_chunkID,4);                  // Offset 0
+    wavFile.write((byte*)&chunkSize,4);         // Offset 4
+    wavFile.write(_format,4);                   // Offset 8
+    wavFile.write(_subChunk1ID,4);              // Offset 12
+    wavFile.write((byte*)&_subChunk1Size,4);    // Offset 16
+    wavFile.write((byte*)&_audioFormat,2);      // Offset 20
+    wavFile.write((byte*)&_channels,2);         // Offset 22
+    wavFile.write((byte*)&_sampleRate,4);       // Offset 24
+    wavFile.write((byte*)&_byteRate,4);         // Offset 28
+    wavFile.write((byte*)&_blockAlign,2);       // Offset 32
+    wavFile.write((byte*)&_bitsPerSample,2);    // Offset 34
+    wavFile.write(_subChunk2ID,4);              // Offset 36
+    wavFile.write((byte*)&subChunk2Size,4);     // Offset 40
 
     closeFile();
     return true;
