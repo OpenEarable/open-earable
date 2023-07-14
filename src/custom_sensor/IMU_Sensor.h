@@ -26,11 +26,6 @@ public:
 private:
     bool available = false;
 
-    int max_age = 5;
-    unsigned long _last = 0;
-
-    bool has_data[sensor_count];
-
     DFRobot_BMX160 * IMU;
 
     sBmx160SensorData_t accel_data;
@@ -38,8 +33,6 @@ private:
     sBmx160SensorData_t magno_data;
 
     void get_all();
-    void reset_has_data();
-    void age_check();
 };
 
 

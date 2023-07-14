@@ -5,7 +5,7 @@
 #include <custom_sensor/SensorManager_Earable.h>
 #include <battery_service/Battery_Service.h>
 
-#include <audio/PDM_MIC_Sensor.h>
+#include <audio_pdm//PDM_MIC_Sensor.h>
 #include <sd_logger/SD_Logger.h>
 
 #include <utility>
@@ -15,6 +15,13 @@
  Rarely up to 2ms
  */
 
+bool _data_logger_flag = false;
+bool _recorder_flag = false;
+bool _player_flag = false;
+
+void data_callback(int id, unsigned int timestamp, uint8_t * data, int size);
+void config_callback(SensorConfigurationPacket *config);
+
 class EdgeML_Earable {
 public:
     EdgeML_Earable() = default;
@@ -22,6 +29,9 @@ public:
     void begin() {
         _interface = new SensorManager_Earable();
         _battery = new Battery_Service();
+
+        edge_ml_generic.set_config_callback(config_callback);
+        edge_ml_generic.set_data_callback(data_callback);
 
         if (_debug) {
             _battery->debug(*_debug);
@@ -80,10 +90,10 @@ public:
     };
 
     // SD LOGGING
-    // warning sd logging and audio are exlusive!
+    // warning sd logging and audio_pdm are exlusive!
     void enable_sd_logging() {
         _data_logger = new SD_Logger();
-        edge_ml_generic.set_data_callback(SD_Logger::data_callback);
+        _data_logger_flag = true;
     }
 
     void set_logger_file_name(String name) {
@@ -94,7 +104,7 @@ public:
     // AUDIO RECORDING
     void enable_audio() {
         _audio_interface = &pdm_mic_sensor;
-        edge_ml_generic.set_config_callback(PDM_MIC_Sensor::config_callback);
+        _recorder_flag = true;
     }
 
     void set_audio_file_name(String name) {
@@ -136,6 +146,10 @@ public:
         edge_ml_generic.configure_sensor(config);
     };
 
+    String parse_to_string(int sensorID, byte * data) {
+        return edge_ml_generic.parse_to_string(sensorID, data);
+    }
+
 private:
     SensorManager_Earable * _interface{};
     Battery_Service * _battery{};
@@ -146,5 +160,23 @@ private:
 };
 
 EdgeML_Earable edge_ml_earable;
+
+void data_callback(int id, unsigned int timestamp, uint8_t * data, int size) {
+    if (_data_logger_flag) {
+        String data_string = edge_ml_earable.parse_to_string(id, data);
+        SD_Logger::data_callback(id, timestamp, data_string);
+    }
+}
+
+void config_callback(SensorConfigurationPacket *config) {
+    if (_recorder_flag) {
+        PDM_MIC_Sensor::config_callback(config);
+    }
+    if (_player_flag) {
+
+    }
+}
+
+
 
 #endif //EDGE_ML_EARABLE_EDGEML_EARABLE_H

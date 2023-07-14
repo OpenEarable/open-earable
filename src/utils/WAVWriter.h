@@ -1,17 +1,10 @@
 #ifndef TEST_WAVWRITER_H
 #define TEST_WAVWRITER_H
 
-#include <stddef.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "Arduino.h"
 
-#include "SdFat.h"
+#include "utils/SDManager.h"
 
-#define SPI_SPEED SD_SCK_MHZ(50)
-#define SPI_CC 27
 
 class WAVWriter {
 public:
@@ -34,12 +27,9 @@ public:
     bool endRecording();
 
 private:
-    SdExFat * sd;
-    ExFatFile wavFile;
+    ExFatFile file;
 
-    bool _is_open = false;
-
-    String _name = "Test.wav";
+    String _name = "Recording.wav";
 
     // Wav Header def
     char _chunkID[4] = {'R', 'I', 'F', 'F'};
@@ -63,11 +53,7 @@ private:
     uint32_t _subChunk2Size = 0;
     uint32_t _chunkSize = 36;
 
-    void openFile();
-    void closeFile();
-
-
-    bool writeHeaderSizes(bool close = false);
+    bool writeHeaderSizes();
 };
 
 

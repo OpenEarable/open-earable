@@ -3,80 +3,74 @@
 
 #include "EdgeML_Custom.h"
 
-const int SENSOR_COUNT = 6;
+const int SENSOR_COUNT = 5;
 const int MODULE_COUNT_PHYSICAL = 3;
-const int SPECIAL_SENSOR_COUNT = 1;
+const int SPECIAL_SENSOR_COUNT = 3;
 
 // In correct order ID ascending
 enum SensorID {
-    IMU_ACCELERATION,
-    IMU_GYROSCOPE,
-    BARO_PRESSURE,
+    ACC_GYRO_MAG,
     BARO_TEMP,
-    IMU_MAGNETOMETER,
-    PDM_MIC
+    PDM_MIC,
+    PLAYER,
+    CONFIGURATION
 };
 
 const int SpecialSensors[SPECIAL_SENSOR_COUNT] = {
-        PDM_MIC
+        PDM_MIC,
+        PLAYER,
+        CONFIGURATION
 };
 
 // In correct order ID ascending
 enum ModuleID {
     MODULE_IMU,
     MODULE_BARO,
-    MODULE_PDM_MIC
+    MODULE_DUMMY
 };
 
 const SensorConfig CONFIG[SENSOR_COUNT] = {
         {
-            "ACC",
-            IMU_ACCELERATION,
+            "ACC_GYRO_MAG",
+            ACC_GYRO_MAG,
             MODULE_IMU,
-            1,
+            3,
             SCHEME_XYZ,
             PARSE_TYPE_FLOAT
         },
         {
-            "GYRO",
-            IMU_GYROSCOPE,
-            MODULE_IMU,
-            1,
-            SCHEME_XYZ,
-            PARSE_TYPE_FLOAT
-        },
-        {
-            "MAG",
-            IMU_MAGNETOMETER,
-            MODULE_IMU,
-            1,
-            SCHEME_XYZ,
-            PARSE_TYPE_FLOAT
-        },
-        {
-            "PRESSURE",
-            BARO_PRESSURE,
-            MODULE_BARO,
-            1,
-            SCHEME_VAL,
-            PARSE_TYPE_FLOAT
-        },
-        {
-            "TEMPERATURE",
+            "PRESSURE_TEMP",
             BARO_TEMP,
             MODULE_BARO,
-            1,
+            2,
             SCHEME_VAL,
             PARSE_TYPE_FLOAT
         },
         {
             "PDM MIC",
             PDM_MIC,
-            MODULE_PDM_MIC,
-            1,
+            MODULE_DUMMY,
+            0,
             SCHEME_VAL,
-            PARSE_TYPE_INT16
-        }
+            PARSE_TYPE_INT8
+        },
+        {
+            "PLAYER",
+            PLAYER,
+            MODULE_DUMMY,
+            0,
+            SCHEME_VAL,
+            PARSE_TYPE_INT8
+        },
+        {
+            "Configuration",
+            CONFIGURATION,
+            MODULE_DUMMY,
+            0,
+            SCHEME_VAL,
+            PARSE_TYPE_INT8
+        },
+
 };
 
 #endif //EDGE_ML_EARABLE_SENSORID_EARABLE_H

@@ -33,18 +33,18 @@ void BARO_Sensor::end() {
 
 void BARO_Sensor::get_data(int sensorID, byte *data) {
     float val;
-    switch (sensorID) {
-        case BARO_PRESSURE:
-            get_pressure(val);
-            break;
-        case BARO_TEMP:
-            get_temperature(val);
-            break;
-        default:
-            break;
+
+    if (sensorID != BARO_TEMP) {
+        memset(data, 0, 8);
+        return;
     }
+
     float * floatArray = (float*)data;
+    get_pressure(val);
     floatArray[0] = val;
+
+    get_temperature(val);
+    floatArray[1] = val;
 }
 
 int BARO_Sensor::get_sensor_count() {

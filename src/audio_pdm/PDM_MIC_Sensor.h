@@ -3,7 +3,7 @@
 
 #include <custom_sensor/SensorID_Earable.h>
 
-#include "WAVWriter.h"
+#include "utils/WAVWriter.h"
 #include "PDM2.h"
 
 const int sampleRate_default = 41667;  // 16000 Hz / 41667 Hz / 62500 Hz  // Default
@@ -35,7 +35,7 @@ private:
     static bool _send_serial;
 
     bool _stream = false;
-    bool _chunks_disabled = false;
+    bool _chunks_enabled = false;
 
     const int _blockSize = 4096;
     int _blockCount = 5;
@@ -44,7 +44,7 @@ private:
 
     String _name = "Recording.wav";
 
-    WAVWriter * _sdWriter;
+    WAVWriter * _wavWriter;
 
     bool sd_setup();
     bool pdm_setup();

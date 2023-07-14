@@ -14,8 +14,6 @@ void IMU_Sensor::start() {
     if (IMU->begin()) {
         available = true;
     }
-
-    reset_has_data();
 }
 
 void IMU_Sensor::end() {
@@ -24,43 +22,45 @@ void IMU_Sensor::end() {
     }
     IMU->softReset();
     available = false;
-
-    reset_has_data();
 }
 
 void IMU_Sensor::get_data(int sensorID, byte *data) {
     float x, y, z;
-    switch (sensorID) {
-        case IMU_ACCELERATION:
-            get_acc(x,y,z);
-            break;
-        case IMU_GYROSCOPE:
-            get_gyro(x,y,z);
-            break;
-        case IMU_MAGNETOMETER:
-            get_mag(x,y,z);
-            break;
-        default:
-            break;
+
+    if (sensorID != ACC_GYRO_MAG) {
+        memset(data, 0, 36);
+        return;
     }
+
+    get_all();
+
+    int index = 0;
     float * floatArray = (float*)data;
-    floatArray[0] = x;
-    floatArray[1] = y;
-    floatArray[2] = z;
+
+    get_acc(x,y,z);
+    floatArray[0+index] = x;
+    floatArray[1+index] = y;
+    floatArray[2+index] = z;
+
+    index += 3;
+
+    get_gyro(x,y,z);
+    floatArray[0+index] = x;
+    floatArray[1+index] = y;
+    floatArray[2+index] = z;
+
+    index += 3;
+
+    get_mag(x,y,z);
+    floatArray[0+index] = x;
+    floatArray[1+index] = y;
+    floatArray[2+index] = z;
 }
 
 void IMU_Sensor::get_acc(float &x, float &y, float &z) {
     if (!available) {
         return;
     }
-
-    age_check();
-
-    const int index = 1;
-    if (!has_data[index]) {
-        get_all();
-    }
-    has_data[index] = false;
 
     x = (float) accel_data.x;
     y = (float) accel_data.y;
@@ -72,14 +72,6 @@ void IMU_Sensor::get_gyro(float &x, float &y, float &z) {
         return;
     }
 
-    age_check();
-
-    const int index = 2;
-    if (!has_data[index]) {
-        get_all();
-    }
-    has_data[index] = false;
-
     x = (float) gyro_data.x;
     y = (float) gyro_data.y;
     z = (float) gyro_data.z;
@@ -89,14 +81,6 @@ void IMU_Sensor::get_mag(float &x, float &y, float &z) {
     if (!available) {
         return;
     }
-
-    age_check();
-
-    const int index = 3;
-    if (!has_data[index]) {
-        get_all();
-    }
-    has_data[index] = false;
 
     x = (float) magno_data.x;
     y = (float) magno_data.y;
@@ -108,22 +92,8 @@ int IMU_Sensor::get_sensor_count() {
 }
 
 void IMU_Sensor::get_all() {
+    if (!available) {
+        return;
+    }
     IMU->getAllData(&magno_data, &gyro_data, &accel_data);
-
-    for (bool & i : has_data) {
-        i = true;
-    }
-}
-
-void IMU_Sensor::reset_has_data() {
-    for (bool & i : has_data) {
-        i = false;
-    }
-}
-
-void IMU_Sensor::age_check() {
-    if (millis() - _last >= max_age) {
-        get_all();
-        _last = millis();
-    }
 }

@@ -23,11 +23,11 @@ void PDM_MIC_Sensor::update() {
         if (_send_serial) {
             Serial.write(read_pointer, size);
         } else {
-            _sdWriter->writeChunk(read_pointer, size);
+            _wavWriter->writeChunk(read_pointer, size);
         }
         PDM2.incrementReadPointer();
 
-        if (_chunks_disabled) break;
+        if (!_chunks_enabled) break;
     }
 }
 
@@ -36,12 +36,12 @@ void PDM_MIC_Sensor::start() {
         return;
     }
     _stream = true;
-    _sdWriter->cleanFile();
-    _sdWriter->writeHeader();
+    _wavWriter->cleanFile();
+    _wavWriter->writeHeader();
     PDM2.clearBuffer();
     PDM2.start();
     if (!_send_serial) {
-        _sdWriter->startRecording();
+        _wavWriter->startRecording();
     }
 }
 
@@ -52,18 +52,18 @@ void PDM_MIC_Sensor::end() {
     _stream = false;
     PDM2.end();
     if (!_send_serial) {
-        _sdWriter->endRecording();
+        _wavWriter->endRecording();
     }
 }
 
 void PDM_MIC_Sensor::set_name(String name) {
-    _sdWriter->setName(std::move(name));
+    _wavWriter->setName(std::move(name));
 }
 
 void PDM_MIC_Sensor::setSampleRate(int sampleRate) {
     _sampleRate = sampleRate;
     PDM2.setSampleRate(sampleRate);
-    _sdWriter->setSampleRate(sampleRate);
+    _wavWriter->setSampleRate(sampleRate);
 }
 
 void PDM_MIC_Sensor::setGain(int gain) {
@@ -71,10 +71,10 @@ void PDM_MIC_Sensor::setGain(int gain) {
 }
 
 bool PDM_MIC_Sensor::sd_setup() {
-    _sdWriter = new WAVWriter();
-    _sdWriter->setName(_name);
-    _sdWriter->setSampleRate(_sampleRate);
-    return _sdWriter->begin();
+    _wavWriter = new WAVWriter();
+    _wavWriter->setName(_name);
+    _wavWriter->setSampleRate(_sampleRate);
+    return _wavWriter->begin();
 }
 
 bool PDM_MIC_Sensor::pdm_setup() {
@@ -93,11 +93,11 @@ void PDM_MIC_Sensor::disable_serial_data() {
 }
 
 void PDM_MIC_Sensor::enable_chunks() {
-    _chunks_disabled = false;
+    _chunks_enabled = true;
 }
 
 void PDM_MIC_Sensor::disable_chunks() {
-    _chunks_disabled = true;
+    _chunks_enabled = false;
 }
 
 void PDM_MIC_Sensor::config_callback(SensorConfigurationPacket *config) {
