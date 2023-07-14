@@ -14,8 +14,7 @@ public:
     void start() override;
     void end() override;
 
-    void get_float_data(float floatArray[], int sensorID) override;
-    void get_int_data(int intArray[], int sensorID) override;
+    void get_data(int ID, byte * data) override;
 
     int get_sensor_count() override;
 

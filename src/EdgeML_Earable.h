@@ -10,6 +10,11 @@
 
 #include <utility>
 
+/*
+ Typical Loop: 0ms
+ Rarely up to 2ms
+ */
+
 class EdgeML_Earable {
 public:
     EdgeML_Earable() = default;
@@ -43,12 +48,30 @@ public:
     };
 
     void update() {
+        unsigned int T1, T2, T3, T4;
+        unsigned int DT1, DT2, DT3, DTT;
+
+        T1 = millis();
+
         _battery->update();
+        T2 = millis();
         edge_ml_generic.update();
+        T3 = millis();
 
         if (_audio_interface) {
             _audio_interface->update();
         }
+
+        T4 = millis();
+
+        DTT = T4 - T1;
+        DT1 = T2 - T1;
+        DT2 = T3 - T2;
+        DT3 = T4 - T3;
+        int limit = 3;
+        if (DTT <= limit) return;
+
+        Serial.println("T: " + String(DTT) + "   D1: " + String(DT1) +"   D2: " + String(DT2) +"   D3: " + String(DT3));
     };
 
     void debug(Stream &stream) {

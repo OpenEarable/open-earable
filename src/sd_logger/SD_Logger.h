@@ -13,7 +13,7 @@ public:
 
     static void set_name(String name);
 
-    static void data_callback(int, unsigned int, uint8_t*, ReturnType);
+    static void data_callback(int, unsigned int, uint8_t*, int);
 private:
     static FileWriter * writer;
     static int _index;

@@ -33,7 +33,7 @@ const SensorConfig CONFIG[SENSOR_COUNT] = {
             "ACC",
             IMU_ACCELERATION,
             MODULE_IMU,
-            R_TYPE_FLOAT,
+            1,
             SCHEME_XYZ,
             PARSE_TYPE_FLOAT
         },
@@ -41,7 +41,7 @@ const SensorConfig CONFIG[SENSOR_COUNT] = {
             "GYRO",
             IMU_GYROSCOPE,
             MODULE_IMU,
-            R_TYPE_FLOAT,
+            1,
             SCHEME_XYZ,
             PARSE_TYPE_FLOAT
         },
@@ -49,7 +49,7 @@ const SensorConfig CONFIG[SENSOR_COUNT] = {
             "MAG",
             IMU_MAGNETOMETER,
             MODULE_IMU,
-            R_TYPE_FLOAT,
+            1,
             SCHEME_XYZ,
             PARSE_TYPE_FLOAT
         },
@@ -57,7 +57,7 @@ const SensorConfig CONFIG[SENSOR_COUNT] = {
             "PRESSURE",
             BARO_PRESSURE,
             MODULE_BARO,
-            R_TYPE_FLOAT,
+            1,
             SCHEME_VAL,
             PARSE_TYPE_FLOAT
         },
@@ -65,7 +65,7 @@ const SensorConfig CONFIG[SENSOR_COUNT] = {
             "TEMPERATURE",
             BARO_TEMP,
             MODULE_BARO,
-            R_TYPE_FLOAT,
+            1,
             SCHEME_VAL,
             PARSE_TYPE_FLOAT
         },
@@ -73,7 +73,7 @@ const SensorConfig CONFIG[SENSOR_COUNT] = {
             "PDM MIC",
             PDM_MIC,
             MODULE_PDM_MIC,
-            R_TYPE_INT,
+            1,
             SCHEME_VAL,
             PARSE_TYPE_INT16
         }

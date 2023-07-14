@@ -24,16 +24,18 @@ void SD_Logger::set_name(String name) {
     writer->setName(std::move(name));
 }
 
-void SD_Logger::data_callback(int id, unsigned int timestamp, uint8_t * data, ReturnType r_type) {
+void SD_Logger::data_callback(int id, unsigned int timestamp, uint8_t * data, int size) {
     if (id == -1) return dump_to_sd();
+
+    return;
 
     String text = String(id);
 
     text += ", " + String(timestamp);
 
-    if (r_type == R_TYPE_FLOAT) {
+    if (false) {
         text += convert_float((float*)data);
-    } else if (r_type == R_TYPE_INT) {
+    } else if (false) {
         text += convert_int((int*)data);
     }
     text += "\r\n";

@@ -28,7 +28,7 @@ void IMU_Sensor::end() {
     reset_has_data();
 }
 
-void IMU_Sensor::get_float_data(float *floatArray, int sensorID) {
+void IMU_Sensor::get_data(int sensorID, byte *data) {
     float x, y, z;
     switch (sensorID) {
         case IMU_ACCELERATION:
@@ -43,15 +43,10 @@ void IMU_Sensor::get_float_data(float *floatArray, int sensorID) {
         default:
             break;
     }
-
-    floatArray[0] = 3; // 3 Values
-    floatArray[1] = x;
-    floatArray[2] = y;
-    floatArray[3] = z;
-}
-
-void IMU_Sensor::get_int_data(int *intArray, int sensorID) {
-    // Not implemented since no int data
+    float * floatArray = (float*)data;
+    floatArray[0] = x;
+    floatArray[1] = y;
+    floatArray[2] = z;
 }
 
 void IMU_Sensor::get_acc(float &x, float &y, float &z) {
