@@ -25,7 +25,7 @@ public:
     unsigned int write_block_at(unsigned int offset, uint8_t *block, int size);
     unsigned int write_block(uint8_t *block, int size);
 
-    unsigned int readBlock_at(unsigned int offset, uint8_t *block, int size);
+    unsigned int read_block_at(unsigned int offset, uint8_t *block, int size);
     unsigned int read_block(uint8_t *block, int size);
 private:
     ExFatFile file;

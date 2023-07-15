@@ -22,8 +22,8 @@ public:
     unsigned int write_block_at(ExFatFile * file, int offset, uint8_t *block, int size);
     unsigned int write_block(ExFatFile * file, uint8_t *block, int size);
 
-    unsigned int readBlock_at(ExFatFile *file, int offset, uint8_t *block, int size);
-    unsigned int readBlock(ExFatFile *file, uint8_t *block, int size);
+    unsigned int read_block_at(ExFatFile *file, int offset, uint8_t *block, int size);
+    unsigned int read_block(ExFatFile *file, uint8_t *block, int size);
 
 private:
     bool ready = false;

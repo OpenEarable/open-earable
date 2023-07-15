@@ -2,6 +2,10 @@
 
 void i2s_irq_handler(void);
 
+sampling_mode file_mode = {NRF_I2S_MCK_32MDIV23, NRF_I2S_RATIO_32X};
+sampling_mode const_freq = {NRF_I2S_MCK_32MDIV3, NRF_I2S_RATIO_256X};
+
+
 I2S_Player::I2S_Player() {
 
 }
@@ -17,7 +21,6 @@ void I2S_Player::init() {
 void I2S_Player::setBlockBufferSizes(int blockSize, int blockCount) {
     _blockBuffer.setSizes(blockSize, blockCount);
 }
-
 
 void I2S_Player::config() {
     //initializing i2s pins
@@ -144,6 +147,10 @@ void I2S_Player::i2s_interrupt() {
 
 bool I2S_Player::get_turn_off() {
     return _turn_off_flag;
+}
+
+bool I2S_Player::get_end() {
+    return _end_flag;
 }
 
 void i2s_irq_handler(void) {

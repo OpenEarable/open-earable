@@ -26,7 +26,7 @@ bool Audio_Player::sd_setup() {
 }
 
 void Audio_Player::update() {
-    if (i2s_player.get_turn_off()) return;
+    if (!_stream) return;
     if (!i2s_player.available()) return;
 
     unsigned int read = sd_to_buffer();
@@ -42,16 +42,20 @@ void Audio_Player::start() {
     _stream = true;
 
     i2s_player.clear_buffer();
-    i2s_player.config();
 
     _fileWriter->openFile();
     _cur_read_sd = _default_offset;
     preload_buffer();
 
+    i2s_player.config();
+
     play();
 }
 
 void Audio_Player::end() {
+    if (!_stream) {
+        return;
+    }
     _stream = false;
     stop();
     i2s_player.end();
@@ -82,7 +86,7 @@ void Audio_Player::preload_buffer() {
 unsigned int Audio_Player::sd_to_buffer() {
     uint8_t * ptr = i2s_player.getWritePointer();
 
-    unsigned int read = _fileWriter->write_block_at(_cur_read_sd, ptr, _blockSize);
+    unsigned int read = _fileWriter->read_block_at(_cur_read_sd, ptr, _blockSize);
     _cur_read_sd += read;
 
     if (read != 0) {
@@ -95,7 +99,7 @@ unsigned int Audio_Player::get_sample_rate() {
     _fileWriter->openFile();
     if (!_fileWriter->isOpen()) return 0;
     unsigned int rate;
-    _fileWriter->readBlock_at(24, (uint8_t*)&rate, 4);
+    _fileWriter->read_block_at(24, (uint8_t *) &rate, 4);
     return rate;
 }
 

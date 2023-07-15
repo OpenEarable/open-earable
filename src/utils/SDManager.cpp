@@ -50,13 +50,13 @@ unsigned int SDManager::write_block(ExFatFile *file, uint8_t *block, int size) {
     return file->write(block, size);
 }
 
-unsigned int SDManager::readBlock_at(ExFatFile *file, int offset, uint8_t *block, int size) {
+unsigned int SDManager::read_block_at(ExFatFile *file, int offset, uint8_t *block, int size) {
     _lastFile = file;
     file->seekSet(offset);
     return file->read(block, size);
 }
 
-unsigned int SDManager::readBlock(ExFatFile *file, uint8_t *block, int size) {
+unsigned int SDManager::read_block(ExFatFile *file, uint8_t *block, int size) {
     _lastFile = file;
     return file->read(block, size);
 }

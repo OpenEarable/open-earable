@@ -1,12 +1,14 @@
 #ifndef OPEN_EARABLE_I2S_PLAYER_H
 #define OPEN_EARABLE_I2S_PLAYER_H
 
-#include <nrf_i2s.h>
-#include "utils/CircularBlockBuffer.h"
+#include <Arduino.h>
 
 #ifndef analogPinToPinName
 #include <pinDefinitions.h>
 #endif
+
+#include <nrf_i2s.h>
+#include "utils/CircularBlockBuffer.h"
 
 #define NC 0xFFFFFFFF   //Not connected
 #define WORD_SIZE 4     // 1 word = 4 bytes
@@ -16,8 +18,8 @@ struct sampling_mode {
     nrf_i2s_ratio_t nrf_i2s_ratio;
 };
 
-sampling_mode file_mode = {NRF_I2S_MCK_32MDIV23, NRF_I2S_RATIO_32X};
-sampling_mode const_freq = {NRF_I2S_MCK_32MDIV3, NRF_I2S_RATIO_256X};
+extern sampling_mode file_mode;
+extern sampling_mode const_freq;
 
 class I2S_Player {
 public:
@@ -37,6 +39,7 @@ public:
     void completed();
 
     bool get_turn_off();
+    bool get_end();
 
     bool available();
     uint8_t * getWritePointer();
@@ -61,6 +64,8 @@ private:
 
     bool _end_flag = false;         // End of playback, buffer is empty
     bool _turn_off_flag = false;    // Request end, will play rest of buffer
+
+    int count = 0;
 };
 
 extern I2S_Player i2s_player;

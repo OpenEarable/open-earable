@@ -32,12 +32,12 @@ unsigned int FileWriter::write_block(uint8_t *block, int size) {
     return sd_manager.write_block(&file, block, size);
 }
 
-unsigned int FileWriter::readBlock_at(unsigned int offset, uint8_t *block, int size) {
-    return sd_manager.write_block_at(&file, offset, block, size);
+unsigned int FileWriter::read_block_at(unsigned int offset, uint8_t *block, int size) {
+    return sd_manager.read_block_at(&file, offset, block, size);
 }
 
 unsigned int FileWriter::read_block(uint8_t *block, int size) {
-    return sd_manager.readBlock(&file, block, size);
+    return sd_manager.read_block(&file, block, size);
 }
 
 bool FileWriter::openFile() {
