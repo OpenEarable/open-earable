@@ -26,11 +26,13 @@ public:
     I2S_Player();
     ~I2S_Player();
 
-    void init(); // Optional
     void setBlockBufferSizes(int blockSize, int blockCount);
-    void config();
-    void set_mode(bool play_file);
 
+
+    void set_mode_file(bool play_file);
+    bool get_mode_file();
+
+    void start();
     void end();
 
     void play();
@@ -40,6 +42,7 @@ public:
 
     bool get_turn_off();
     bool get_end();
+    bool get_completed();
 
     bool available();
     uint8_t * getWritePointer();
@@ -64,6 +67,7 @@ private:
 
     bool _end_flag = false;         // End of playback, buffer is empty
     bool _turn_off_flag = false;    // Request end, will play rest of buffer
+    bool _completed_flag = false;
 
     int count = 0;
 };

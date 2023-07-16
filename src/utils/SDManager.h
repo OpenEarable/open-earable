@@ -14,7 +14,7 @@ public:
     bool begin();
     void end();
 
-    ExFatFile openFile(const String& name);
+    ExFatFile openFile(const String& name, bool write=true);
     void closeFile(ExFatFile * file);
 
     void remove(const String& name);

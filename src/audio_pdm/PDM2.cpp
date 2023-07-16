@@ -21,10 +21,6 @@ PDMClass2::PDMClass2() {
 PDMClass2::~PDMClass2() {
 }
 
-void PDMClass2::init() {
-    _blockBuffer.reset();
-}
-
 int PDMClass2::start(bool high) {
     // Enable high frequency oscillator if not already enabled
     if (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) {

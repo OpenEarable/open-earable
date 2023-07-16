@@ -22,11 +22,13 @@ void Audio_Player::i2s_setup() {
 bool Audio_Player::sd_setup() {
     _fileWriter = new FileWriter();
     _fileWriter->setName(_name);
+    _fileWriter->setWriting(false);
     return _fileWriter->begin();
 }
 
 void Audio_Player::update() {
     if (!_stream) return;
+    if (check_completed()) return;
     if (!i2s_player.available()) return;
 
     unsigned int read = sd_to_buffer();
@@ -47,7 +49,7 @@ void Audio_Player::start() {
     _cur_read_sd = _default_offset;
     preload_buffer();
 
-    i2s_player.config();
+    i2s_player.start();
 
     play();
 }
@@ -95,6 +97,15 @@ unsigned int Audio_Player::sd_to_buffer() {
     return read;
 }
 
+bool Audio_Player::check_completed() {
+    if (i2s_player.get_completed() && i2s_player.get_end()) {
+        end();
+        return true;
+    }
+    return false;
+}
+
+
 unsigned int Audio_Player::get_sample_rate() {
     _fileWriter->openFile();
     if (!_fileWriter->isOpen()) return 0;
@@ -107,6 +118,33 @@ unsigned int Audio_Player::get_size() {
     _fileWriter->openFile();
     if (!_fileWriter->isOpen()) return 0;
     return _fileWriter->get_size();
+}
+
+void Audio_Player::pre_open_file() {
+    _fileWriter->openFile();
+}
+
+void Audio_Player::config_callback(SensorConfigurationPacket *config) {
+    // Check for PLAYER ID
+    if (config->sensorId != PLAYER) return;
+
+    // Get tone frequency
+    int tone = int(config->sampleRate);
+
+    audio_player.end();
+
+    // End playback if sample tone is 0
+    if (tone == 0) {
+        return;
+    }
+
+    // tone == 1 => Play file
+    if (tone == 1) {
+        audio_player.start();
+    } else {
+        // Logic for tone
+        // TO DO!
+    }
 }
 
 Audio_Player audio_player;

@@ -26,16 +26,18 @@ public:
 
     void set_name(String name);
 
-private:
-    bool play_mode_file = true;
+    void pre_open_file();
 
+    static void config_callback(SensorConfigurationPacket * config);
+
+private:
     bool _stream = false;
 
     int _default_offset = 44;
     unsigned int _cur_read_sd = _default_offset;
 
     const int _blockSize = 4096;
-    int _blockCount = 5;
+    int _blockCount = 8;
 
     String _name = "Play.wav";
 
@@ -46,6 +48,8 @@ private:
 
     void preload_buffer();
     unsigned int sd_to_buffer();
+
+    bool check_completed();
 };
 
 extern Audio_Player audio_player;

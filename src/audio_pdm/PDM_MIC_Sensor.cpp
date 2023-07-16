@@ -100,6 +100,10 @@ void PDM_MIC_Sensor::disable_chunks() {
     _chunks_enabled = false;
 }
 
+void PDM_MIC_Sensor::pre_open_file() {
+    _wavWriter->pre_open_file();
+}
+
 void PDM_MIC_Sensor::config_callback(SensorConfigurationPacket *config) {
     // Check for PDM MIC ID
     if (config->sensorId != PDM_MIC) return;

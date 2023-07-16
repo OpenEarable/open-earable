@@ -26,8 +26,8 @@ void SDManager::end() {
     sd->end();
 }
 
-ExFatFile SDManager::openFile(const String& name) {
-    return sd->open(name, FILE_WRITE);
+ExFatFile SDManager::openFile(const String& name, bool write) {
+    return write ? sd->open(name, FILE_WRITE) : sd->open(name, FILE_READ);
 }
 
 void SDManager::closeFile(ExFatFile *file) {
@@ -60,7 +60,6 @@ unsigned int SDManager::read_block(ExFatFile *file, uint8_t *block, int size) {
     _lastFile = file;
     return file->read(block, size);
 }
-
 
 
 SDManager sd_manager;

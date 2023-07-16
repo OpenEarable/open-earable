@@ -17,6 +17,7 @@ public:
 
     void cleanFile();
     void setName(String name);
+    void setWriting(bool writing);
 
     bool isOpen();
 
@@ -29,6 +30,8 @@ public:
     unsigned int read_block(uint8_t *block, int size);
 private:
     ExFatFile file;
+
+    bool _writing = true;
 
     String _name = "file.txt";
 };

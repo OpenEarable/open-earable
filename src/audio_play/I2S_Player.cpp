@@ -14,15 +14,11 @@ I2S_Player::~I2S_Player() {
 
 }
 
-void I2S_Player::init() {
-    _blockBuffer.reset();
-}
-
 void I2S_Player::setBlockBufferSizes(int blockSize, int blockCount) {
     _blockBuffer.setSizes(blockSize, blockCount);
 }
 
-void I2S_Player::config() {
+void I2S_Player::start() {
     //initializing i2s pins
     nrf_i2s_pins_set(NRF_I2S,
                      digitalPinToPinName(_sckPin),
@@ -82,8 +78,12 @@ void I2S_Player::end() {
     clear_buffer();
 }
 
-void I2S_Player::set_mode(bool play_file) {
+void I2S_Player::set_mode_file(bool play_file) {
     play_mode_file = play_file;
+}
+
+bool I2S_Player::get_mode_file() {
+    return play_mode_file;
 }
 
 void I2S_Player::play() {
@@ -102,6 +102,7 @@ void I2S_Player::pause() {
 }
 
 void I2S_Player::completed() {
+    _completed_flag = true;
     _turn_off_flag = true;
 }
 
@@ -151,6 +152,10 @@ bool I2S_Player::get_turn_off() {
 
 bool I2S_Player::get_end() {
     return _end_flag;
+}
+
+bool I2S_Player::get_completed() {
+    return _completed_flag;
 }
 
 void i2s_irq_handler(void) {

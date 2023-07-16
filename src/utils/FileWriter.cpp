@@ -23,12 +23,17 @@ void FileWriter::setName(String name) {
     sd_manager.closeFile(&file);
     _name = std::move(name);
 }
+void FileWriter::setWriting(bool writing) {
+    _writing = writing;
+}
 
 unsigned int FileWriter::write_block_at(unsigned int offset, uint8_t *block, int size) {
+    if (!_writing) return 0;
     return sd_manager.write_block_at(&file, offset, block, size);
 }
 
 unsigned int FileWriter::write_block(uint8_t *block, int size) {
+    if (!_writing) return 0;
     return sd_manager.write_block(&file, block, size);
 }
 
@@ -41,7 +46,7 @@ unsigned int FileWriter::read_block(uint8_t *block, int size) {
 }
 
 bool FileWriter::openFile() {
-    file = sd_manager.openFile(_name);
+    file = sd_manager.openFile(_name, _writing);
     return file;
 }
 

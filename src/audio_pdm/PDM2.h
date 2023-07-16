@@ -27,8 +27,6 @@ public:
     PDMClass2();
     virtual ~PDMClass2();
 
-    void init(); // Optional
-
     int start(bool high=false);
     int start(int channels, int sampleRate, bool high=false);
 

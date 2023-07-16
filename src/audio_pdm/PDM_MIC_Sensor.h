@@ -29,6 +29,8 @@ public:
     void enable_chunks();
     void disable_chunks();
 
+    void pre_open_file();
+
     static void config_callback(SensorConfigurationPacket * config);
 private:
     static int _sampleRate;
@@ -38,7 +40,7 @@ private:
     bool _chunks_enabled = false;
 
     const int _blockSize = 4096;
-    int _blockCount = 5;
+    int _blockCount = 8;
 
     int _gain = 20;
 

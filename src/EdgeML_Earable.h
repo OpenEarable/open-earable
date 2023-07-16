@@ -5,7 +5,10 @@
 #include <custom_sensor/SensorManager_Earable.h>
 #include <battery_service/Battery_Service.h>
 
-#include <audio_pdm//PDM_MIC_Sensor.h>
+#include <audio_pdm/PDM_MIC_Sensor.h>
+#include <audio_play/Audio_Player.h>
+#include <configuration_handler/Configuration_Handler.h>
+
 #include <sd_logger/SD_Logger.h>
 
 #include <utility>
@@ -18,6 +21,7 @@
 bool _data_logger_flag = false;
 bool _recorder_flag = false;
 bool _player_flag = false;
+bool _configuration_flag = true;
 
 void data_callback(int id, unsigned int timestamp, uint8_t * data, int size);
 void config_callback(SensorConfigurationPacket *config);
@@ -39,14 +43,20 @@ public:
 
         if (_data_logger) {
             _data_logger->begin();
-        } else if (_audio_interface) {
-            bool success = _audio_interface->init();
+        }
+
+        bool success;
+        if (_configuration_flag || _recorder_flag) {
+            success = pdm_mic_sensor.init();
             if (_debug) {
-                if (success) {
-                    _debug->println("SD Ready!");
-                } else {
-                    _debug->println("SD FAIL!");
-                }
+                success ? _debug->println("PDM Ready!") : _debug->println("PDM FAIL!");
+            }
+        }
+
+        if (_configuration_flag || _player_flag) {
+            success = audio_player.init();
+            if (_debug) {
+                success ? _debug->println("Player Ready!") : _debug->println("Player FAIL!");
             }
         }
 
@@ -58,30 +68,20 @@ public:
     };
 
     void update() {
-        unsigned int T1, T2, T3, T4;
-        unsigned int DT1, DT2, DT3, DTT;
-
-        T1 = millis();
-
         _battery->update();
-        T2 = millis();
-        edge_ml_generic.update();
-        T3 = millis();
 
-        if (_audio_interface) {
-            _audio_interface->update();
+        if (conf_handler.check_active()) {
+            conf_handler.update();
+        } else {
+            // Possibly rewrite
+            edge_ml_generic.update();
+            if (_recorder_flag) {
+                pdm_mic_sensor.update();
+            }
+            if (_player_flag) {
+                audio_player.update();
+            }
         }
-
-        T4 = millis();
-
-        DTT = T4 - T1;
-        DT1 = T2 - T1;
-        DT2 = T3 - T2;
-        DT3 = T4 - T3;
-        int limit = 3;
-        if (DTT <= limit) return;
-
-        Serial.println("T: " + String(DTT) + "   D1: " + String(DT1) +"   D2: " + String(DT2) +"   D3: " + String(DT3));
     };
 
     void debug(Stream &stream) {
@@ -101,46 +101,52 @@ public:
         _data_logger->set_name(std::move(name));
     }
 
-    // AUDIO RECORDING
-    void enable_audio() {
-        _audio_interface = &pdm_mic_sensor;
-        _recorder_flag = true;
+    void set_recorder_file_name(String name) {
+        if (!_recorder_flag) return;
+        pdm_mic_sensor.set_name(std::move(name));
     }
 
-    void set_audio_file_name(String name) {
-        if (!_audio_interface) return;
-        _audio_interface->set_name(std::move(name));
-    }
-
+    // Possibly not needed (done with config)
     void setSampleRate(int sampleRate) {
-        if (!_audio_interface) return;
-        _audio_interface->setSampleRate(sampleRate);
+        if (!_recorder_flag) return;
+        pdm_mic_sensor.setSampleRate(sampleRate);
     };
 
     void setGain(int gain) {
-        if (!_audio_interface) return;
-        _audio_interface->setGain(gain);
+        if (!_recorder_flag) return;
+        pdm_mic_sensor.setGain(gain);
     };
 
     void enable_serial_data() {
-        if (!_audio_interface) return;
-        _audio_interface->enable_serial_data();
+        if (!_recorder_flag) return;
+        pdm_mic_sensor.enable_serial_data();
     };
 
     void disable_serial_data() {
-        if (!_audio_interface) return;
-        _audio_interface->disable_serial_data();
+        if (!_recorder_flag) return;
+        pdm_mic_sensor.disable_serial_data();
     };
 
-    void enable_chunks() {
-        if (!_audio_interface) return;
-        _audio_interface->enable_chunks();
-    };
+    void set_playerfile_name(String name) {
+        if (!_player_flag) return;
+        audio_player.set_name(std::move(name));
+    }
 
-    void disable_chunks() {
-        if (!_audio_interface) return;
-        _audio_interface->disable_chunks();
-    };
+
+    void set_status_player(bool enabled) {
+        if (_player_flag == enabled) return;
+        _player_flag = enabled;
+    }
+
+    void set_status_pdm(bool enabled) {
+        if (_recorder_flag == enabled) return;
+        _recorder_flag = enabled;
+    }
+
+    void set_status_configuration(bool enabled) {
+        if (_configuration_flag == enabled) return;
+        _configuration_flag = enabled;
+    }
 
     void configure_sensor(SensorConfigurationPacket& config) {
         edge_ml_generic.configure_sensor(config);
@@ -151,10 +157,9 @@ public:
     }
 
 private:
-    SensorManager_Earable * _interface{};
-    Battery_Service * _battery{};
-    PDM_MIC_Sensor * _audio_interface{};
-    SD_Logger * _data_logger{};
+    SensorManager_Earable * _interface{};   // Created new
+    Battery_Service * _battery{};           // Created new
+    SD_Logger * _data_logger{};             // Created new on demand
 
     Stream * _debug{};
 };
@@ -173,7 +178,10 @@ void config_callback(SensorConfigurationPacket *config) {
         PDM_MIC_Sensor::config_callback(config);
     }
     if (_player_flag) {
-
+        Audio_Player::config_callback(config);
+    }
+    if (_configuration_flag) {
+        Configuration_Handler::config_callback(config);
     }
 }
 

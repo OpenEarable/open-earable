@@ -22,7 +22,7 @@ private:
     int _map_to_percentage(int value) const;
 
     unsigned long _last = -1;
-    unsigned long _battery_interval = 1000;
+    unsigned long _battery_interval = 5000;
 
     int _battery_level = 0;
 

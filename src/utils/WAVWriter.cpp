@@ -92,3 +92,7 @@ bool WAVWriter::endRecording() {
 void WAVWriter::cleanFile() {
     sd_manager.remove(_name);
 }
+
+void WAVWriter::pre_open_file() {
+    file = sd_manager.openFile(_name);
+}
