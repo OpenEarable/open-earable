@@ -1,9 +1,11 @@
 #ifndef OPEN_EARABLE_PDM_MIC_SENSOR_H
 #define OPEN_EARABLE_PDM_MIC_SENSOR_H
 
-#include <custom_sensor/SensorID_Earable.h>
+//#include <custom_sensor/SensorID_Earable.h>
 
-#include "utils/WAVWriter.h"
+
+
+#include "WAVWriter.h"
 #include "PDM2.h"
 //#include "EdgeML_Custom.h"
 
@@ -39,7 +41,7 @@ public:
 
     int ready_blocks();
 
-    static void config_callback(SensorConfigurationPacket * config);
+    //static void config_callback(SensorConfigurationPacket * config);
 private:
     static int _sampleRate;
     static bool _send_serial;

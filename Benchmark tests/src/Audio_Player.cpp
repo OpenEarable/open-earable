@@ -183,11 +183,12 @@ int Audio_Player::ready_blocks() {
     return i2s_player.available();
 }
 
-
+/*
 void Audio_Player::config_callback(SensorConfigurationPacket *config) {
     // Check for PLAYER ID
 
-    if (config->sensorId != PLAYER) return;
+    return;
+    //if (config->sensorId != PLAYER) return;
 
     // Get tone frequency
     int tone = int(config->sampleRate);
@@ -207,5 +208,6 @@ void Audio_Player::config_callback(SensorConfigurationPacket *config) {
         // TO DO!
     }
 }
+*/
 
 Audio_Player audio_player;

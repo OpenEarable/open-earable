@@ -8,11 +8,13 @@
 #include <audio_pdm/PDM_MIC_Sensor.h>
 #include <audio_play/Audio_Player.h>
 
+#include "ArduinoBLE.h"
+
 struct configuration_bundle {
     float IMU_rate;
     float BARO_rate;
     int PDM_rate;
-    bool Play;
+    int Play;
 };
 
 extern const int max_config;
@@ -40,13 +42,26 @@ private:
 
     unsigned int _cycle;
 
+    int _min_ready = 4;
     int _buffer_loops = 4;
 
-    unsigned int _overlap = 9; // Overlap time in ms
+    unsigned int _overlap = 3; // Overlap time in ms
     unsigned int _buffer_interval_time;
 
-    unsigned int _overlap_prepopen = 4; // Overlap time in ms
+    unsigned int _overlap_prepopen = 2; // Overlap time in ms
     unsigned int _buffer_interval_time_prepopen;
+
+    int _min_ready_pdm = 3;
+    int _min_ready_play = 4;
+
+    int _apx_buf_time_init = 14;
+    int _apx_buf_time_min = 5;
+    int _apx_pdm = _apx_buf_time_init;
+    int _apx_play = _apx_buf_time_init;
+
+    int counter = 0;
+
+    float alternate_loop_rate = 10;
 
     void update_edge_ml();
     bool update_pdm();

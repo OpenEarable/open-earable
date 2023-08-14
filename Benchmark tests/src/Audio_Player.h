@@ -1,14 +1,14 @@
 #ifndef OPEN_EARABLE_AUDIO_PLAYER_H
 #define OPEN_EARABLE_AUDIO_PLAYER_H
 
-#include <custom_sensor/SensorID_Earable.h>
+//#include <custom_sensor/SensorID_Earable.h>
 //#include "EdgeML_Custom.h"
 
-#include "utils/FileWriter.h"
+#include "FileWriter.h"
 #include "I2S_Player.h"
 
 const int audio_b_size = 4096;
-const int audio_b_count = 16;
+const int audio_b_count = 8;
 extern uint8_t AUDIO_BUFFER[audio_b_size * audio_b_count] __attribute__((aligned (16)));
 
 class Audio_Player {
@@ -36,7 +36,7 @@ public:
 
     int ready_blocks();
 
-    static void config_callback(SensorConfigurationPacket * config);
+    //static void config_callback(SensorConfigurationPacket * config);
 
 private:
     bool _stream = false;
@@ -45,9 +45,9 @@ private:
     unsigned int _cur_read_sd = _default_offset;
 
     const int _blockSize = 4096;
-    int _blockCount = 10;  // 10
+    int _blockCount = 10;  // 10   Old not needed
 
-    int _preload_blocks = 12;
+    int _preload_blocks = 6; // 12
 
     String _name = "Play.wav";
 

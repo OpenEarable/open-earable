@@ -19,8 +19,8 @@
  */
 
 bool _data_logger_flag = false;
-bool _recorder_flag = false;
-bool _player_flag = false;
+bool _recorder_flag = true;
+bool _player_flag = true;
 bool _configuration_flag = true;
 
 void data_callback(int id, unsigned int timestamp, uint8_t * data, int size);
@@ -73,6 +73,7 @@ public:
         if (conf_handler.check_active()) {
             conf_handler.update();
         } else {
+            Serial.println("No no no");
             // Possibly rewrite
             edge_ml_generic.update();
             if (_recorder_flag) {
@@ -131,7 +132,6 @@ public:
         if (!_player_flag) return;
         audio_player.set_name(std::move(name));
     }
-
 
     void set_status_player(bool enabled) {
         if (_player_flag == enabled) return;

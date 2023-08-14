@@ -133,9 +133,11 @@ int PDM_MIC_Sensor::ready_blocks() {
     return PDM2.available();
 }
 
+/*
 void PDM_MIC_Sensor::config_callback(SensorConfigurationPacket *config) {
     // Check for PDM MIC ID
-    if (config->sensorId != PDM_MIC) return;
+    return;
+    //if (config->sensorId != PDM_MIC) return;
 
     // Get sample rate
     int sample_rate = int(config->sampleRate);
@@ -159,5 +161,6 @@ void PDM_MIC_Sensor::config_callback(SensorConfigurationPacket *config) {
     // Start pdm mic
     pdm_mic_sensor.start();
 }
+*/
 
 PDM_MIC_Sensor pdm_mic_sensor;

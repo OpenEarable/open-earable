@@ -7,7 +7,7 @@
 #include <pinDefinitions.h>
 #endif
 
-#include "utils/CircularBlockBuffer.h"
+#include "CircularBlockBuffer.h"
 
 const int valid_sample_rates[] = {
         16000,

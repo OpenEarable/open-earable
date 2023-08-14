@@ -8,7 +8,7 @@
 #endif
 
 #include <nrf_i2s.h>
-#include "utils/CircularBlockBuffer.h"
+#include "CircularBlockBuffer.h"
 
 #define NC 0xFFFFFFFF   //Not connected
 #define WORD_SIZE 4     // 1 word = 4 bytes
