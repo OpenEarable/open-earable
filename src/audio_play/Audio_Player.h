@@ -2,10 +2,12 @@
 #define OPEN_EARABLE_AUDIO_PLAYER_H
 
 #include <custom_sensor/SensorID_Earable.h>
-//#include "EdgeML_Custom.h"
+#include "EdgeML_Custom.h"
 
-#include "utils/FileWriter.h"
 #include "I2S_Player.h"
+
+#include "utils/SDManager.h"
+
 
 const int audio_b_size = 4096;
 const int audio_b_count = 16;
@@ -32,26 +34,23 @@ public:
 
     void set_name(String name);
 
-    void pre_open_file();
-
     int ready_blocks();
 
     static void config_callback(SensorConfigurationPacket * config);
 
 private:
     bool _stream = false;
+    bool _opened = false;
+    bool _first_ignore = true;
 
     int _default_offset = 44;
     unsigned int _cur_read_sd = _default_offset;
 
-    const int _blockSize = 4096;
-    int _blockCount = 10;  // 10
-
-    int _preload_blocks = 12;
+    int _preload_blocks = 8; // 12
 
     String _name = "Play.wav";
 
-    FileWriter * _fileWriter;
+    ExFatFile _file;
 
     void i2s_setup();
     bool sd_setup();
@@ -61,6 +60,8 @@ private:
     unsigned int sd_to_buffer(int multi);
 
     bool check_completed();
+
+    bool open_file();
 };
 
 extern Audio_Player audio_player;

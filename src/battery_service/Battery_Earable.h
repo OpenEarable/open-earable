@@ -2,6 +2,7 @@
 #define EDGE_ML_EARABLE_BATTERY_EARABLE_H
 
 #include "Arduino.h"
+#include "Earable_Pins.h"
 
 class Battery_Earable {
 public:
@@ -26,7 +27,7 @@ private:
 
     int _battery_level = 0;
 
-    const int _battery_pin = A3;
+    const int _battery_pin = EPIN_BAT_REF;
 
     const _AnalogReferenceMode _internal_ref = AR_INTERNAL1V2;
     const int _adc_min = 734;

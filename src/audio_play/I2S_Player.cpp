@@ -45,8 +45,10 @@ void I2S_Player::start() {
     // Original NRF_I2S_MCK_32MDIV3 and NRF_I2S_RATIO_256X  41667Hz
     // Alternate NRF_I2S_MCK_32MDIV23 and NRF_I2S_RATIO_32X
 
-    // clear the buffer
-    _blockBuffer.reset();
+    // Do buffer reset externally!
+
+    // Ignore first block in buffer
+    _blockBuffer.incrementReadPointer(); // Requires buffer to be filled with at least 2 blocks
 
     //setting up the I2S transfer
     nrf_i2s_transfer_set(NRF_I2S, _blockBuffer.getBlockSize()/WORD_SIZE, NULL, (uint32_t const *)_blockBuffer.getReadPointer());
@@ -112,7 +114,7 @@ int I2S_Player::available() {
 }
 
 uint8_t *I2S_Player::getWritePointer() {
-    return _blockBuffer.getNextWritePointer(); // Maybe Cur?
+    return _blockBuffer.getCurWritePointer(); // Use cur block
 }
 
 void I2S_Player::incrementWritePointer() {
@@ -134,13 +136,14 @@ void I2S_Player::i2s_interrupt() {
         //clear TXPTRUPD event
         nrf_i2s_event_clear(NRF_I2S, NRF_I2S_EVENT_TXPTRUPD);
 
+
         if (_end_flag) {
             return;
         }
 
         if (_blockBuffer.available_read()) {
-            _blockBuffer.incrementReadPointer();
             nrf_i2s_tx_buffer_set(NRF_I2S, (uint32_t const *)_blockBuffer.getReadPointer());
+            _blockBuffer.incrementReadPointer();
         } else if (_turn_off_flag) {
             stop();
         }
@@ -168,7 +171,12 @@ CircularBlockBuffer *I2S_Player::get_buffer() {
 }
 
 int I2S_Player::get_contiguous_blocks() const {
-    return _blockBuffer.get_contiguous_write_blocks();
+    return _blockBuffer.get_contiguous_write_blocks_cur(); // Use cur block
+}
+
+void I2S_Player::reset_buffer() {
+    // reset the buffer
+    _blockBuffer.reset();
 }
 
 void i2s_irq_handler(void) {

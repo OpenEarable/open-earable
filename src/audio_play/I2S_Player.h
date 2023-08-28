@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+#include "Earable_Pins.h"
+
 #ifndef analogPinToPinName
 #include <pinDefinitions.h>
 #endif
@@ -36,6 +38,8 @@ public:
     void start();
     void end();
 
+    void reset_buffer();
+
     void play();
     void stop();
     void pause();
@@ -60,9 +64,11 @@ public:
     CircularBlockBuffer * get_buffer();
 
 private:
-    int _sckPin = 23;   // P0_16
-    int _lrckPin = 13;  // P0_13
-    int _sdoutPin = 32; // P1_0
+    int _sckPin = EPIN_BCLK;    //23  P0_16
+    int _lrckPin = EPIN_LRCLK;  //13  P0_13
+    int _sdoutPin = EPIN_DIN;   //32  P1_0
+
+    bool _ignore_first = true;
 
     bool play_mode_file = true;
 

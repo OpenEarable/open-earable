@@ -18,69 +18,17 @@ bool Configuration_Handler::check_active() {
 }
 
 void Configuration_Handler::update() {
-
-    /*
-    while (PDM2.available()) {
-        pdm_mic_sensor.update();
-    }
-
-    while (audio_player.buffer_available()) {
-        audio_player.update();
-    }
-     */
-
     update_edge_ml();
 
-    if (check_overlap()) return;
-    bool overlapped;
-    counter = 0;
-    //if (_cycle++ % 2) {
+    if (_buffer_flag) return;
+    _buffer_flag = true;
+
     if (_cycle++ % 2) {
-        unsigned long t1 = millis();
-
-        overlapped = update_pdm();
-        if (counter != 0) {
-            float avg = float(millis() - t1) / counter;
-            _apx_pdm = 0.5 * (avg + _apx_pdm);
-            _apx_pdm = max(_apx_pdm, _apx_buf_time_min);
-            //if (avg > 0.5) Serial.println("F PDM: " + String(avg));
-        }
-
-        if (overlapped) {
-            if (!check_overlap_prepopen()) {
-                if (audio_player.ready_blocks() < _min_ready_play) return;
-                audio_player.pre_open_file();
-            }
-            return;
-        }
-        counter = 0;
-        t1 = millis();
+        if (update_pdm()) return;
         update_play();
-        if (counter != 0) {
-            float avg = float(millis() - t1) / counter;
-            //if (avg > 0.5) Serial.println("Play: " + String(avg));
-        }
     } else {
-        unsigned long t1 = millis();
-        overlapped = update_play();
-        if (counter != 0) {
-            float avg = float(millis() - t1) / counter;
-            _apx_play = 0.5 * (avg + _apx_play);
-            _apx_play = max(_apx_play, _apx_buf_time_min);
-            //if (avg > 0.5) Serial.println("F Play: " + String(avg));
-        }
-        if (overlapped) {
-            //if (!check_overlap_prepopen()) pdm_mic_sensor.pre_open_file();
-            return;
-        }
-        counter = 0;
-        t1 = millis();
-
+        if (update_play()) return;
         update_pdm();
-        if (counter != 0) {
-            float avg = float(millis() - t1) / counter;
-            //if (avg > 0.5) Serial.println("PDM: " + String(avg));
-        }
     }
     BLE.poll();
 }
@@ -91,6 +39,10 @@ void Configuration_Handler::update_edge_ml() {
     unsigned int now = millis();
     if (now - _edge_ml_last > _edge_ml_delay) {
         _edge_ml_last = now;
+        _buffer_flag = false;
+        edge_ml_generic.update();
+
+        return;
 
         CircularBlockBuffer * pdm = PDM2.get_buffer();
         CircularBlockBuffer * i2s = i2s_player.get_buffer();
@@ -100,48 +52,31 @@ void Configuration_Handler::update_edge_ml() {
         // I2S: Write Small / Read Big
         Serial.println("PDM:  " + String(pdm->available_write()) + "  " + String(pdm->available_read()));
         Serial.println("I2S:  " + String(i2s->available_write()) + "  " + String(i2s->available_read()) + "\n");
-
         Serial.println("Time " + String(now-last));
         last = now;
-
-        edge_ml_generic.update();
     }
 }
 
 bool Configuration_Handler::update_pdm() {
-    if (pdm_mic_sensor.ready_blocks() < _min_ready_pdm) return check_overlap();
+    if (pdm_mic_sensor.ready_blocks() < _pdm_min_blocks) return false;
 
-    int remaining = int(_edge_ml_delay - (millis() - _edge_ml_last));
-    int max_buffers = remaining / _apx_pdm;
-
-    int cont = pdm_mic_sensor.update_contiguous(max_buffers);
-    counter += cont;
-    if (check_overlap()) return true;
-
-    cont = max_buffers - cont;
-    if (!cont || max_buffers == cont) return false;
+    int cont = pdm_mic_sensor.update_contiguous(_pdm_update_blocks);
+    if (check_overlap()) return true; // Make sure that time limit is not reached
+    cont = _pdm_update_blocks - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
+    if (!cont || _pdm_update_blocks == cont) return false;
     pdm_mic_sensor.update_contiguous(cont);
-    counter += cont;
-
     return check_overlap();
 }
 
 bool Configuration_Handler::update_play() {
-    if (audio_player.ready_blocks() < _min_ready_play) return check_overlap();
+    if (audio_player.ready_blocks() < _play_min_blocks) return false;
 
-    int remaining = int(_edge_ml_delay - (millis() - _edge_ml_last));
-    int max_buffers = remaining / _apx_play;
+    int cont = audio_player.update_contiguous(_play_update_blocks);
 
-    int cont = audio_player.update_contiguous(max_buffers);
-
-    counter += cont;
-    if (check_overlap()) return true;
-
-    cont = max_buffers - cont;
-    if (!cont || max_buffers == cont) return false;
+    if (check_overlap()) return true; // Make sure that time limit is not reached
+    cont = _play_update_blocks - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
+    if (!cont || _play_update_blocks == cont) return false;
     audio_player.update_contiguous(cont);
-    counter += cont;
-
     return check_overlap();
 }
 
@@ -164,7 +99,7 @@ void Configuration_Handler::configure(int config_num) {
     // config_num == 0 --> STOP; config_num > 0  --> config_num - 1 is index
 
     if (config_num < 0 || config_num > max_config + 1) return;
-    Serial.println("Here");
+
     stop_all();
     _current_conf_num = config_num;
     _cycle = 0;
@@ -181,11 +116,12 @@ void Configuration_Handler::configure(int config_num) {
     config.sensorId = ACC_GYRO_MAG;
     config.sampleRate = conf->IMU_rate * _rate_factor;
     edge_ml_generic.configure_sensor(config);
-
+    edge_ml_generic.update();
 
     config.sensorId = BARO_TEMP;
     config.sampleRate = conf->BARO_rate * _rate_factor;
     edge_ml_generic.configure_sensor(config);
+    edge_ml_generic.update();
 
     config.sensorId = PLAYER;
     config.sampleRate = float(conf->Play);
@@ -198,26 +134,18 @@ void Configuration_Handler::configure(int config_num) {
     float edge_rate = max(conf->BARO_rate, conf->IMU_rate);
 
     if (edge_rate == 0) {
-        edge_rate = alternate_loop_rate;
+        edge_rate = _alternate_loop_rate;
     }
 
     _edge_ml_delay = (int)(1000.0/edge_rate);
     _edge_ml_last = millis();
 
     _buffer_interval_time = _edge_ml_delay - _overlap;
-    _overlap_prepopen = _edge_ml_delay - _overlap_prepopen;
-
-    Serial.println(_buffer_interval_time);
-    Serial.println(_overlap_prepopen);
+    last = millis();
 }
-
 
 bool Configuration_Handler::check_overlap() {
     return (millis() - _edge_ml_last > _buffer_interval_time);
-}
-
-bool Configuration_Handler::check_overlap_prepopen() {
-    return (millis() - _edge_ml_last > _buffer_interval_time_prepopen);;
 }
 
 void Configuration_Handler::config_callback(SensorConfigurationPacket *config) {

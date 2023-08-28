@@ -34,7 +34,8 @@ public:
     uint8_t * getReadPointer();
 
     int get_contiguous_read_blocks() const;
-    int get_contiguous_write_blocks() const;
+    int get_contiguous_write_blocks_cur() const;
+    int get_contiguous_write_blocks_next() const;
 
     void incrementWritePointer();
     void incrementReadPointer();

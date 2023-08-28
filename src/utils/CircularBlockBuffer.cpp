@@ -128,7 +128,19 @@ int CircularBlockBuffer::get_contiguous_read_blocks() const {
     return diff;
 }
 
-int CircularBlockBuffer::get_contiguous_write_blocks() const {
+int CircularBlockBuffer::get_contiguous_write_blocks_cur() const {
+    if (_writeBlockCur == _readBlock) return 0;
+
+    long diff = (long)(_readBlock - _writeBlockCur);
+
+    if (diff < 0) {
+        return (int)(_blockCount - _writeBlockCur);
+    }
+    return diff;
+}
+
+
+int CircularBlockBuffer::get_contiguous_write_blocks_next() const {
     if (_writeBlockNext == _readBlock) return 0;
 
     long diff = (long)(_readBlock - _writeBlockNext);
@@ -221,3 +233,4 @@ void CircularBlockBuffer::set_buffer(uint8_t *buffer, int blockSize, int blockCo
     _external_buffer = true;
     reset();
 }
+

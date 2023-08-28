@@ -2,32 +2,37 @@
 
 #include <utility>
 
-FileWriter * SD_Logger::writer;
+ExFatFile SD_Logger::_file;
+bool SD_Logger::_opened = false;
 char SD_Logger::_buffer[LOGGER_BUFFER_SIZE];
 int SD_Logger::_index = 0;
 String SD_Logger::_name = "Log.csv";
 
 bool SD_Logger::begin() {
-    writer = new FileWriter();
     _index = 0;
-    bool status = writer->begin();
-    set_name(_name);
-    writer->cleanFile();
+    if(!sd_manager.begin()) return false;
+    sd_manager.remove(_name);
+    if (!open_file()) return false;
     write_header();
-    return status;
+    return _file.isOpen();
 }
 
 void SD_Logger::end() {
-    writer->end();
-    delete writer;
+    sd_manager.end();
 }
 
 void SD_Logger::set_name(String name) {
-    writer->setName(std::move(name));
+    _name = std::move(name);
+    _opened = false;
 }
 
 void SD_Logger::data_callback(int id, unsigned int timestamp, const String & data_string) {
-    if (id == -1) return dump_to_sd();
+    if (id == -1) {
+        dump_to_sd();
+        _file.close();
+        _opened = false;
+        return;
+    };
 
     String text = String(id);
     text += ", " + String(timestamp);
@@ -43,8 +48,9 @@ void SD_Logger::data_callback(int id, unsigned int timestamp, const String & dat
 }
 
 void SD_Logger::dump_to_sd() {
+    if (!open_file()) return;
     if (_index == 0) return;
-    writer->write_block((uint8_t*)_buffer, _index);
+    sd_manager.write_block(&_file, (uint8_t*)_buffer, _index);
     memset(_buffer, 0, LOGGER_BUFFER_SIZE);
     _index = 0;
 }
@@ -54,8 +60,14 @@ void SD_Logger::write_header() {
     String header = "ID, TIMESTAMP, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9\n\r";
     header.toCharArray(&(_buffer[_index]), header.length());
     _index += header.length() - 1; // -1 to remove null terminator
-
     dump_to_sd();
+}
+
+bool SD_Logger::open_file() {
+    if (_opened) return true;
+    _file = sd_manager.openFile(_name, true);
+    _opened = _file.isOpen();
+    return _opened;
 }
 
 

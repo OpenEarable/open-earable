@@ -26,8 +26,6 @@ public:
     bool writeChunk(uint8_t *block, int size);
     bool endRecording();
 
-    void pre_open_file();
-
 private:
     ExFatFile file;
 

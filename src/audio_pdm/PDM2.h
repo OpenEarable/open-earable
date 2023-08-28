@@ -2,6 +2,7 @@
 #define _PDM2_H_INCLUDED
 
 #include <Arduino.h>
+#include "Earable_Pins.h"
 
 #ifndef analogPinToPinName
 #include <pinDefinitions.h>
@@ -72,8 +73,8 @@ public:
     void IrqHandler(bool halftranfer);
 
 private:
-    int _dinPin = 29;
-    int _clkPin = 28;
+    int _dinPin = EPIN_PDMDIN; //29
+    int _clkPin = EPIN_PDMCLK; //28
 
     int _channels = 1;
     int _sampleRate = 16000;

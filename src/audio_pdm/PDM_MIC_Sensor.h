@@ -1,11 +1,13 @@
 #ifndef OPEN_EARABLE_PDM_MIC_SENSOR_H
 #define OPEN_EARABLE_PDM_MIC_SENSOR_H
 
+
+#include "EdgeML_Custom.h"
 #include <custom_sensor/SensorID_Earable.h>
 
 #include "utils/WAVWriter.h"
 #include "PDM2.h"
-//#include "EdgeML_Custom.h"
+
 
 const int pdm_b_size = 4096;
 const int pdm_b_count = 16;
@@ -35,8 +37,6 @@ public:
     void enable_chunks();
     void disable_chunks();
 
-    void pre_open_file();
-
     int ready_blocks();
 
     static void config_callback(SensorConfigurationPacket * config);
@@ -46,11 +46,9 @@ private:
 
     bool _stream = false;
     bool _chunks_enabled = false;
+    bool _first_ignore = true;
 
-    const int _blockSize = 4096;
-    int _blockCount = 16;   // 16
-
-    int _gain = 20;
+    int _gain = 20; // 20
 
     String _name = "Recording.wav";
 

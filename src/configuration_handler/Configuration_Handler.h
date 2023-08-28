@@ -40,35 +40,25 @@ private:
     unsigned int _edge_ml_delay;
     unsigned int _edge_ml_last;
 
-    unsigned int _cycle;
+    unsigned int _cycle = 0;
 
-    int _min_ready = 4;
-    int _buffer_loops = 4;
-
-    unsigned int _overlap = 3; // Overlap time in ms
+    unsigned int _overlap = 15; // Overlap time in ms
     unsigned int _buffer_interval_time;
 
-    unsigned int _overlap_prepopen = 2; // Overlap time in ms
-    unsigned int _buffer_interval_time_prepopen;
+    bool _buffer_flag = false;
 
-    int _min_ready_pdm = 3;
-    int _min_ready_play = 4;
+    int _pdm_min_blocks = 5;
+    int _play_min_blocks = 5; // MUST be 1 bigger than play_update
 
-    int _apx_buf_time_init = 14;
-    int _apx_buf_time_min = 5;
-    int _apx_pdm = _apx_buf_time_init;
-    int _apx_play = _apx_buf_time_init;
+    int _pdm_update_blocks = 4;
+    int _play_update_blocks = 4;
 
-    int counter = 0;
-
-    float alternate_loop_rate = 10;
+    float _alternate_loop_rate = 20;
 
     void update_edge_ml();
     bool update_pdm();
     bool update_play();
-
     bool check_overlap();
-    bool check_overlap_prepopen();
 };
 
 extern Configuration_Handler conf_handler;
