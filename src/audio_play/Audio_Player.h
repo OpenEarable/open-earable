@@ -4,16 +4,23 @@
 #include <custom_sensor/SensorID_Earable.h>
 #include "EdgeML_Custom.h"
 
+#include "Play_Service.h"
 #include "I2S_Player.h"
 #include "Tone.h"
 
 #include "utils/SDManager.h"
 
-const int max_file = 10;
-
 const int audio_b_size = 4096;
 const int audio_b_count = 16;
 extern uint8_t AUDIO_BUFFER[audio_b_size * audio_b_count] __attribute__((aligned (16)));
+
+#define MAX_WAV_NAME_LENGTH 64
+
+struct __attribute__((packed)) WAVConfigurationPacket {
+    uint8_t state{};    // 0 => don't start; 1 => start
+    uint8_t size{};     // size of name; max 64
+    char name[MAX_WAV_NAME_LENGTH];
+};
 
 class Audio_Player {
 public:
@@ -24,8 +31,6 @@ public:
     void update();
     int update_contiguous(int max_cont);
 
-    void set_file(int file_num);
-
     void start();
     void start_tone(int frequency);
 
@@ -35,7 +40,6 @@ public:
     void stop();
     void pause();
 
-    int get_max_file();
     int get_max_frequency();
     int get_min_frequency();
 
@@ -48,6 +52,8 @@ public:
 
     int ready_blocks();
 
+    void ble_configuration(WAVConfigurationPacket& configuration);
+
     static void config_callback(SensorConfigurationPacket * config);
 
 private:
@@ -56,15 +62,12 @@ private:
 
     bool _tone = false;
 
-    int _selected = 0;
-
     int _default_offset = 44;
     unsigned int _cur_read_sd = _default_offset;
 
-    int _preload_blocks = 8; // 12
+    int _preload_blocks = 4; // 12
 
-    String _prefix = "Play";
-    String _suffix = ".wav";
+    String _name = "play.wav";
 
     ExFatFile _file;
 

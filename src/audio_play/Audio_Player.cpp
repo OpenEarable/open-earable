@@ -13,6 +13,7 @@ Audio_Player::~Audio_Player() {
 }
 
 bool Audio_Player::init() {
+    play_service.begin();
     i2s_setup();
     _tone_player->setup(); // Tone setup after i2s_setup!
     return sd_setup();
@@ -71,10 +72,6 @@ int Audio_Player::update_contiguous(int max_cont) {
     return cont;
 }
 
-void Audio_Player::set_file(int file_num) {
-    _selected = file_num;
-}
-
 void Audio_Player::start_tone(int frequency) {
     if (_stream) {
         return;
@@ -99,6 +96,7 @@ void Audio_Player::start() {
     i2s_player.clear_buffer();
 
     if (!open_file()) {
+        _stream = false;
         return;
     }
 
@@ -125,7 +123,7 @@ void Audio_Player::end() {
 }
 
 void Audio_Player::set_name(String name) {
-    _prefix = std::move(name);
+    _name = std::move(name);
     _opened = false;
 }
 
@@ -142,12 +140,14 @@ void Audio_Player::pause() {
 }
 
 void Audio_Player::preload_buffer() {
+    if (!_tone) {
+        update_contiguous(_preload_blocks);
+        return;
+    }
+
+    // Preload tones
     for (int i = 0; i < _preload_blocks; ++i) {
-        if (_tone) {
-            _tone_player->update();
-        } else {
-            sd_to_buffer();
-        }
+        _tone_player->update();
     }
 }
 
@@ -188,10 +188,6 @@ bool Audio_Player::check_completed() {
     return false;
 }
 
-int Audio_Player::get_max_file() {
-    return max_file;
-}
-
 int Audio_Player::get_max_frequency() {
     return _tone_player->get_max_frequency();
 }
@@ -215,7 +211,7 @@ unsigned int Audio_Player::get_sample_rate() {
 
 unsigned int Audio_Player::get_size() {
     if (!open_file()) return 0;
-    uint64_t pos = _file.curPosition();
+    // uint64_t pos = _file.curPosition(); // old
     return _file.fileSize();
 }
 
@@ -225,12 +221,11 @@ int Audio_Player::ready_blocks() {
 
 bool Audio_Player::open_file() {
     if (_opened) return true;
-    String name = _prefix + "_" + String(_selected) + _suffix;
-    _file = sd_manager.openFile(name, false);
+    sd_manager.closeFile(&_file);
+    _file = sd_manager.openFile(_name, false);
     _opened = _file.isOpen();
     return _opened;
 }
-
 
 void Audio_Player::config_callback(SensorConfigurationPacket *config) {
     // Check for PLAYER ID
@@ -247,13 +242,29 @@ void Audio_Player::config_callback(SensorConfigurationPacket *config) {
     }
 
     // tone <= max_file > => Play file else play tone
-    if (tone <= max_file) {
+    if (tone <= 1) {
         i2s_player.set_mode_file(true);
-        audio_player.set_file(tone);
         audio_player.start();
     } else {
         i2s_player.set_mode_file(false);
         audio_player.start_tone(tone);
+    }
+}
+
+void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
+    if (configuration.size == 0) {
+        end();
+        return;
+    }
+
+    String name = String(configuration.name, configuration.size);
+
+    set_name(name);
+    i2s_player.set_mode_file(true);
+
+    if (configuration.state) {
+        end();
+        start();
     }
 }
 
