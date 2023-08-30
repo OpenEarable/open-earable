@@ -129,7 +129,7 @@ edge_ml_earable.debug(Serial);
 
 #### `void enable_sd_logging()`
 
-Enables SD card data logging. Recorded sensor values are automatically saved to the SD card.
+Enables SD card data logging. Recorded sensor values are automatically saved to the SD card. (disabled by default)
 
 When enabled, Open Earable creates a ".csv" file on the SD card with a standardized header format consisting of:
 
