@@ -14,7 +14,6 @@ struct configuration_bundle {
     float IMU_rate;
     float BARO_rate;
     int PDM_rate;
-    int Play;
 };
 
 extern const int range_extension;
