@@ -229,9 +229,9 @@ void PDMClass2::IrqHandler(bool halftranfer) {
                 _onReceive();
             }
         } else {
-            // buffer overflow, stop
+            // buffer hit
             _buffer_hits++;
-            nrf_pdm_disable();
+            // nrf_pdm_disable(); // uncomment to stop recording when buffer hit
         }
     } else if (nrf_pdm_event_check(NRF_PDM_EVENT_STOPPED)) {
         nrf_pdm_event_clear(NRF_PDM_EVENT_STOPPED);
