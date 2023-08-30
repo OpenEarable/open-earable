@@ -31,6 +31,7 @@ ExFatFile SDManager::openFile(const String& name, bool write) {
 }
 
 void SDManager::closeFile(ExFatFile *file) {
+    if (!file->isOpen()) return;
     file->close();
     _lastFile = nullptr;
 }
