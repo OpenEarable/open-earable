@@ -3,7 +3,7 @@
 void i2s_irq_handler(void);
 
 sampling_mode file_mode = {NRF_I2S_MCK_32MDIV23, NRF_I2S_RATIO_32X};
-sampling_mode const_freq = {NRF_I2S_MCK_32MDIV3, NRF_I2S_RATIO_256X};
+sampling_mode const_freq = {NRF_I2S_MCK_32MDIV11, NRF_I2S_RATIO_64X};
 
 
 I2S_Player::I2S_Player() {

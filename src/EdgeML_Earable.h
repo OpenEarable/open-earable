@@ -11,12 +11,11 @@
 
 #include <sd_logger/SD_Logger.h>
 
+#include "utils/Button.h"
+
 #include <utility>
 
 bool _data_logger_flag = false;
-bool _recorder_flag = true;
-bool _player_flag = true;
-bool _configuration_flag = true;
 
 void data_callback(int id, unsigned int timestamp, uint8_t * data, int size);
 void config_callback(SensorConfigurationPacket *config);
@@ -67,6 +66,8 @@ public:
             pdm_mic_sensor.update();
             audio_player.update();
         }
+
+        earable_btn.update();
     };
 
     void debug(Stream &stream) {
@@ -85,36 +86,30 @@ public:
         _data_logger->set_name(std::move(name));
     }
 
+    void set_playerfile_prefix(String name) {
+        audio_player.set_name(std::move(name));
+    }
+
     void set_recorder_file_name(String name) {
-        if (!_recorder_flag) return;
         pdm_mic_sensor.set_name(std::move(name));
     }
 
     // Possibly not needed (done with config)
     void setSampleRate(int sampleRate) {
-        if (!_recorder_flag) return;
         pdm_mic_sensor.setSampleRate(sampleRate);
     };
 
     void setGain(int gain) {
-        if (!_recorder_flag) return;
         pdm_mic_sensor.setGain(gain);
     };
 
     void enable_serial_data() {
-        if (!_recorder_flag) return;
         pdm_mic_sensor.enable_serial_data();
     };
 
     void disable_serial_data() {
-        if (!_recorder_flag) return;
         pdm_mic_sensor.disable_serial_data();
     };
-
-    void set_playerfile_name(String name) {
-        if (!_player_flag) return;
-        audio_player.set_name(std::move(name));
-    }
 
     void configure_sensor(SensorConfigurationPacket& config) {
         edge_ml_generic.configure_sensor(config);
@@ -142,15 +137,9 @@ void data_callback(int id, unsigned int timestamp, uint8_t * data, int size) {
 }
 
 void config_callback(SensorConfigurationPacket *config) {
-    if (_recorder_flag) {
-        PDM_MIC_Sensor::config_callback(config);
-    }
-    if (_player_flag) {
-        Audio_Player::config_callback(config);
-    }
-    if (_configuration_flag) {
-        Configuration_Handler::config_callback(config);
-    }
+    PDM_MIC_Sensor::config_callback(config);
+    Audio_Player::config_callback(config);
+    Configuration_Handler::config_callback(config);
 }
 
 

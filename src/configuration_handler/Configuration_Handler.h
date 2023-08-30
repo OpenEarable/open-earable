@@ -17,8 +17,9 @@ struct configuration_bundle {
     int Play;
 };
 
+extern const int range_extension;
 extern const int max_config;
-extern configuration_bundle CONFS[];
+extern const configuration_bundle CONFS[];
 
 class Configuration_Handler {
 public:
@@ -26,7 +27,7 @@ public:
 
     void update();
 
-    void configure(int config_num);
+    void configure(int config_num, int config_info);
     void stop_all();
 
     static void config_callback(SensorConfigurationPacket * config);

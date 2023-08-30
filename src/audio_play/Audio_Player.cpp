@@ -5,15 +5,16 @@
 uint8_t AUDIO_BUFFER[audio_b_size * audio_b_count] __attribute__((aligned (16)));
 
 Audio_Player::Audio_Player() {
-
+    _tone_player = new Tone();
 }
 
 Audio_Player::~Audio_Player() {
-
+    delete[] _tone_player;
 }
 
 bool Audio_Player::init() {
     i2s_setup();
+    _tone_player->setup(); // Tone setup after i2s_setup!
     return sd_setup();
 }
 
@@ -30,6 +31,12 @@ bool Audio_Player::sd_setup() {
 
 void Audio_Player::update() {
     if (!_stream) return;
+
+    if (_tone) {
+        _tone_player->update();
+        return;
+    }
+
     if (check_completed()) return;
     if (!i2s_player.available()) return;
 
@@ -42,6 +49,12 @@ void Audio_Player::update() {
 
 int Audio_Player::update_contiguous(int max_cont) {
     if (!_stream) return 0;
+
+    if (_tone) {
+        _tone_player->update();
+        return 0;
+    }
+
     if (check_completed()) return 0;
 
     int blocks = i2s_player.get_contiguous_blocks();
@@ -58,10 +71,29 @@ int Audio_Player::update_contiguous(int max_cont) {
     return cont;
 }
 
+void Audio_Player::set_file(int file_num) {
+    _selected = file_num;
+}
+
+void Audio_Player::start_tone(int frequency) {
+    if (_stream) {
+        return;
+    }
+    _tone = true;
+    _stream = true;
+
+    i2s_player.clear_buffer();
+
+    _tone_player->start(frequency);
+    i2s_player.start();
+    play();
+}
+
 void Audio_Player::start() {
     if (_stream) {
         return;
     }
+    _tone = false;
     _stream = true;
 
     i2s_player.clear_buffer();
@@ -84,12 +116,16 @@ void Audio_Player::end() {
         return;
     }
     _stream = false;
+
     stop();
     i2s_player.end();
+    if (_tone) {
+        _tone_player->end();
+    }
 }
 
 void Audio_Player::set_name(String name) {
-    _name = std::move(name);
+    _prefix = std::move(name);
     _opened = false;
 }
 
@@ -107,7 +143,11 @@ void Audio_Player::pause() {
 
 void Audio_Player::preload_buffer() {
     for (int i = 0; i < _preload_blocks; ++i) {
-        sd_to_buffer();
+        if (_tone) {
+            _tone_player->update();
+        } else {
+            sd_to_buffer();
+        }
     }
 }
 
@@ -115,7 +155,6 @@ unsigned int Audio_Player::sd_to_buffer() {
     uint8_t * ptr = i2s_player.getWritePointer();
 
     unsigned int read =sd_manager.read_block(&_file, ptr, audio_b_size);
-    //unsigned int read = _fileWriter->read_block_at(_cur_read_sd, ptr, _blockSize);
     _cur_read_sd += read;
 
     if (read != 0) {
@@ -129,7 +168,6 @@ unsigned int Audio_Player::sd_to_buffer(int multi) {
 
     unsigned int read_total = 0;
     unsigned int read = sd_manager.read_block(&_file, ptr, audio_b_size * multi);
-    //unsigned int read = _fileWriter->read_block_at(_cur_read_sd, ptr, _blockSize * multi);
     _cur_read_sd += read;
     read_total += read;
 
@@ -150,6 +188,21 @@ bool Audio_Player::check_completed() {
     return false;
 }
 
+int Audio_Player::get_max_file() {
+    return max_file;
+}
+
+int Audio_Player::get_max_frequency() {
+    return _tone_player->get_max_frequency();
+}
+
+int Audio_Player::get_min_frequency() {
+    return _tone_player->get_min_frequency();
+}
+
+bool Audio_Player::is_mode_tone() {
+    return _tone;
+}
 
 unsigned int Audio_Player::get_sample_rate() {
     if (!open_file()) return 0;
@@ -172,7 +225,8 @@ int Audio_Player::ready_blocks() {
 
 bool Audio_Player::open_file() {
     if (_opened) return true;
-    _file = sd_manager.openFile(_name, false);
+    String name = _prefix + "_" + String(_selected) + _suffix;
+    _file = sd_manager.openFile(name, false);
     _opened = _file.isOpen();
     return _opened;
 }
@@ -192,12 +246,14 @@ void Audio_Player::config_callback(SensorConfigurationPacket *config) {
         return;
     }
 
-    // tone == 1 => Play file
-    if (tone == 1) {
+    // tone <= max_file > => Play file else play tone
+    if (tone <= max_file) {
+        i2s_player.set_mode_file(true);
+        audio_player.set_file(tone);
         audio_player.start();
     } else {
-        // Logic for tone
-        // TO DO!
+        i2s_player.set_mode_file(false);
+        audio_player.start_tone(tone);
     }
 }
 

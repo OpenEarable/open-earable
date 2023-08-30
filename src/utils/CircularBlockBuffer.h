@@ -19,6 +19,7 @@ public:
     void set_buffer(uint8_t * buffer, int blockSize, int blockCount);
 
     void setSizes(int blockSize, int blockCount);
+    uint8_t * get_buffer();
 
     size_t getTotalSize() const;
     size_t getBlockSize() const;

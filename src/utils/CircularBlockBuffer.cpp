@@ -26,6 +26,10 @@ void CircularBlockBuffer::setSizes(int blockSize, int blockCount) {
     reset();
 }
 
+uint8_t *CircularBlockBuffer::get_buffer() {
+    return _buffer;
+}
+
 size_t CircularBlockBuffer::getTotalSize() const {
     return _totalSize;
 }

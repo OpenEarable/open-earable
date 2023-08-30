@@ -1,6 +1,3 @@
-# {IN DEVELOPMENT}
-# {DOC NOT UPDATED}
-
 # open-earable
 
 OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing applications. It provides a versatile prototyping platform with support for various sensors and actuators, making it suitable for earable research and development.
@@ -11,9 +8,12 @@ OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing 
 - [Earable EdgeML](#Earable-EdgeML)
 - [SD Setup](#SD-Setup)
   - [SD Card Setup](#SD-Card-Setup)
+  - [SPI Setup](#SPI-Setup)
   - [sdfat Library Setup](#sdfat-Library-Setup)
-- [SD Data Logging](#SD-Data-Logging)
-- [PDM Mic Recording](#PDM-Mic-Recording)
+- [Pin Configuration](#Pin-Configuration)
+- [Usage and functionality](#Usage-and-functionality)
+  - [Button](#Button)
+- [Sensor Configuration](#Sensor-Configuration)
 - [Cite](#Cite)
 
 ## Introduction
@@ -31,7 +31,7 @@ Needed C++ Libraries:
 - Adafruit_BMP280
 - DFRobot_BMX160
 - ArduinoBLE
-- SdFat (Bill Greiman)
+- SdFat Adafruit Fork (Bill Greiman)
 
 
 ## Earable EdgeML
@@ -64,8 +64,37 @@ For its use with Open Earable, the SD card needs to be prepared as well as the S
 In order to be compatible with this library the SD card needs to be formatted with the exFAT format.
 Make sure to have a sufficiently fast SD card. (For prototyping tests SandDisk class 10 and class A30 were used)
 
+
+### SPI Setup
+
+The default implementation of the SPI library does not meet the required speed. To address this, optimized SPI files are provided. Follow the steps below to integrate these files into Arduino.
+All referenced files can be found in the "additional" folder in the "spi_files" subfolder.
+
+##### Updating Arduino Nano 33 BLE Board Files
+
+To fully integrate the optimized SPI files, changes to the Arduino Nano 33 BLE board files have to be made. Follow the steps below to accomplish this:
+
+1. Open the Arduino IDE.
+
+2. In the top left corner, click on "File."
+
+3. From the dropdown menu, select "Preferences."
+
+4. At the bottom of the new window, there is a hyperlink labeled under "More preferences can be edited directly in the file". Click on this hyperlink to access the file explorer.
+
+5. Inside the "packages" folder, navigate to the following directory: `arduino/hardware/mbed_nano/4.0.4/libraries`.
+
+6. Locate the existing SPI library folder within this directory. It needs to be swapped with the provided folder named "SPI".
+
+7. Similarly, navigate to the following directory: `arduino/hardware/mbed_nano/4.0.4/cores/arduino/mbed/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/drivers/include`.
+
+8. In this directory, locate the file named "nrfx_spi.h" and replace it with the provided "nrfx_spi.h" file from the "spi_files" folder.
+
+9. Additionally, paste the "nrfx_spim.c" file from the "spi_files" subfolder into the same directory.
+
+
 ### sdfat Library Setup
-One of the library requirements is the SdFat library from Bill Greiman.
+One of the library requirements is the Adafruit Fork of the SdFat library from Bill Greiman.
 This library is used to send data to the SD card.
 By default, on the Open Earable data transfer is very slow topping about 33kbps.
 This is not sufficient to record audio.
@@ -74,29 +103,63 @@ However, with the SdFat library it is possible to get write speeds of up to 400k
 For this, the SdFatConfig of the SdFat needs to be modified.
 
 Go to the SdFat library folder and find the `SdFatConfig.h`.
-Here enable `USE_SPI_ARRAY_TRANSFER` by setting the `0` to `1`.
+Replace it with the provided config file found under "additional/sdfat_config"
 
-## PDM Mic Recording
-Open Earable is equipped with an Ultrasonic MEMS microphone that enables high-quality audio recording.
+The most notable change was the activation of the `USE_SPI_ARRAY_TRANSFER` flag.
 
-By default the PDM Mic is disabled.
-To enable it the `edge_ml_earable.enable_audio()` methods needs to be called before the `begin()` is executed.
+## Pin Configuration
 
-The Microphone is regarded as its own sensor under the EdgeML framework. Setting its sampling to a non-zero value will start the audio recording. The returned sensor value with EdgeML is the number of currently active sensors.
+A handy header file with all the pin definition is provided. For reference look at the "Earable_Pins.h".
 
-__Note:__ PDM Mic and SD Data Logging are mutually exclusive.
+## Usage and functionality
 
-__Note:__ Using other sensors with high sample rate with the PDM Mic may result in unexpected behavior and inconsistencies in the recorded data.
+The easiest way to use edge-ml is with the provided `App` sketch.
 
-Further functionality regarding the PDM Mic must be called after `enable_audio()` and before `begin()` and includes:
+However, there are a few more functionalities.
 
-#### `void set_audio_file_name(String name)`
+Note: The majority of the following functions should be called BEFORE the `edge_ml_earable.begin()` function.
 
-Sets the name of the audio file. The default name is "Recording.wav".
+#### `void debug(Stream &stream)`
+
+Set a IO stream for debugging purposes.
 
 ```c++
-edge_ml_earable.set_audio_file_name("AudioFile.csv");
+edge_ml_earable.debug(Serial);
 ```
+
+#### `void enable_sd_logging()`
+
+Enables SD card data logging. Recorded sensor values are automatically saved to the SD card.
+
+When enabled, Open Earable creates a ".csv" file on the SD card with a standardized header format consisting of:
+
+`ID, TIMESTAMP, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9`
+
+#### `void set_logger_file_name(String name)`
+
+Set name of logging file. (".csv" file preferred)
+
+#### `void set_playerfile_prefix(String name)`
+
+Set prefix of playback file.
+
+```c++
+edge_ml_earable.set_playerfile_prefix("Play");
+```
+
+Due to the file selecting feature the files on the SD card should be named in the following scheme:
+<br>
+"Play_1.wav"
+<br>
+"Play_2.wav"
+<br>
+"Play_3.wav"
+
+Currently up the 10 files are supported. (1-10)
+
+#### `void set_recorder_file_name(String name)`
+
+Set name of recording file. (".wav" file preferred)
 
 #### `void setSampleRate(int sampleRate)`
 
@@ -119,18 +182,9 @@ Most recommended are:
 - 41667Hz
 - 62500Hz
 
-
-```c++
-edge_ml_earable.setSampleRate(16000);
-```
-
 #### `void setGain(int gain)`
 
 Sets the gain of the PDM Mic. The default value is `20` and the maximum is `80`.
-
-```c++
-edge_ml_earable.setGain(0);
-```
 
 #### `void enable_serial_data()`
 
@@ -139,57 +193,135 @@ The raw PDM stream consisting of shorts will be sent via USB Serial.
 
 By default seral sending is disabled.
 
-```c++
-edge_ml_earable.enable_serial_data();
-```
-
 #### `void disable_serial_data()`
 
-Disables serial data sending, if enabled.
+Disable USB serial streaming of audio recording, if enabled.
+
+#### `void configure_sensor(SensorConfigurationPacket& config)`
+
+Send a configuration package from within the code.
+
+### Button
+
+The earable features a button at its side. A software debounced interface is already included with the `earable_btn` Button instance.
+
+it includes the following functionality: 
+
+#### `bool get_pressed()`
+
+Get state of the button.
+
+#### `bool get_held()`
+
+If the button is held down for more than a predetermined time, `true` is returned. (Default time: 1s)
+
+#### `bool get_pressed_single()`
+
+Get state of button once otherwise returns `false`.
+
+#### `bool get_held_single()`
+
+Get hold state of button once otherwise returns `false`.
+
+#### `void setDebounceTime(unsigned long debounceTime)`
+
+Set debounce time in ms. (Default 50ms)
+
+#### `void setHoldTime(unsigned long holdTime)`
+
+Set hold time in ms. (Default 1000ms)
+
+## Sensor Configuration
+
+Via the EdgeML pipeline or the `configure_sensor` function the sensor, PDM mic, and audio playback can be started or stopped.
+
+The sensor IDs can be found in the "src/custom_sensor/SensorID_Earable.h".
+
+A configuration packet is a struct following the following structure:
 
 ```c++
-edge_ml_earable.disable_serial_data();
+struct SensorConfigurationPacket {
+    uint8_t sensorId{};
+    float sampleRate{};
+    uint32_t latency{};
+};
 ```
 
-#### `void enable_chunks()`
+sensorId hold the ID of the sensor.<br>
+sampleRate holds the sample rate. <br>
+latency is a legacy field and can be mostly ignored. However, it has been repurposed as shown later.
 
-Allows to send all Audio data chunks at once to SD card, instead of one chunk per loop.
+Each sensor or audio IO can be enabled individually or together at the same time with predefined configurations.
+It is recommended to use the predefined configurations.
 
-This feature is by default enabled.
+The available predefined Sensors:
+### IMU
+ID: 0
 
-```c++
-edge_ml_earable.enable_chunks();
-```
+The IMU provides acceleration, gyroscope, and magnetometer values in xyz.
+<br>
+(max. 50Hz alone; max. 30Hz with other sensors)
 
-#### `void disable_chunks()`
 
-Sends all only one chunk of audio data to SD card per loop.
+### BME280
+ID: 1
 
-```c++
-edge_ml_earable.disable_chunks();
-```
+The BME provides in ear air pressure measurements as well as temperature data of the earable.
+<br>
+(max. 50Hz alone; max. 30Hz with other sensors)
 
-## SD Data Logging
+### PDM MIC
+ID: 2
 
-Open Earable supports SD data logging, allowing you to store recorded sensor values to an SD card.
+The PDM Microphone provides audio data up to 62.5kHz.
+The sample rate files of the configuration package is the audio sample rate of the sensor.
 
-When enabled, Open Earable creates a ".csv" file on the SD card with a standardized header format consisting of:
+### PLAYER
+ID: 3
 
-`ID, TIMESTAMP, Data1, Data2, Data3`
+The Player sensor controls the playback of audio.
+The sample rate files serves multiple purposes depending on its value:
 
-To enable the sd card logging call the `edge_ml_earable.enable_sd_logging()` method before the `begin()` method.
+- 0: Stops the current playback
+- 1-10: Select and play a file corresponding to the selected number
+- 300-22000: Plays a constant tone with the sample rate representing the integer frequency. (Min. 300Hz, max. 22000kHz)
 
-__Note:__ PDM Mic and SD Data Logging are mutually exclusive.
+### CONFIGURATION
+ID: 4
 
-Further functionality regarding the SD Logging must be called after `enable_sd_logging()` and before `begin()` and includes:
+With the "virtual" configuration sensor a predefined configuration of different activated sensors can be  selected.
+This is NECESSARY if the audio elements are supposed to run alongside the other sensors.
 
-#### `void set_logger_file_name(String name)`
+The sample rate represents the chosen configuration.
 
-Sets the name of the logging file. The default name is `Logging.csv`.
+Here the latency field becomes important. If any configuration with audio playback is selected, the latency field hold the selection parameter analogous to the "PLAYER" sensors settings.
+The only difference being that a latency field set to 0 will always trigger the audio file 1 instead of stopping all playback.
 
-```c++
-edge_ml_earable.set_logger_file_name("LoggingFile.csv");
-```
+Note: Once a new configuration is received all sensors will be stopped before the new configuration is started.
+
+Available configurations
+
+| CONFIG | IMU    | BME280 | PDM      | PLAYER |
+|--------|--------|--------|----------|--------|
+| 0      | OFF    | OFF    | OFF      | OFF    |
+| 1      | 30 Hz  | 30 Hz  | 62500 Hz | -      |
+| 2      | 30 Hz  | 30 Hz  | 41667 Hz | -      |
+| 3      | 30 Hz  | 30 Hz  | -        | -      |
+| 4      | 20 Hz  | 20 Hz  | 62500 Hz | -      |
+| 5      | 20 Hz  | 20 Hz  | 41667 Hz | -      |
+| 6      | 20 Hz  | 20 Hz  | -        | -      |
+| 7      | 30 Hz  | 30 Hz  | 41667    | ON     |
+| 8      | 30 Hz  | 30 Hz  | -        | ON     |
+| 9      | 20 Hz  | 20 Hz  | 41667    | ON     |
+| 10     | 20 Hz  | 20 Hz  | -        | ON     |
+| 11     | -      | -      | 62500 Hz | ON     |
+| 12     | -      | -      | 41667 Hz | ON     |
+| 13     | -      | -      | -        | ON     |
+| (14)   | 30 Hz  | 30 Hz  | 62500 Hz | ON     |
+| (15)   | 20 Hz  | 20 Hz  | 62500 Hz | ON     |
+
+
+__NOTE: Config 14 and 15 are unstable and are NOT recommended__
 
 ## Cite
 ```bib
