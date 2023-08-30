@@ -1,12 +1,8 @@
 #include "Button.h"
 
-Button::Button(int pin, bool useInternalPullup) {
+Button::Button(int pin) {
     _pin = pin;
-    if (useInternalPullup) {
-        pinMode(_pin, INPUT_PULLUP);
-    } else {
-        pinMode(_pin, INPUT);
-    }
+    pinMode(_pin, INPUT);
 }
 
 void Button::inverted() {
@@ -31,11 +27,17 @@ void Button::update() {
 
     if (now - _lastDebounceTime < _debounceDelay) return;
     _buttonState = PRESSED;
-    if (_pressed_flag == 1) _pressed_flag = 0;
+    if (_pressed_flag == 1) {
+        _pressed_flag = 0;
+        button_service.write_state(PRESSED);
+    }
 
     if (now - _pressStartTime < _holdDelay) return;
     _buttonState = HELD;
-    if (_held_flag == 1) _held_flag = 0;
+    if (_held_flag == 1) {
+        _held_flag = 0;
+        button_service.write_state(HELD);
+    }
 }
 
 ButtonState Button::getState() const {

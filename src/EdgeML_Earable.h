@@ -11,7 +11,7 @@
 
 #include <sd_logger/SD_Logger.h>
 
-#include "utils/Button.h"
+#include "button_service/Button.h"
 
 #include <utility>
 
@@ -47,6 +47,7 @@ public:
         if (_debug) success ? _debug->println("Player Ready!") : _debug->println("Player FAIL!");
 
         _battery->begin();
+        button_service.begin();
 
         edge_ml_generic.set_ble_config("Earable", "2.0.0");
         edge_ml_generic.set_custom(_interface);

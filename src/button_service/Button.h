@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "Earable_Pins.h"
+#include "Button_Service.h"
 
 enum ButtonState {
     IDLE,
@@ -12,7 +13,7 @@ enum ButtonState {
 
 class Button {
 public:
-    Button(int pin, bool useInternalPullup = false);
+    Button(int pin);
 
     void inverted();
 
@@ -34,7 +35,7 @@ private:
     bool _inverted = false;
     unsigned long _lastDebounceTime;
     unsigned long _pressStartTime;
-    unsigned long _debounceDelay = 50;
+    unsigned long _debounceDelay = 25;
     unsigned long _holdDelay = 1000;
 
 
