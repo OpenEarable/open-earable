@@ -17,6 +17,9 @@ void Button::update() {
     unsigned long now = millis();
 
     if (!reading) {
+        if (_buttonState != IDLE) {
+            button_service.write_state(IDLE);
+        }
         _buttonState = IDLE;
         _lastDebounceTime = now;
         _pressStartTime = now;
