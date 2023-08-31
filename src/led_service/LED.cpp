@@ -8,6 +8,8 @@ LED::LED(int pin_r, int pin_g, int pin_b) {
     pinMode(_r, OUTPUT);
     pinMode(_g, OUTPUT);
     pinMode(_b, OUTPUT);
+
+    set_color(OFF);
 }
 
 void LED::set_color(Color color) {

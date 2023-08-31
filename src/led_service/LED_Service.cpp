@@ -7,7 +7,7 @@ void LED_Service::begin() {
     BLE.setAdvertisedService(*_ledService);
     _ledService->addCharacteristic(*_ledSetStateC);
     BLE.addService(*_ledService);
-    _ledSetStateC->setEventHandler(BLEWritten, receiveWavConfig);
+    _ledSetStateC->setEventHandler(BLEWritten, receiveState);
 }
 
 void LED_Service::receiveState(BLEDevice central, BLECharacteristic characteristic) {
@@ -18,4 +18,4 @@ void LED_Service::receiveState(BLEDevice central, BLECharacteristic characterist
 
 
 
-LED_Service button_service;
+LED_Service led_service;
