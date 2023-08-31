@@ -15,7 +15,7 @@
 
 #include <utility>
 
-bool _data_logger_flag = false;
+bool _data_logger_flag = true;
 
 void data_callback(int id, unsigned int timestamp, uint8_t * data, int size);
 void config_callback(SensorConfigurationPacket *config);
@@ -35,8 +35,8 @@ public:
             _battery->debug(*_debug);
         }
 
-        if (_data_logger) {
-            _data_logger->begin();
+        if (_data_logger_flag) {
+            SD_Logger::begin();
         }
 
         // Can both be initialized without extra cost
@@ -76,18 +76,17 @@ public:
         edge_ml_generic.debug(stream);
     };
 
-    // SD LOGGING
-    void enable_sd_logging() {
-        _data_logger = new SD_Logger();
-        _data_logger_flag = true;
+    // SD LOGGING disable
+    void disable_sd_logging() {
+        _data_logger_flag = false;
     }
 
     void set_logger_file_name(String name) {
-        if (!_data_logger) return;
-        _data_logger->set_name(std::move(name));
+        if (!_data_logger_flag) return;
+        SD_Logger::set_name(std::move(name));
     }
 
-    void set_player_name(String name) {
+    void set_player_file_name(String name) {
         audio_player.set_name(std::move(name));
     }
 
@@ -123,7 +122,6 @@ public:
 private:
     SensorManager_Earable * _interface{};   // Created new
     Battery_Service * _battery{};           // Created new
-    SD_Logger * _data_logger{};             // Created new on demand
 
     Stream * _debug{};
 };
