@@ -87,7 +87,7 @@ public:
         _data_logger->set_name(std::move(name));
     }
 
-    void set_playerfile_prefix(String name) {
+    void set_player_name(String name) {
         audio_player.set_name(std::move(name));
     }
 
