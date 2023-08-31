@@ -121,8 +121,11 @@ void Configuration_Handler::configure(int config_num, int config_info) {
 
     // Use latency to control player
     config.sensorId = PLAYER;
-    config.sampleRate = float(config_info);
-    Audio_Player::config_callback(&config);
+    if (config_info) {
+        if (config_info == 2) config_info = 0;
+        config.sampleRate = float(config_info);
+        Audio_Player::config_callback(&config);
+    }
 
     config.sensorId = PDM_MIC;
     config.sampleRate = float(conf->PDM_rate);
@@ -156,5 +159,3 @@ void Configuration_Handler::config_callback(SensorConfigurationPacket *config) {
 }
 
 Configuration_Handler conf_handler;
-
-
