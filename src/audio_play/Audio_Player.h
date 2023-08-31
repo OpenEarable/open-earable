@@ -67,7 +67,7 @@ private:
 
     int _preload_blocks = 4; // 12
 
-    String _name = "play.wav";
+    String _name = "Play.wav";
 
     ExFatFile _file;
 
