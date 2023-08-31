@@ -252,18 +252,16 @@ void Audio_Player::config_callback(SensorConfigurationPacket *config) {
 }
 
 void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
-    if (configuration.size == 0) {
-        end();
-        return;
+    end();
+
+    if (configuration.size) {
+        String name = String(configuration.name, configuration.size);
+
+        set_name(name);
+        i2s_player.set_mode_file(true);
     }
 
-    String name = String(configuration.name, configuration.size);
-
-    set_name(name);
-    i2s_player.set_mode_file(true);
-
     if (configuration.state) {
-        end();
         start();
     }
 }
