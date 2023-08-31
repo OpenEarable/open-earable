@@ -3,6 +3,7 @@
 
 #include "ArduinoBLE.h"
 #include "Battery_Earable.h"
+#include "ble_config/ble_config_earable.h"
 #include <generic/Debug.h>
 
 class Battery_Service : public Debug {

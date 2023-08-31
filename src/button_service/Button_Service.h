@@ -2,6 +2,7 @@
 #define OPEN_EARABLE_BUTTON_SERVICE_H
 
 #include "ArduinoBLE.h"
+#include "ble_config/ble_config_earable.h"
 
 class Button_Service {
 public:

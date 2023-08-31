@@ -1,8 +1,5 @@
 #include "Battery_Service.h"
 
-auto batteryServiceUuid = "180F";
-auto batteryUuid = "2A19";
-
 void Battery_Service::begin() {
     battery = new Battery_Earable();
     battery->begin();
