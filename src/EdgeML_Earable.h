@@ -12,6 +12,7 @@
 #include <sd_logger/SD_Logger.h>
 
 #include "button_service/Button.h"
+#include "led_service/LED_Service.h"
 
 #include <utility>
 
@@ -48,6 +49,7 @@ public:
 
         _battery->begin();
         button_service.begin();
+        led_service.begin();
 
         edge_ml_generic.set_ble_config("Earable", "2.0.0");
         edge_ml_generic.set_custom(_interface);
