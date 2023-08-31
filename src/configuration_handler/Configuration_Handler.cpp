@@ -2,7 +2,6 @@
 
 
 const int max_config = 6;
-const int normal_count = 6;
 
 const configuration_bundle CONFS[max_config]= {
         {30, 30, 62500},     // 1
