@@ -446,17 +446,24 @@ Note: Once a new configuration is received all sensors will be stopped before th
 
 Available configurations
 
-| Configuration Number | IMU    | BME280 | PDM      |
-|----------------------|--------|--------|----------|
-| 0                    | OFF    | OFF    | OFF      |
-| 1                    | 30 Hz  | 30 Hz  | 62500 Hz |
-| 2                    | 30 Hz  | 30 Hz  | 41667 Hz |
-| 3                    | 30 Hz  | 30 Hz  | -        |
-| 4                    | 20 Hz  | 20 Hz  | 62500 Hz |
-| 5                    | 20 Hz  | 20 Hz  | 41667 Hz |
-| 6                    | 20 Hz  | 20 Hz  | -        |
-| 7                    | -      | -      | 62500 Hz |
-| 8                    | -      | -      | 41667 Hz |
+| Configuration Number | IMU   | BME280 | PDM      |
+|----------------------|-------|--------|----------|
+| 0                    | OFF   | OFF    | OFF      |
+| 1                    | 30 Hz | 30 Hz  | 62500 Hz |
+| 2                    | 30 Hz | 30 Hz  | 41667 Hz |
+| 3                    | 30 Hz | 30 Hz  | 16000 Hz |
+| 4                    | 30 Hz | 30 Hz  | -        |
+| 5                    | 20 Hz | 20 Hz  | 62500 Hz |
+| 6                    | 20 Hz | 20 Hz  | 41667 Hz |
+| 7                    | 20 Hz | 20 Hz  | 16000 Hz |
+| 8                    | 20 Hz | 20 Hz  | -        |
+| 9                    | 10 Hz | 10 Hz  | 62500 Hz |
+| 10                   | 10 Hz | 10 Hz  | 41667 Hz |
+| 11                   | 10 Hz | 10 Hz  | 16000 Hz |
+| 12                   | 10 Hz | 10 Hz  | -        |
+| 13                   | -     | -      | 62500 Hz |
+| 14                   | -     | -      | 41667 Hz |
+| 15                   | -     | -      | 16000 Hz |
 
 
 __NOTE: Config 1 and 2 are unstable if used together with the Audio playback__

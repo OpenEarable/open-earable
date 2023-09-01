@@ -1,8 +1,30 @@
 #include "Configuration_Handler.h"
 
 
-const int max_config = 6;
+const int max_config = 16;
 
+const configuration_bundle CONFS[max_config]= {
+        {30, 30, 62500},     // 1
+        {30, 30, 41667},     // 2
+        {30, 30, 16000},     // 3
+        {30, 30, 0},         // 4
+
+        {20, 20, 62500},     // 5
+        {20, 20, 41667},     // 6
+        {20, 20, 16000},     // 7
+        {20, 20, 0},         // 8
+
+        {10, 10, 62500},     // 9
+        {10, 10, 41667},     // 10
+        {10, 10, 16000},    // 11
+        {10, 10, 0},        // 12
+
+        {0, 0, 62500},     // 13
+        {0, 0, 41667},     // 14
+        {0, 0, 16000},     // 15
+};
+
+/*
 const configuration_bundle CONFS[max_config]= {
         {30, 30, 62500},     // 1
         {30, 30, 41667},     // 2
@@ -11,6 +33,8 @@ const configuration_bundle CONFS[max_config]= {
         {20, 20, 41667},     // 5
         {20, 20, 0},         // 6
 };
+*/
+
 
 // NOTE! IMU_rate and BARO_rate must be compatible
 
