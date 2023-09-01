@@ -8,7 +8,7 @@ void Button_Service::begin() {
     BLE.setAdvertisedService(*buttonService);
     buttonService->addCharacteristic(*buttonStateC);
     BLE.addService(*buttonService);
-    buttonStateC->setValue(0);
+    buttonStateC->writeValue(0);
 }
 
 void Button_Service::write_state(int state) {

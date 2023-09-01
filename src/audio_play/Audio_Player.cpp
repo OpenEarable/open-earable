@@ -4,6 +4,8 @@
 
 uint8_t AUDIO_BUFFER[audio_b_size * audio_b_count] __attribute__((aligned (16)));
 
+bool Audio_Player::_paused = false;
+
 Audio_Player::Audio_Player() {
     _tone_player = new Tone();
 }
@@ -227,12 +229,37 @@ bool Audio_Player::open_file() {
     return _opened;
 }
 
+WAVConfigurationPacket Audio_Player::make_wav_config() {
+    WAVConfigurationPacket wav_packet;
+    wav_packet.state = 0;
+    wav_packet.size = _name.length();
+
+    for (int i=0; i<_name.length(); i++) {
+        wav_packet.name[i] = _name[i];
+    }
+    return wav_packet;
+}
+
+
 void Audio_Player::config_callback(SensorConfigurationPacket *config) {
     // Check for PLAYER ID
     if (config->sensorId != PLAYER) return;
 
     // Get tone frequency
     int tone = int(config->sampleRate);
+
+    if (tone == 2) {
+        if (_paused) return;
+        _paused = true;
+        audio_player.pause();
+        return;
+    } else if (tone == 3) {
+        if (!_paused) return;
+        _paused = false;
+        audio_player.play();
+        return;
+    }
+    _paused = false;
 
     audio_player.end();
 
@@ -242,16 +269,33 @@ void Audio_Player::config_callback(SensorConfigurationPacket *config) {
     }
 
     // tone <= max_file > => Play file else play tone
-    if (tone <= 1) {
+    if (tone == 1) {
         i2s_player.set_mode_file(true);
         audio_player.start();
-    } else {
+    }
+    else {
         i2s_player.set_mode_file(false);
         audio_player.start_tone(tone);
+
     }
 }
 
 void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
+    int state = configuration.state;
+
+    if (state == 2) {
+        if (_paused) return;
+        _paused = true;
+        audio_player.pause();
+        return;
+    } else if (state == 3) {
+        if (!_paused) return;
+        _paused = false;
+        audio_player.play();
+        return;
+    }
+
+    _paused = false;
     end();
 
     if (configuration.size) {
@@ -261,7 +305,7 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
         i2s_player.set_mode_file(true);
     }
 
-    if (configuration.state) {
+    if (configuration.state == 1) {
         start();
     }
 }

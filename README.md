@@ -2,6 +2,12 @@
 
 OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing applications. It provides a versatile prototyping platform with support for various sensors and actuators, making it suitable for earable research and development.
 
+<p align="center" width="100%">
+    <img width="33%" src="./img/earable.png"> 
+</p>
+
+- [Pre-requistes](https://github.com/OpenEarable/open-earable/blob/v4_experimental_mess/README.md#sdfat-Library-Setup)
+
 ## Table of Contents
 - [Introduction](#Introduction)
 - [Setup](#Setup)
@@ -9,9 +15,12 @@ OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing 
   - [SD Card Setup](#SD-Card-Setup)
   - [SPI Setup](#SPI-Setup)
   - [sdfat Library Setup](#sdfat-Library-Setup)
-- [Earable EdgeML Usage](#Earable-EdgeML-Usage)
-  - [BLE Specification](#BLE-Specification)
-- [Further Functionality](#Further-Functionality)
+- [Usage](#Usage)
+  - [Example](#Example)
+  - [Dashboard](#Dashboard)
+  - [EdgeML](#EdgeML)
+- [BLE Specification](#BLE-Specification)
+- [Firmware Internals](#Firmware-Internals)
   - [Pin Configuration](#Pin-Configuration)
   - [Earable](#Earable)
   - [Sensor Configuration](#Sensor-Configuration)
@@ -21,17 +30,18 @@ OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing 
 
 ## Introduction
 
-OpenEarable is designed to enable ear-based sensing applications by offering a flexible and open-source hardware platform. It incorporates a range of sensors, including a 9-axis inertial measurement unit, an ear canal pressure and temperature sensor, an inward-facing ultrasound microphone, a speaker, a push button, and a controllable LED. With these features, OpenEarable provides researchers and developers with the ability to explore various application scenarios. 
+OpenEarable is designed to enable ear-based sensing applications by offering a flexible and open-source hardware platform. It incorporates a range of sensors, including a 9-axis inertial measurement unit, an ear canal pressure and temperature sensor, an inward-facing ultrasound microphone, a speaker, a push button, and a controllable RGB LED. With these features, OpenEarable provides researchers and developers with the ability to explore various application scenarios. 
 For more information visit the [OpenEarable](https://open-earable.teco.edu/) website.
 
-All interaction with the microcontroller takes place via BLE (Bluetooth Low Energy) with [EdgeML](https://edge-ml.org/) or the provided Dashboard {Dashboard Link}.
+All interaction with the microcontroller takes place via BLE (Bluetooth Low Energy) with [EdgeML](https://edge-ml.org/) or the provided [Dashboard](https://github.com/OpenEarable/dashboard).
 
-The Open Earable is running the Arduino Nano 33 BLE bootloader with Mbed OS. 
+The Open Earable is running the Arduino Nano 33 BLE [bootloader](https://github.com/arduino/ArduinoCore-mbed/tree/main/bootloaders/nano33ble) with Mbed OS. 
+Under "resources/Arduino_Nano_33_bootloader" the bootloader binary can be found as well.
 
 ## Setup
 
 ### C++ Libraries
-Needed C++ Libraries:
+Needed C++ Libraries to be installed with Arduino:
 - [EdgeML-Arduino](https://github.com/edge-ml/EdgeML-Arduino)
 - [Adafruit_BMP280](https://github.com/adafruit/Adafruit_BMP280_Library)
 - [DFRobot_BMX160](https://github.com/DFRobot/DFRobot_BMX160)
@@ -40,13 +50,13 @@ Needed C++ Libraries:
 
 
 ### SD Card Setup
-In order to be compatible with this library the SD card needs to be formatted with the exFAT format.
-Make sure to have a sufficiently fast SD card. (For prototyping tests SandDisk class 10 and class A30 were used)
+In order to be compatible with the open earable library the SD card needs to be formatted with the exFAT format.
+Make sure to have a sufficiently fast SD card. (Recommended SD Card: SandDisk class 10 and class A30)
 
 ### SPI Setup
 
-The default implementation of the SPI library does not meet the required speed. To address this, optimized SPI files are provided. Follow the steps below to integrate these files into Arduino.
-All referenced files can be found in the "additional" folder in the "spi_files" subfolder.
+The default Arduino implementation of the SPI library does not meet the required speed. To address this, optimized SPI files are provided. Follow the steps below to integrate these files into Arduino.
+All referenced files can be found in the "resources" folder in the "spi_files" subfolder.
 
 To fully integrate the optimized SPI files, changes to the Arduino Nano 33 BLE board files have to be made. Follow the steps below to accomplish this:
 
@@ -60,34 +70,35 @@ To fully integrate the optimized SPI files, changes to the Arduino Nano 33 BLE b
 
 5. Inside the "packages" folder, navigate to the following directory: `arduino/hardware/mbed_nano/4.0.4/libraries`.
 
-6. Locate the existing SPI library folder within this directory. It needs to be swapped with the provided folder named "SPI".
+6. Locate the existing SPI library folder within this directory. It needs to be swapped with the provided folder named "SPI" in "resources/spi_files"".
 
 7. Similarly, navigate to the following directory: `arduino/hardware/mbed_nano/4.0.4/cores/arduino/mbed/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/drivers/include`.
 
-8. In this directory, locate the file named "nrfx_spi.h" and replace it with the provided "nrfx_spi.h" file from the "spi_files" folder.
+8. In this directory, locate the file named "nrfx_spi.h" and replace it with the provided "nrfx_spi.h" file from the "resources/spi_files" folder.
 
-9. Additionally, paste the "nrfx_spim.c" file from the "spi_files" subfolder into the same directory.
+9. Additionally, paste the "nrfx_spim.c" file from the "resources/spi_files" subfolder into the same directory.
 
 ### sdfat Library Setup
 One of the library requirements is the Adafruit Fork of the SdFat library from Bill Greiman.
 This library is used to send data to the SD card.
-By default, on the Open Earable data transfer is very slow topping about 33kbps.
+If the Arduino default SD Card library is used or if the SdFat library is used without changing its configurations OpenEarable data transfer is very slow topping about 33kbps.
 This is not sufficient to record audio.
 
-However, with the SdFat library it is possible to get write speeds of up to 400kbps.
-For this, the SdFatConfig of the SdFat needs to be modified.
+However, with the SdFat library it is possible to get write speeds of up to 400kbps without the SPI changes and up to 1.5Mbps with the SPI changes.
+To achieve those speeds, the SdFatConfig of the SdFat library needs to be modified.
 
-Go to the SdFat library folder and find the `SdFatConfig.h`.
-Replace it with the provided config file found under "additional/sdfat_config"
+Go to the "Arduino/libraries" folder and locate the "SdFat" library folder. There find the `SdFatConfig.h`.
+Replace it with the provided config file found under "resources/sdfat_config"
 
-The most notable change was the activation of the `USE_SPI_ARRAY_TRANSFER` flag.
+(The most notable change was setting of the `USE_SPI_ARRAY_TRANSFER` flag.)
 
-## Earable EdgeML Usage
+## Usage
+### Example
+The easiest way to use open earable is with the provided App sketch. 
+It can be found within Arduino under `File->Examples->EdgeML-Earable->App`.
 
-Open Earable is seamlessly integrated with EdgeML, an open-source and browser-based toolchain for machine learning on microcontrollers.
-For more detailed information on how to use EdgeML, refer to the [EdgeML](https://edge-ml.org/) website.
 
-The easiest way to use open earable with edge-ml is with the provided App sketch. The absolute minimum needed to run the code successfully is the following:
+The absolute minimum needed to run the code successfully is the following:
 
 ```c++
 #include "EdgeML_Earable.h"
@@ -101,21 +112,25 @@ void loop() {
 }
 ```
 
-With the following BLE API the individual sensors can be activated and controlled.
+With this minimum sketch, all internal functionality is activated and the Open Earable becomes controllable via our [Dashboard](https://github.com/OpenEarable/dashboard), via [EdgeML](https://edge-ml.org/), and via the BLE API.
 
-#### Defaults
-By default, the audio play file is called: "Play.wav"
+### Defaults
+Since the SD card is used to facilitate the audio functionality and sensor data logging, certain file name defaults are already set in the firmware.
+- Audio playback: "Play.wav"
+- Audio recording: "Recording.wav"
+- Date logging: "Log.csv"
 
-
-By default, the audio recording file is called: "Recording.wav"
-
-
-By default, all recorded data values are saved to the SD card in a ".csv" file named: "Log.csv"
-
-
-The standardized header format is:
+Note that for the data logging ".csv" file format is used. The standardized header format is:
 
 `ID, TIMESTAMP, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9`
+
+### Dashboard
+
+The Open Earable can be directly connected to our [Dashboard](https://github.com/OpenEarable/dashboard).
+
+### EdgeML
+
+Open Earable is seamlessly integrated with [EdgeML](https://edge-ml.org/), an open-source and browser-based toolchain for machine learning on microcontrollers.
 
 ### BLE Specification
 
@@ -127,62 +142,59 @@ Note: to configure sensors via BLE see [Sensor Configuration](#Sensor-Configurat
 
 Specification Table:
 
-| Service Name        | Service UUID                             | Characteristic Name  | Characteristic UUID                    |
-|---------------------|------------------------------------------|----------------------|----------------------------------------|
-| Sensor Service      | `34c2e3bb-34aa-11eb-adc1-0242ac120002`   | Sensor Data          | `34c2e3bc-34aa-11eb-adc1-0242ac120002` |
-|                     |                                          | Sensor Configuration | `34c2e3bd-34aa-11eb-adc1-0242ac120002` |
-| Device Info Service | `45622510-6468-465a-b141-0b9b0f96b468`   | Device Identifier    | `45622511-6468-465a-b141-0b9b0f96b468` |
-|                     |                                          | Device Generation    | `45622512-6468-465a-b141-0b9b0f96b468` |
-| Parse Info Service  | `caa25cb7-7e1b-44f2-adc9-e8c06c9ced43`   | Scheme               | `caa25cb8-7e1b-44f2-adc9-e8c06c9ced43` |
-|                     |                                          | Sensor Names         | `caa25cb9-7e1b-44f2-adc9-e8c06c9ced43` |
-| WAV Play Service    | `5669146e-476d-11ee-be56-0242ac120002`   | WAV Play             | `566916a8-476d-11ee-be56-0242ac120002` |
-| Battery Service     | `180F`                                   | Battery Level        | `2A19`                                 |
-| Button Service      | `29c10bdc-4773-11ee-be56-0242ac120002`   | Button State         | `29c10f38-4773-11ee-be56-0242ac120002` |
-| LED Service         | `81040a2e-4819-11ee-be56-0242ac120002`   | LED Set State        | `81040e7a-4819-11ee-be56-0242ac120002` |
+| Service Name        | Service UUID                             | Characteristic Name  | Characteristic UUID                     | Permissions |
+|---------------------|------------------------------------------|----------------------|-----------------------------------------|-------------|
+| Sensor Service      | `34c2e3bb-34aa-11eb-adc1-0242ac120002`   | Sensor Configuration | `34c2e3bd-34aa-11eb-adc1-0242ac120002`  | Write       |
+|                     |                                          | Sensor Data          | `34c2e3bc-34aa-11eb-adc1-0242ac120002`  | Read/Notify |
+| Device Info Service | `45622510-6468-465a-b141-0b9b0f96b468`   | Device Identifier    | `45622511-6468-465a-b141-0b9b0f96b468`  | Read        |
+|                     |                                          | Device Generation    | `45622512-6468-465a-b141-0b9b0f96b468`  | Read        |
+| Parse Info Service  | `caa25cb7-7e1b-44f2-adc9-e8c06c9ced43`   | Scheme               | `caa25cb8-7e1b-44f2-adc9-e8c06c9ced43`  | Read        |
+|                     |                                          | Sensor Names         | `caa25cb9-7e1b-44f2-adc9-e8c06c9ced43`  | Read        |
+| WAV Play Service    | `5669146e-476d-11ee-be56-0242ac120002`   | WAV Play             | `566916a8-476d-11ee-be56-0242ac120002`  | Read/Write  |
+| Battery Service     | `180F`                                   | Battery Level        | `2A19`                                  | Read/Notify |
+| Button Service      | `29c10bdc-4773-11ee-be56-0242ac120002`   | Button State         | `29c10f38-4773-11ee-be56-0242ac120002`  | Read/Notify |
+| LED Service         | `81040a2e-4819-11ee-be56-0242ac120002`   | LED Set State        | `81040e7a-4819-11ee-be56-0242ac120002`  | Write       |
 
-#### Sensor Data Characteristic
-Permissions: Read/Notify
-
-This Characteristic is responsible for sending data packages from the Earable to the connected device.
-
-A data package has the following structure:
-
-```c++
-struct DataPackage {
-    uint8_t sensorId;
-    uint8_t size;
-    uint32_t timestamp;
-    uint8_t * data;
-}; 
-```
-(Structure example)
-
-sensorId hold the ID of the sensor.<br>
-size holds size of the following data array.<br>
-millis holds a timestamp in milliseconds.<br>
-data is an array of bytes, which need to be parsed according the sensors parsing scheme.
 
 #### Sensor Configuration Characteristic
 Permissions: Write
 
 This characteristic is used to send a sensor configuration to the Earable.
 
-A configuration packet is an implemented struct with the following structure:
+Configuration Package:
 
-```c++
-struct SensorConfigurationPacket {
-    uint8_t sensorId;
-    float sampleRate;
-    uint32_t latency;
-};
-```
+| Bit 0    | Bit 1-4     | Bit 5-8 |
+|----------|-------------|---------|
+| SensorID | Sample Rate | Latency |
+| uint8    | float       | uint32  |
 
-sensorId hold the ID of the sensor.<br>
-sampleRate holds the sample rate. <br>
-latency is a legacy field and can be mostly ignored. However, it has been repurposed as shown later.
+SensorID: ID of the sensor.<br>
+Sample Rate: Desired sample rate. <br>
+Latency: Legacy field which is mostly ignored. However, it has been repurposed as shown later.
 
 Each sensor or audio IO can be enabled individually or together at the same time with predefined configurations.
 It is recommended to use the predefined configurations.
+
+
+To use the redefined configurations, Please refer to the [implementation](#CONFIGURATION) details below.
+
+#### Sensor Data Characteristic
+Permissions: Read/Notify
+
+This Characteristic is responsible for sending data packages from the Earable to the connected device.
+
+Data Package:
+
+| Bit 0    | Bit 1   | Bit 2-5    | Bit 5-X    |
+|----------|---------|------------|------------|
+| SensorID | Size    | Time Stamp | Data Array |
+| uint8    | uint8   | uint32     | ---        |
+
+
+SensorID: ID of the sensor.<br>
+Size: Size of the following Data Array.<br>
+Time Stamp:  Timestamp in milliseconds.<br>
+Data Array: Array of bytes, which need to be parsed according the sensors parsing scheme.
 
 #### Device Identifier Characteristic
 Permissions: Read
@@ -208,33 +220,42 @@ With this characteristic the sensor count and names can be requested from the de
 More information about parsing this buffer can be found in the [EdgeML-Arduino](https://github.com/edge-ml/EdgeML-Arduino) library.
 
 #### WAV Play Characteristic
-Permissions: Write
+Permissions: Read/Write
 
 This characteristic is used to send commands to the audio WAV player.
 
-The command packet has the following structure:
 
-```c++
-struct WAVConfigurationPacket {
-    uint8_t state;
-    uint8_t size;
-    char name[MAX_WAV_NAME_LENGTH];
-};
-```
+WAV Play Package:
 
-state determines whether the specified audio should be already played or not. (1 => play; 0 => don't play)<br>
-size holds the size of the name.<br>
-name contains the char array of the name.
+| Bit 0   | Bit 1    | Bit 2-X    |
+|---------|----------|------------|
+| State   | Size     | Name       |
+| uint8   | uint8    | char array |
+
+
+State: Controls player
+- 0: Stop/End
+- 1: Start
+- 2: Pause
+- 3: Unpause
+
+Additionally, when either stopping or starting a name for an audio file can be transmitted as well.
+Size: Size of char array.<br>
+Name: Name of file.
+
+
+Changing the audio file name is optional! If audio file should not change set Size to 0.
 
 #### Battery Level Characteristic
-Permissions: Read
+Permissions: Read/Notify
 
-Read the current battery level. The read value is a 1 byte int from 0-100.
+Read the current battery level. The read value is a 1 byte int from 0-100 representing battery charge in percent.
 
 #### Button State Characteristic
 Permissions: Read/Notify
 
 Sends the state of the button as a 1 byte int.
+A notification is sent once a change of button state has occurred.
 
 The states are:
 - 0: IDLE
@@ -256,7 +277,7 @@ The states are:
 - 6: MAGENTA
 - 7: WHITE
 
-## Further Functionality
+## Firmware Internals
 
 ### Pin Configuration
 
@@ -278,9 +299,9 @@ Set a IO stream for debugging purposes.
 edge_ml_earable.debug(Serial);
 ```
 
-#### `void enable_sd_logging()`
+#### `void set_sd_logging(bool enabled)`
 
-Enables SD card data logging. Recorded sensor values are automatically saved to the SD card. (enabled by default)
+Enables or disables SD card data logging. Recorded sensor values are automatically saved to the SD card. (enabled by default)
 
 When enabled, Open Earable creates a ".csv" file on the SD card with a standardized header format consisting of:
 
@@ -329,16 +350,12 @@ Most recommended are:
 
 Sets the gain of the PDM Mic. The default value is `20` and the maximum is `80`.
 
-#### `void enable_serial_data()`
+#### `void use_serial_data_transmission(bool enabled)`
 
 Instead of saving the data to an SD card it can also be sent via the USB Serial port.
-The raw PDM stream consisting of shorts will be sent via USB Serial.
+The raw PDM stream consisting of shorts will be sent via USB Serial if enabled.
 
 By default seral sending is disabled.
-
-#### `void disable_serial_data()`
-
-Disable USB serial streaming of audio recording, if enabled.
 
 #### `void configure_sensor(SensorConfigurationPacket& config)`
 
@@ -350,7 +367,7 @@ Via the EdgeML pipeline or the `configure_sensor` function the sensor, PDM mic, 
 
 The sensor IDs can be found in the "src/custom_sensor/SensorID_Earable.h".
 
-A configuration packet is a struct following the following structure:
+A configuration packet is implemented as struct:
 
 ```c++
 struct SensorConfigurationPacket {
@@ -360,16 +377,21 @@ struct SensorConfigurationPacket {
 };
 ```
 
-sensorId hold the ID of the sensor.<br>
-sampleRate holds the sample rate. <br>
-latency is a legacy field and can be mostly ignored. However, it has been repurposed as shown later.
+| Bit 0    | Bit 1-4     | Bit 5-8 |
+|----------|-------------|---------|
+| SensorID | Sample Rate | Latency |
+| uint8    | float       | uint32  |
+
+SensorID: ID of the sensor.<br>
+Sample Rate: Desired sample rate.<br>
+Latency: Legacy field which is mostly ignored. However, it has been repurposed as shown later.
 
 Each sensor or audio IO can be enabled individually or together at the same time with predefined configurations.
 It is recommended to use the predefined configurations.
 
 The available predefined Sensors:
 #### IMU
-ID: 0
+Sensor ID: 0
 
 The IMU provides acceleration, gyroscope, and magnetometer values in xyz.
 <br>
@@ -377,60 +399,64 @@ The IMU provides acceleration, gyroscope, and magnetometer values in xyz.
 
 
 #### BME280
-ID: 1
+Sensor ID: 1
 
 The BME provides in ear air pressure measurements as well as temperature data of the earable.
 <br>
 (max. 50Hz alone; max. 30Hz with other sensors)
 
 #### PDM MIC
-ID: 2
+Sensor ID: 2
 
 The PDM Microphone provides audio data up to 62.5kHz.
 The sample rate files of the configuration package is the audio sample rate of the sensor.
 
 #### PLAYER
-ID: 3
+Sensor ID: 3
 
 The Player sensor controls the playback of audio.
 The sample rate files serves multiple purposes depending on its value:
 
 - 0: Stops the current playback
 - 1: Play the currently set file
+- 2: Pause
+- 3: Unpause
 - 300-22000: Plays a constant tone with the sample rate representing the integer frequency. (Min. 300Hz, max. 22000kHz)
 
 NOTE: Playing a tone takes ~1.5 seconds to initialize and may disturb a running audio recording
 
 #### CONFIGURATION
-ID: 4
+Sensor ID: 4
 
 With the "virtual" configuration sensor a predefined configuration of different activated sensors can be  selected.
 This is NECESSARY if the audio elements are supposed to run alongside the other sensors.
 
-The sample rate represents the chosen configuration.
+The sample rate represents the chosen Configuration Number.
 
 Here the latency field becomes important. It controls the activity of the audio playback.<br>
 The following cases for latency can be distinguished:
 - 0: Ignore audio player (doesn't stop current playback if active)
-- 1: Play current file
-- 2: Stop playback
+- 1: Stop playback
+- 2: Play current file
+- 3: Pause
+- 4: Unpause
 - 300-22000: Plays a constant tone with the sample rate representing the integer frequency. (Min. 300Hz, max. 22000kHz)
 
 Note: Once a new configuration is received all sensors will be stopped before the new configuration is started.
 
 Available configurations
 
-| CONFIG | IMU    | BME280 | PDM      |
-|--------|--------|--------|----------|
-| 0      | OFF    | OFF    | OFF      |
-| 1      | 30 Hz  | 30 Hz  | 62500 Hz |
-| 2      | 30 Hz  | 30 Hz  | 41667 Hz |
-| 3      | 30 Hz  | 30 Hz  | -        |
-| 4      | 20 Hz  | 20 Hz  | 62500 Hz |
-| 5      | 20 Hz  | 20 Hz  | 41667 Hz |
-| 6      | 20 Hz  | 20 Hz  | -        |
-| 7      | -      | -      | 62500 Hz |
-| 8      | -      | -      | 41667 Hz |
+| Configuration Number | IMU    | BME280 | PDM      |
+|----------------------|--------|--------|----------|
+| 0                    | OFF    | OFF    | OFF      |
+| 1                    | 30 Hz  | 30 Hz  | 62500 Hz |
+| 2                    | 30 Hz  | 30 Hz  | 41667 Hz |
+| 3                    | 30 Hz  | 30 Hz  | -        |
+| 4                    | 20 Hz  | 20 Hz  | 62500 Hz |
+| 5                    | 20 Hz  | 20 Hz  | 41667 Hz |
+| 6                    | 20 Hz  | 20 Hz  | -        |
+| 7                    | -      | -      | 62500 Hz |
+| 8                    | -      | -      | 41667 Hz |
 
 
 __NOTE: Config 1 and 2 are unstable if used together with the Audio playback__
@@ -516,3 +542,5 @@ Invert color state.
 	keywords     = {In-Ear Headphones, IMU, Monitoring}
 }
 ```
+
+[earable]: ./img/earable.png

@@ -78,9 +78,9 @@ public:
         edge_ml_generic.debug(stream);
     };
 
-    // SD LOGGING disable
-    void disable_sd_logging() {
-        _data_logger_flag = false;
+    // SD LOGGING
+    void set_sd_logging(bool enabled) {
+        _data_logger_flag = enabled;
     }
 
     void set_logger_file_name(String name) {
@@ -105,13 +105,10 @@ public:
         pdm_mic_sensor.setGain(gain);
     };
 
-    void enable_serial_data() {
-        pdm_mic_sensor.enable_serial_data();
-    };
-
-    void disable_serial_data() {
-        pdm_mic_sensor.disable_serial_data();
-    };
+    void use_serial_data_transmission(bool enabled) {
+        if (enabled) pdm_mic_sensor.enable_serial_data();
+        else pdm_mic_sensor.disable_serial_data();
+    }
 
     void configure_sensor(SensorConfigurationPacket& config) {
         edge_ml_generic.configure_sensor(config);

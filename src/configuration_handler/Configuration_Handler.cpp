@@ -122,7 +122,7 @@ void Configuration_Handler::configure(int config_num, int config_info) {
     // Use latency to control player
     config.sensorId = PLAYER;
     if (config_info) {
-        if (config_info == 2) config_info = 0;
+        if (config_info<=4) config_info -= 1; // adjust
         config.sampleRate = float(config_info);
         Audio_Player::config_callback(&config);
     }

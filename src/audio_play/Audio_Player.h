@@ -17,9 +17,9 @@ extern uint8_t AUDIO_BUFFER[audio_b_size * audio_b_count] __attribute__((aligned
 #define MAX_WAV_NAME_LENGTH 64
 
 struct __attribute__((packed)) WAVConfigurationPacket {
-    uint8_t state{};    // 0 => don't start; 1 => start
+    uint8_t state{};    // 0 => don't start; 1 => start; 2 => pause; 3 => unpause;
     uint8_t size{};     // size of name; max 64
-    char name[MAX_WAV_NAME_LENGTH];
+    char name[MAX_WAV_NAME_LENGTH]{};
 };
 
 class Audio_Player {
@@ -52,6 +52,7 @@ public:
 
     int ready_blocks();
 
+    WAVConfigurationPacket make_wav_config();
     void ble_configuration(WAVConfigurationPacket& configuration);
 
     static void config_callback(SensorConfigurationPacket * config);
@@ -61,6 +62,8 @@ private:
     bool _opened = false;
 
     bool _tone = false;
+
+    static bool _paused;
 
     int _default_offset = 44;
     unsigned int _cur_read_sd = _default_offset;
