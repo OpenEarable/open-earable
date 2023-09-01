@@ -276,7 +276,6 @@ void Audio_Player::config_callback(SensorConfigurationPacket *config) {
     else {
         i2s_player.set_mode_file(false);
         audio_player.start_tone(tone);
-
     }
 }
 
