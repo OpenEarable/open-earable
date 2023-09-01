@@ -485,13 +485,14 @@ Get state of the button.
 
 If the button is held down for more than a predetermined time, `true` is returned. (Default time: 1s)
 
-#### `bool get_pressed_single()`
+#### `bool get_pressed_once()`
 
-Get state of button once otherwise returns `false`.
+Checks if the button is pressed. If button is pressed it returns `true` once until the button is released and pressed again.
 
-#### `bool get_held_single()`
 
-Get hold state of button once otherwise returns `false`.
+#### `bool get_held_once()`
+
+Checks if the button is held. If button is held it returns `true` once until the button is released and held again.
 
 #### `void setDebounceTime(unsigned long debounceTime)`
 

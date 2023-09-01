@@ -24,8 +24,8 @@ public:
     bool get_pressed();
     bool get_held();
 
-    bool get_pressed_single();
-    bool get_held_single();
+    bool get_pressed_once();
+    bool get_held_once();
 
     void setDebounceTime(unsigned long debounceTime);
     void setHoldTime(unsigned long holdTime);

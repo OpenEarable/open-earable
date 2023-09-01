@@ -63,17 +63,14 @@ bool Button::get_held() {
     return _buttonState == HELD;
 }
 
-bool Button::get_pressed_single() {
+bool Button::get_pressed_once() {
     if (_pressed_flag) return false;
-
     _pressed_flag = 2;
-
     return get_pressed();
 }
 
-bool Button::get_held_single() {
+bool Button::get_held_once() {
     if (_held_flag) return false;
-
     _held_flag = 2;
     return get_held();
 }
