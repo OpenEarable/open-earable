@@ -20,6 +20,7 @@ OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing 
   - [EdgeML](#EdgeML)
 - [BLE Specification](#BLE-Specification)
 - [Firmware Internals](#Firmware-Internals)
+  - [Bootloader](#Bootloader)
   - [Pin Configuration](#Pin-Configuration)
   - [Earable](#Earable)
   - [Sensor Configuration](#Sensor-Configuration)
@@ -32,10 +33,8 @@ OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing 
 OpenEarable is designed to enable ear-based sensing applications by offering a flexible and open-source hardware platform. It incorporates a range of sensors, including a 9-axis inertial measurement unit, an ear canal pressure and temperature sensor, an inward-facing ultrasound microphone, a speaker, a push button, and a controllable RGB LED. With these features, OpenEarable provides researchers and developers with the ability to explore various application scenarios. 
 For more information visit the [OpenEarable](https://open-earable.teco.edu/) website.
 
-All interaction with the microcontroller takes place via BLE (Bluetooth Low Energy) with [EdgeML](https://edge-ml.org/) or the provided [Dashboard](https://github.com/OpenEarable/dashboard).
+OpenEarable is controlled and streams sensor data via BLE (Bluetooth Low Energy). Audio is played from and recorded to the internal SD card. OpenEarable is compatible with the provided [dashboard](https://github.com/OpenEarable/dashboard) and [edge-ml](https://edge-ml.org/). 
 
-The Open Earable is running the Arduino Nano 33 BLE [bootloader](https://github.com/arduino/ArduinoCore-mbed/tree/main/bootloaders/nano33ble) with Mbed OS. 
-Under "resources/Arduino_Nano_33_bootloader" the bootloader binary can be found as well.
 
 ## Setup
 
@@ -277,6 +276,11 @@ The states are:
 - 7: WHITE
 
 ## Firmware Internals
+
+### Bootloader
+
+OpenEarable is based on the Arduino Nano 33 BLE and uses the respective [bootloader](https://github.com/arduino/ArduinoCore-mbed/tree/main/bootloaders/nano33ble) with Mbed OS. 
+Under "resources/Arduino_Nano_33_bootloader" the bootloader binary can be found as well.
 
 ### Pin Configuration
 
