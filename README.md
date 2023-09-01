@@ -39,7 +39,7 @@ OpenEarable is controlled and streams sensor data via BLE (Bluetooth Low Energy)
 ## Setup
 
 ### C++ Libraries
-Needed C++ Libraries to be installed with Arduino:
+The following C++ Libraries have to be installed in your Arduino IDE:
 - [EdgeML-Arduino](https://github.com/edge-ml/EdgeML-Arduino)
 - [Adafruit_BMP280](https://github.com/adafruit/Adafruit_BMP280_Library)
 - [DFRobot_BMX160](https://github.com/DFRobot/DFRobot_BMX160)
