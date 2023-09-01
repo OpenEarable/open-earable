@@ -45,6 +45,7 @@ bool Configuration_Handler::check_active() {
 
 void Configuration_Handler::update() {
     update_edge_ml();
+    BLE.poll();
 
     if (_buffer_flag) return;
     _buffer_flag = true;
@@ -56,7 +57,6 @@ void Configuration_Handler::update() {
         if (update_play()) return;
         update_pdm();
     }
-    BLE.poll();
 }
 
 unsigned long last = 0;
@@ -123,7 +123,7 @@ void Configuration_Handler::configure(int config_num, int config_info) {
     _current_conf_num = config_num;
     _cycle = 0;
 
-    if (config_num == 0) {
+    if (config_num == 0 && !config_info) {
         _config_active = false;
         return;
     }
