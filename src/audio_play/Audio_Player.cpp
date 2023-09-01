@@ -15,7 +15,6 @@ Audio_Player::~Audio_Player() {
 }
 
 bool Audio_Player::init() {
-    play_service.begin();
     i2s_setup();
     _tone_player->setup(); // Tone setup after i2s_setup!
     return sd_setup();
@@ -33,7 +32,7 @@ bool Audio_Player::sd_setup() {
 }
 
 void Audio_Player::update() {
-    if (!_stream) return;
+    if (!_stream) return _check_ready();;
 
     if (_tone) {
         _tone_player->update();
@@ -41,7 +40,7 @@ void Audio_Player::update() {
     }
 
     if (check_completed()) return;
-    if (!i2s_player.available()) return;
+    if (i2s_player.available() < 2) return;
 
 
     unsigned int read = sd_to_buffer();
@@ -51,7 +50,11 @@ void Audio_Player::update() {
 }
 
 int Audio_Player::update_contiguous(int max_cont) {
-    if (!_stream) return 0;
+    if (!_stream) {
+        _check_ready();
+        return 0;
+    }
+
 
     if (_tone) {
         _tone_player->update();
@@ -240,6 +243,27 @@ WAVConfigurationPacket Audio_Player::make_wav_config() {
     return wav_packet;
 }
 
+void Audio_Player::_check_ready() {
+    // This function avoids starting player during interrupts
+    if (!_ready) return;
+
+    if (_last_frequency) {
+        start_tone(_last_frequency);
+    } else {
+        start();
+    }
+    _ready = false;
+}
+
+void Audio_Player::set_ready() {
+    _last_frequency = 0;
+    _ready = true;
+}
+
+void Audio_Player::set_ready(int frequency) {
+    _last_frequency = frequency;
+    _ready = true;
+}
 
 void Audio_Player::config_callback(SensorConfigurationPacket *config) {
     // Check for PLAYER ID
@@ -271,11 +295,13 @@ void Audio_Player::config_callback(SensorConfigurationPacket *config) {
     // tone <= max_file > => Play file else play tone
     if (tone == 1) {
         i2s_player.set_mode_file(true);
-        audio_player.start();
+        audio_player.set_ready();
+        //audio_player.start(); // Started in ready
     }
     else {
         i2s_player.set_mode_file(false);
-        audio_player.start_tone(tone);
+        audio_player.set_ready(tone);
+        //audio_player.start_tone(tone); // Started in ready
     }
 }
 
@@ -284,11 +310,13 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
 
     if (state == 2) {
         if (_paused) return;
+        if (!_stream) return;
         _paused = true;
         audio_player.pause();
         return;
     } else if (state == 3) {
         if (!_paused) return;
+        if (!_stream) return;
         _paused = false;
         audio_player.play();
         return;
@@ -305,7 +333,8 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
     }
 
     if (configuration.state == 1) {
-        start();
+        set_ready();
+        // start();
     }
 }
 

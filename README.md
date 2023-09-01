@@ -161,10 +161,10 @@ This characteristic is used to send a sensor configuration to the Earable.
 
 Configuration Package:
 
-| Bit 0    | Bit 1-4     | Bit 5-8 |
-|----------|-------------|---------|
-| SensorID | Sample Rate | Latency |
-| uint8    | float       | uint32  |
+| Byte 0     | Byte 1-4    | Byte 5-8 |
+|------------|-------------|----------|
+| SensorID   | Sample Rate | Latency  |
+| uint8      | float       | uint32   |
 
 SensorID: ID of the sensor.<br>
 Sample Rate: Desired sample rate. <br>
@@ -183,10 +183,10 @@ This Characteristic is responsible for sending data packages from the Earable to
 
 Data Package:
 
-| Bit 0    | Bit 1   | Bit 2-5    | Bit 5-X    |
-|----------|---------|------------|------------|
-| SensorID | Size    | Time Stamp | Data Array |
-| uint8    | uint8   | uint32     | ---        |
+| Byte 0    | Byte 1  | Byte 2-5    | Byte 5-X     |
+|-----------|---------|-------------|--------------|
+| SensorID  | Size    | Time Stamp  | Data Array   |
+| uint8     | uint8   | uint32      | ---          |
 
 
 SensorID: ID of the sensor.<br>
@@ -225,10 +225,10 @@ This characteristic is used to send commands to the audio WAV player.
 
 WAV Play Package:
 
-| Bit 0   | Bit 1    | Bit 2-X    |
-|---------|----------|------------|
-| State   | Size     | Name       |
-| uint8   | uint8    | char array |
+| Byte 0 | Byte 1    | Byte 2-X     |
+|--------|-----------|--------------|
+| State  | Size      | Name         |
+| uint8  | uint8     | char array   |
 
 
 State: Controls player
@@ -380,10 +380,10 @@ struct SensorConfigurationPacket {
 };
 ```
 
-| Bit 0    | Bit 1-4     | Bit 5-8 |
-|----------|-------------|---------|
-| SensorID | Sample Rate | Latency |
-| uint8    | float       | uint32  |
+| Byte 0    | Byte 1-4     | Byte 5-8 |
+|-----------|--------------|----------|
+| SensorID  | Sample Rate  | Latency  |
+| uint8     | float        | uint32   |
 
 SensorID: ID of the sensor.<br>
 Sample Rate: Desired sample rate.<br>
@@ -400,6 +400,12 @@ The IMU provides acceleration, gyroscope, and magnetometer values in xyz.
 <br>
 (max. 50Hz alone; max. 30Hz with other sensors)
 
+Data Array structure:
+
+| Byte 0-3 | Byte 4-7 | Byte 8-11 | Byte 12-15 | Byte 16-19 | Byte 20-23 | Byte 24-27 | Byte 28-31 | Byte 32-35 |
+|----------|----------|-----------|------------|------------|------------|------------|------------|------------|
+| IMU X    | IMU Y    | IMU Z     | GYRO X     | GYRO Y     | GYRO Z     | MAG X      | MAG Y      | MAG Z      |
+| float    | float    | float     | float      | float      | float      | float      | float      | float      | 
 
 #### BME280
 Sensor ID: 1
@@ -408,11 +414,35 @@ The BME provides in ear air pressure measurements as well as temperature data of
 <br>
 (max. 50Hz alone; max. 30Hz with other sensors)
 
+Data Array structure:
+
+| Byte 0-3 | Byte 4-7    |
+|----------|-------------|
+| PRESSURE | TEMPERATURE |
+| float    | float       |
+
 #### PDM MIC
 Sensor ID: 2
 
 The PDM Microphone provides audio data up to 62.5kHz.
 The sample rate files of the configuration package is the audio sample rate of the sensor.
+
+The available sampling rates are:
+
+- 16000Hz
+- 20000Hz
+- 25000Hz
+- 31250Hz
+- 33333Hz
+- 40000Hz
+- 41667Hz
+- 50000Hz
+- 62500Hz
+
+Most recommended are:
+- 16000Hz
+- 41667Hz
+- 62500Hz
 
 #### PLAYER
 Sensor ID: 3

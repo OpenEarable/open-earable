@@ -21,7 +21,10 @@ void Play_Service::begin() {
 void Play_Service::receiveWavConfig(BLEDevice central, BLECharacteristic characteristic) {
     characteristic.readValue(&_current, sizeof(_current));
     audio_player.ble_configuration(_current);
-    _wavPlayC_static->writeValue(&_current, sizeof(WAVConfigurationPacket));
+
+    Serial.println(String(_current.name, _current.size));
+
+    //_wavPlayC_static->writeValue(&_current, sizeof(_current)); // not working yet... there is a weird problem
 }
 
 Play_Service play_service;

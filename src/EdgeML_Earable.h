@@ -47,13 +47,18 @@ public:
         success = audio_player.init();
         if (_debug) success ? _debug->println("Player Ready!") : _debug->println("Player FAIL!");
 
-        _battery->begin();
-        button_service.begin();
-        led_service.begin();
 
+        edge_ml_generic.ble_manual_advertise();
         edge_ml_generic.set_ble_config("Earable", "2.0.0");
         edge_ml_generic.set_custom(_interface);
         edge_ml_generic.begin();
+
+        _battery->begin();
+        play_service.begin();
+        button_service.begin();
+        led_service.begin();
+
+        BLE.advertise();
     };
 
     void update() {

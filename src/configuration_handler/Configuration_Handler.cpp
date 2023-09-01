@@ -59,8 +59,6 @@ void Configuration_Handler::update() {
     }
 }
 
-unsigned long last = 0;
-
 void Configuration_Handler::update_edge_ml() {
     unsigned int now = millis();
     if (now - _edge_ml_last > _edge_ml_delay) {
@@ -102,6 +100,7 @@ bool Configuration_Handler::update_play() {
 void Configuration_Handler::stop_all() {
     SensorConfigurationPacket config;
     config.sampleRate = 0;
+    config.latency = 0;
 
     int other_sensor_count = 4;
 
@@ -115,6 +114,8 @@ void Configuration_Handler::configure(int config_num, int config_info) {
     const configuration_bundle * conf;
     SensorConfigurationPacket config;
 
+    check_audioplayback(config_info);
+
     // config_num == 0 --> STOP
     // config_num > 0  --> config_num is configuration
     if (config_num < 0 || config_num >= max_config) return;
@@ -123,7 +124,7 @@ void Configuration_Handler::configure(int config_num, int config_info) {
     _current_conf_num = config_num;
     _cycle = 0;
 
-    if (config_num == 0 && !config_info) {
+    if (config_num == 0) {
         _config_active = false;
         return;
     }
@@ -143,14 +144,6 @@ void Configuration_Handler::configure(int config_num, int config_info) {
     edge_ml_generic.configure_sensor(config);
     edge_ml_generic.update();
 
-    // Use latency to control player
-    config.sensorId = PLAYER;
-    if (config_info) {
-        if (config_info<=4) config_info -= 1; // adjust
-        config.sampleRate = float(config_info);
-        Audio_Player::config_callback(&config);
-    }
-
     config.sensorId = PDM_MIC;
     config.sampleRate = float(conf->PDM_rate);
     PDM_MIC_Sensor::config_callback(&config);
@@ -165,7 +158,18 @@ void Configuration_Handler::configure(int config_num, int config_info) {
     _edge_ml_last = millis();
 
     _buffer_interval_time = _edge_ml_delay - _overlap;
-    last = millis();
+}
+
+void Configuration_Handler::check_audioplayback(int config_info) {
+    if (!config_info) return;
+    SensorConfigurationPacket config;
+    // Use latency to control player
+
+    config.sensorId = PLAYER;
+    if (config_info<=4) config_info -= 1; // adjust
+    config.sampleRate = float(config_info);
+    Audio_Player::config_callback(&config);
+
 }
 
 bool Configuration_Handler::check_overlap() {
@@ -179,7 +183,13 @@ void Configuration_Handler::config_callback(SensorConfigurationPacket *config) {
     int config_num = int(config->sampleRate);
     int config_info = int(config->latency); // Additional extra info
 
+    Serial.println("CONFIG");
+    Serial.println(String(config_num));
+    Serial.println(String(config_info));
+
     conf_handler.configure(config_num, config_info);
 }
+
+
 
 Configuration_Handler conf_handler;

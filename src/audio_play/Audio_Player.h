@@ -57,11 +57,16 @@ public:
 
     static void config_callback(SensorConfigurationPacket * config);
 
+    void set_ready();
+    void set_ready(int frequency);
+
+    bool _ready = false;
 private:
     bool _stream = false;
     bool _opened = false;
 
     bool _tone = false;
+    int _last_frequency = 0;
 
     static bool _paused;
 
@@ -86,6 +91,8 @@ private:
     bool check_completed();
 
     bool open_file();
+
+    void _check_ready();
 };
 
 extern Audio_Player audio_player;

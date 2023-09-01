@@ -59,6 +59,7 @@ private:
     bool update_pdm();
     bool update_play();
     bool check_overlap();
+    void check_audioplayback(int config_info);
 };
 
 extern Configuration_Handler conf_handler;
