@@ -172,7 +172,7 @@ int CircularBlockBuffer::available_read() const {
 }
 
 int CircularBlockBuffer::available_write() const {
-    if (_writeBlockNext == _readBlock)return 0;
+    if (_writeBlockNext == _readBlock) return 0;
 
     long diff = (long)(_readBlock - _writeBlockNext);
 
