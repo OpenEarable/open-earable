@@ -10,7 +10,7 @@
 
 
 const int pdm_b_size = 4096;
-const int pdm_b_count = 16;
+const int pdm_b_count = 12;
 extern uint8_t PDM_BUFFER[pdm_b_size * pdm_b_count] __attribute__((aligned (16)));
 
 const int sampleRate_default = 41667;  // 16000 Hz / 41667 Hz / 62500 Hz  // Default

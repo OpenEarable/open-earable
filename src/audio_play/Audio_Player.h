@@ -11,7 +11,7 @@
 #include "utils/SDManager.h"
 
 const int audio_b_size = 4096;
-const int audio_b_count = 16;
+const int audio_b_count = 12;
 extern uint8_t AUDIO_BUFFER[audio_b_size * audio_b_count] __attribute__((aligned (16)));
 
 #define MAX_WAV_NAME_LENGTH 64
