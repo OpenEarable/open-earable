@@ -147,7 +147,6 @@ Specification Table:
 | Device Info Service | `45622510-6468-465a-b141-0b9b0f96b468`   | Device Identifier    | `45622511-6468-465a-b141-0b9b0f96b468`  | Read        |
 |                     |                                          | Device Generation    | `45622512-6468-465a-b141-0b9b0f96b468`  | Read        |
 | Parse Info Service  | `caa25cb7-7e1b-44f2-adc9-e8c06c9ced43`   | Scheme               | `caa25cb8-7e1b-44f2-adc9-e8c06c9ced43`  | Read        |
-|                     |                                          | Sensor Names         | `caa25cb9-7e1b-44f2-adc9-e8c06c9ced43`  | Read        |
 | WAV Play Service    | `5669146e-476d-11ee-be56-0242ac120002`   | WAV Play             | `566916a8-476d-11ee-be56-0242ac120002`  | Read/Write  |
 | Battery Service     | `180F`                                   | Battery Level        | `2A19`                                  | Read/Notify |
 | Button Service      | `29c10bdc-4773-11ee-be56-0242ac120002`   | Button State         | `29c10f38-4773-11ee-be56-0242ac120002`  | Read/Notify |
@@ -183,14 +182,13 @@ This Characteristic is responsible for sending data packages from the Earable to
 
 Data Package:
 
-| Byte 0    | Byte 1  | Byte 2-5    | Byte 5-X     |
-|-----------|---------|-------------|--------------|
-| SensorID  | Size    | Time Stamp  | Data Array   |
-| uint8     | uint8   | uint32      | ---          |
+| Byte 0   | Byte 1-4   | Byte 5-X   |
+|----------|------------|------------|
+| SensorID | Time Stamp | Data Array |
+| uint8    | uint32     | ---        |
 
 
 SensorID: ID of the sensor.<br>
-Size: Size of the following Data Array.<br>
 Time Stamp:  Timestamp in milliseconds.<br>
 Data Array: Array of bytes, which need to be parsed according the sensors parsing scheme.
 
@@ -210,12 +208,6 @@ Permissions: Read
 With this characteristic the parsing scheme information can be requested from the device.
 The parsing scheme is needed to convert a received data package to usable values.
 More information about parsing the scheme can be found in the [EdgeML-Arduino](https://github.com/edge-ml/EdgeML-Arduino) library.
-
-#### Sensor Names Characteristic
-Permissions: Read
-
-With this characteristic the sensor count and names can be requested from the device.
-More information about parsing this buffer can be found in the [EdgeML-Arduino](https://github.com/edge-ml/EdgeML-Arduino) library.
 
 #### WAV Play Characteristic
 Permissions: Read/Write
