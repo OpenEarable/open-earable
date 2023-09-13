@@ -4,7 +4,7 @@
 const int max_config = 16;
 
 const configuration_bundle CONFS[max_config]= {
-        {30, 30, 62500},     // 1
+        {50, 50, 62500},     // 1
         {30, 30, 41667},     // 2
         {30, 30, 16000},     // 3
         {30, 30, 0},         // 4
@@ -50,25 +50,56 @@ void Configuration_Handler::update() {
     if (_buffer_flag) return;
     _buffer_flag = true;
 
-    if (_cycle++ % 2) {
-        if (update_pdm()) return;
-        update_play();
+    const int min_update = 2;
+    const float STD = 0.5;
+
+    /*Serial.print("Play: ");
+    Serial.print(audio_player.remaining_blocks());
+    Serial.print(" PDM: ");
+    Serial.println(pdm_mic_sensor.remaining_blocks());*/
+
+    /*if (_cycle++ % 2) {
+        if (update_pdm(_pdm_update_blocks)) return;
+        update_play(_play_update_blocks);
     } else {
-        if (update_play()) return;
-        update_pdm();
+        if (update_play(_play_update_blocks)) return;
+        update_pdm(_pdm_update_blocks);
+    }*/
+    
+    while (!check_overlap() && max(pdm_mic_sensor.ready_blocks(), audio_player.ready_blocks()) >= min_update) {
+        // check priority
+        float diff = pdm_mic_sensor.remaining_blocks() - audio_player.remaining_blocks();
+        //float mean = (pdm_mic_sensor.remaining_blocks() + audio_player.remaining_blocks()) / 2.0;
+        int blocks = abs(diff) + min_update / 2; //max(mean * STD, min_update / 2); //min_update / 2;
+        //unsigned long t1 = millis();
+
+        if (diff > 0) {
+            update_play(min(blocks,audio_player.ready_blocks()-1));
+        } else {
+            update_pdm(min(blocks,pdm_mic_sensor.ready_blocks()-1));
+        }
     }
+
+    long now = millis();
+
+    Serial.println(now - (long)_edge_ml_last - (long)_edge_ml_delay);
 }
 
 void Configuration_Handler::update_edge_ml() {
     unsigned int now = millis();
-    if (now - _edge_ml_last > _edge_ml_delay) {
+    if (now - _edge_ml_last >= _edge_ml_delay) {
+        //Serial.print("delay: ");
+        //Serial.println(now - _edge_ml_last - _edge_ml_delay);
         _edge_ml_last = now;
         _buffer_flag = false;
+        //now = millis();
         edge_ml_generic.update();
+        //Serial.print(" edge_ml time: ");
+        //Serial.println(millis() - now);
     }
 }
 
-bool Configuration_Handler::update_pdm() {
+/*bool Configuration_Handler::update_pdm() {
     if (pdm_mic_sensor.ready_blocks() < _pdm_min_blocks) return false;
 
     int cont = pdm_mic_sensor.update_contiguous(_pdm_update_blocks);
@@ -94,6 +125,47 @@ bool Configuration_Handler::update_play() {
     cont = _play_update_blocks - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
     if (!cont || _play_update_blocks == cont) return false;
     audio_player.update_contiguous(cont);
+    return check_overlap();
+}*/
+
+bool Configuration_Handler::update_pdm(int max_buffers) {
+    //int remaining = int(_edge_ml_delay - (millis() - _edge_ml_last));
+    //int max_buffers = max(0,min(n, remaining / apx_pdm));
+
+    if (max_buffers <= 0 || pdm_mic_sensor.ready_blocks() == 0) return false;
+
+    int cont = pdm_mic_sensor.update_contiguous(max_buffers);
+    if (check_overlap()) return true; // Make sure that time limit is not reached
+    //counter += cont;
+    cont = max_buffers - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
+    if (!cont || max_buffers == cont) return false;
+    if (check_overlap()) return true; // Make sure that time limit is not reached
+    cont = pdm_mic_sensor.update_contiguous(cont);
+    //counter += cont;
+    return check_overlap();
+}
+
+bool Configuration_Handler::update_play(int max_buffers) {
+    if (audio_player.is_mode_tone()) {
+        for (int i = 0; i < _play_update_blocks; ++i) {
+            audio_player.update();
+        }
+    }
+
+    //int remaining = int(_edge_ml_delay - (millis() - _edge_ml_last));
+    //int max_buffers = max(0, min(n, remaining / apx_play));
+
+    if (max_buffers <= 0 || audio_player.ready_blocks() == 0) return false;
+
+    int cont = audio_player.update_contiguous(max_buffers);
+
+    if (check_overlap()) return true; // Make sure that time limit is not reached
+    //counter += cont;
+    cont = max_buffers - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
+    if (!cont || max_buffers == cont) return false;
+    if (check_overlap()) return true; // Make sure that time limit is not reached
+    cont = audio_player.update_contiguous(cont);
+    //counter += cont;
     return check_overlap();
 }
 

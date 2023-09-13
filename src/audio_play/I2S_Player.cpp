@@ -1,4 +1,5 @@
 #include "I2S_Player.h"
+#include "Arduino.h"
 
 void i2s_irq_handler(void);
 
@@ -7,7 +8,7 @@ sampling_mode const_freq = {NRF_I2S_MCK_32MDIV11, NRF_I2S_RATIO_64X};
 
 
 I2S_Player::I2S_Player() {
-
+    eq = new Equalizer();
 }
 
 I2S_Player::~I2S_Player() {
@@ -113,6 +114,10 @@ int I2S_Player::available() {
     return _blockBuffer.available_write();
 }
 
+int I2S_Player::remaining() {
+    return _blockBuffer.available_read();
+}
+
 uint8_t *I2S_Player::getWritePointer() {
     return _blockBuffer.getCurWritePointer(); // Use cur block
 }
@@ -136,6 +141,7 @@ void I2S_Player::i2s_interrupt() {
         //clear TXPTRUPD event
         nrf_i2s_event_clear(NRF_I2S, NRF_I2S_EVENT_TXPTRUPD);
 
+        _blockBuffer.incrementReadPointer();
 
         if (_end_flag) {
             return;
@@ -143,7 +149,8 @@ void I2S_Player::i2s_interrupt() {
 
         if (_blockBuffer.available_read()) {
             nrf_i2s_tx_buffer_set(NRF_I2S, (uint32_t const *)_blockBuffer.getReadPointer());
-            _blockBuffer.incrementReadPointer();
+            //_blockBuffer.incrementReadPointer();
+            eq->update((int16_t *)_blockBuffer.getReadPointer(), _blockBuffer.getBlockSize() / sizeof(int16_t));
         } else if (_turn_off_flag) {
             stop();
         }
@@ -171,12 +178,13 @@ CircularBlockBuffer *I2S_Player::get_buffer() {
 }
 
 int I2S_Player::get_contiguous_blocks() const {
-    return _blockBuffer.get_contiguous_write_blocks_cur(); // Use cur block
+    return _blockBuffer.get_contiguous_write_blocks(); // Use cur block
 }
 
 void I2S_Player::reset_buffer() {
     // reset the buffer
     _blockBuffer.reset();
+    eq->reset();
 }
 
 void i2s_irq_handler(void) {

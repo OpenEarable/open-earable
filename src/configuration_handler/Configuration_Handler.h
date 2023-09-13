@@ -42,7 +42,7 @@ private:
 
     unsigned int _cycle = 0;
 
-    unsigned int _overlap = 15; // Overlap time in ms
+    unsigned int _overlap = 10; // Overlap time in ms
     unsigned int _buffer_interval_time;
 
     bool _buffer_flag = false;
@@ -56,8 +56,8 @@ private:
     float _alternate_loop_rate = 20;
 
     void update_edge_ml();
-    bool update_pdm();
-    bool update_play();
+    bool update_pdm(int n);
+    bool update_play(int n);
     bool check_overlap();
     void check_audioplayback(int config_info);
 };

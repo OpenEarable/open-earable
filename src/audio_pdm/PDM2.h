@@ -36,6 +36,7 @@ public:
     void end();
 
     virtual int available();
+    virtual int remaining();
     virtual int read(void* buffer, size_t size);
 
     void onReceive(void(*)(void));

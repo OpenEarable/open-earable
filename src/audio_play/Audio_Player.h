@@ -10,11 +10,15 @@
 
 #include "utils/SDManager.h"
 
+#include "Equalizer.h"
+
 const int audio_b_size = 4096;
-const int audio_b_count = 12;
+const int audio_b_count = 8;
 extern uint8_t AUDIO_BUFFER[audio_b_size * audio_b_count] __attribute__((aligned (16)));
 
 #define MAX_WAV_NAME_LENGTH 64
+#define EQ_ORDER 3
+//5
 
 struct __attribute__((packed)) WAVConfigurationPacket {
     uint8_t state{};    // 0 => don't start; 1 => start; 2 => pause; 3 => unpause;
@@ -51,6 +55,7 @@ public:
     void set_name(String name);
 
     int ready_blocks();
+    int remaining_blocks();
 
     WAVConfigurationPacket make_wav_config();
     void ble_configuration(WAVConfigurationPacket& configuration);
@@ -70,10 +75,12 @@ private:
 
     static bool _paused;
 
+    float buffer[EQ_ORDER][2] = {0}; //{{0,0},{0,0},{0,0},{0,0}};
+
     int _default_offset = 44;
     unsigned int _cur_read_sd = _default_offset;
 
-    int _preload_blocks = 4; // 12
+    int _preload_blocks = 6; // 12
 
     String _name = "Play.wav";
 

@@ -9,8 +9,8 @@
 #include "PDM2.h"
 
 
-const int pdm_b_size = 4096;
-const int pdm_b_count = 12;
+const int pdm_b_size = 6144; //4096;
+const int pdm_b_count = 8;
 extern uint8_t PDM_BUFFER[pdm_b_size * pdm_b_count] __attribute__((aligned (16)));
 
 const int sampleRate_default = 41667;  // 16000 Hz / 41667 Hz / 62500 Hz  // Default
@@ -38,6 +38,7 @@ public:
     void disable_chunks();
 
     int ready_blocks();
+    int remaining_blocks();
 
     static void config_callback(SensorConfigurationPacket * config);
 private:
@@ -48,7 +49,7 @@ private:
     bool _chunks_enabled = false;
     bool _first_ignore = true;
 
-    int _gain = 20; // 20
+    int _gain = 80; //50; // 20
 
     String _name = "Recording.wav";
 

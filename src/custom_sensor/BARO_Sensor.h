@@ -22,6 +22,7 @@ public:
 
     void get_pressure(float &value);
     void get_temperature(float &value);
+    void get_pressure_and_temperature(float * value);
 private:
     bool available = false;
 

@@ -2,6 +2,7 @@
 
 #include <utility>
 
+
 uint8_t AUDIO_BUFFER[audio_b_size * audio_b_count] __attribute__((aligned (16)));
 
 bool Audio_Player::_paused = false;
@@ -55,7 +56,6 @@ int Audio_Player::update_contiguous(int max_cont) {
         return 0;
     }
 
-
     if (_tone) {
         _tone_player->update();
         return 0;
@@ -69,7 +69,12 @@ int Audio_Player::update_contiguous(int max_cont) {
 
     if (!cont) return 0;
 
+    int16_t * x = (int16_t *)(i2s_player.getWritePointer());
+
     unsigned int read = sd_to_buffer(cont);
+
+    // eq
+    //eq->update(x, read / sizeof(int16_t));
 
     if (read == 0) {
         i2s_player.completed();
@@ -109,6 +114,7 @@ void Audio_Player::start() {
     _file.seekSet(_default_offset);
 
     i2s_player.reset_buffer();
+    //eq->reset();
     preload_buffer();
     i2s_player.start();
     play();
@@ -146,7 +152,11 @@ void Audio_Player::pause() {
 
 void Audio_Player::preload_buffer() {
     if (!_tone) {
-        update_contiguous(_preload_blocks);
+        int cont = update_contiguous(_preload_blocks);
+
+        Serial.print("preload blocks: ");
+        Serial.println(cont);
+
         return;
     }
 
@@ -222,6 +232,10 @@ unsigned int Audio_Player::get_size() {
 
 int Audio_Player::ready_blocks() {
     return i2s_player.available();
+}
+
+int Audio_Player::remaining_blocks() {
+    return i2s_player.remaining();
 }
 
 bool Audio_Player::open_file() {

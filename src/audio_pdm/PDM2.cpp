@@ -110,7 +110,8 @@ int PDMClass2::start(bool high) {
     nrf_pdm_int_enable(NRF_PDM_INT_STARTED | NRF_PDM_INT_STOPPED);
 
     // clear the buffer
-    _blockBuffer.reset();
+    //_blockBuffer.reset();
+    resetBuffer();
 
     nrf_pdm_buffer_set((uint32_t*)_blockBuffer.getCurWritePointer(), _blockBuffer.getBlockSize() / (sizeof(int16_t) * _channels));
 
@@ -156,6 +157,12 @@ int PDMClass2::available() {
     //NVIC_EnableIRQ(PDM_IRQn);
 
     return avail;
+}
+
+int PDMClass2::remaining() {
+    //NVIC_DisableIRQ(PDM_IRQn);
+
+    return _blockBuffer.available_write();
 }
 
 int PDMClass2::read(void* buffer, size_t size) {
@@ -223,6 +230,7 @@ void PDMClass2::IrqHandler(bool halftranfer) {
 
             // switch to the next buffer
             nrf_pdm_buffer_set((uint32_t*)_blockBuffer.getNextWritePointer(), _blockBuffer.getBlockSize() / (sizeof(int16_t) * _channels));
+            //_blockBuffer.incrementWritePointer();
 
             // call receive callback if provided
             if (_onReceive) {

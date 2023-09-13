@@ -30,7 +30,7 @@ public:
         _battery = new Battery_Service();
 
         edge_ml_generic.set_config_callback(config_callback);
-        edge_ml_generic.set_data_callback(data_callback);
+        //edge_ml_generic.set_data_callback(data_callback);
 
         if (_debug) {
             _battery->debug(*_debug);

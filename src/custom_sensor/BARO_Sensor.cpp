@@ -39,16 +39,35 @@ void BARO_Sensor::get_data(int sensorID, byte *data) {
         return;
     }
 
-    float * floatArray = (float*)data;
+    /*float * floatArray = (float*)data;
     get_pressure(val);
     floatArray[0] = val;
 
     get_temperature(val);
-    floatArray[1] = val;
+    floatArray[1] = val;*/
+
+    float * floatArray = (float*)data;
+    get_pressure_and_temperature(floatArray);
+    /*get_pressure(val);
+    floatArray[0] = val;
+
+    get_temperature(val);
+    floatArray[1] = val;*/
 }
 
 int BARO_Sensor::get_sensor_count() {
     return sensor_count;
+}
+
+void BARO_Sensor::get_pressure_and_temperature(float * value) {
+    if (!available) {
+        value[0] = 0;
+        value[1] = 0;
+        return;
+    }
+
+    value[0] = Baro->readPressure();
+    value[1] = Baro->getTemperature();
 }
 
 void BARO_Sensor::get_pressure(float &value) {

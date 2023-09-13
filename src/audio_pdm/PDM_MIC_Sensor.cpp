@@ -144,6 +144,9 @@ int PDM_MIC_Sensor::ready_blocks() {
     return PDM2.available();
 }
 
+int PDM_MIC_Sensor::remaining_blocks() {
+    return PDM2.remaining();
+}
 
 void PDM_MIC_Sensor::config_callback(SensorConfigurationPacket *config) {
     // Check for PDM MIC ID

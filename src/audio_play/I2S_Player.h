@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 #include "Earable_Pins.h"
+#include "Equalizer.h"
 
 #ifndef analogPinToPinName
 #include <pinDefinitions.h>
@@ -27,6 +28,8 @@ class I2S_Player {
 public:
     I2S_Player();
     ~I2S_Player();
+
+    Equalizer * eq;
 
     void setBlockBufferSizes(int blockSize, int blockCount);
 
@@ -52,6 +55,7 @@ public:
     int get_contiguous_blocks() const;
 
     int available();
+    int remaining();
     uint8_t * getWritePointer();
     void incrementWritePointer();
 
