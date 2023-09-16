@@ -72,7 +72,8 @@ public:
 
             // Auto return if not active
             pdm_mic_sensor.update();
-            audio_player.update();
+            //audio_player.update();
+            audio_player.source->provide(1);
         }
 
         earable_btn.update();
@@ -94,7 +95,8 @@ public:
     }
 
     void set_player_file_name(String name) {
-        audio_player.set_name(std::move(name));
+        //audio_player->source->set_name(std::move(name));
+        //audio_player.start();
     }
 
     void set_recorder_file_name(String name) {

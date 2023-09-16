@@ -12,6 +12,8 @@
 
 #include <nrf_i2s.h>
 #include "utils/CircularBlockBuffer.h"
+#include "utils/BufferedInputStream.h"
+#include "OutputDevice.h"
 
 #define NC 0xFFFFFFFF   //Not connected
 #define WORD_SIZE 4     // 1 word = 4 bytes
@@ -24,7 +26,7 @@ struct sampling_mode {
 extern sampling_mode file_mode;
 extern sampling_mode const_freq;
 
-class I2S_Player {
+class I2S_Player : public OutputDevice {
 public:
     I2S_Player();
     ~I2S_Player();
@@ -38,12 +40,16 @@ public:
     void set_mode_file(bool play_file);
     bool get_mode_file();
 
-    void start();
-    void end();
+    void start() override;
+    void stop() override;
 
     void reset_buffer();
 
-    void play();
+    void begin();
+    void end();
+    //void uninit();
+
+    /*void play();
     void stop();
     void pause();
     void completed();
@@ -57,7 +63,7 @@ public:
     int available();
     int remaining();
     uint8_t * getWritePointer();
-    void incrementWritePointer();
+    void incrementWritePointer();*/
 
     bool check_config_status();
 
@@ -76,15 +82,20 @@ private:
 
     bool play_mode_file = true;
 
-    CircularBlockBuffer _blockBuffer;
+    //CircularBlockBuffer _blockBuffer;
+    //BufferedInputStream _stream;
+    bool consume(int n) override;
 
     bool _i2s_config_status = false;
 
-    bool _end_flag = false;         // End of playback, buffer is empty
+    //void stop();
+
+    //bool _end_flag = false;         // End of playback, buffer is empty
     bool _turn_off_flag = false;    // Request end, will play rest of buffer
-    bool _completed_flag = false;
+    //bool _completed_flag = false;
 
     int count = 0;
+
 };
 
 extern I2S_Player i2s_player;

@@ -109,16 +109,16 @@ size_t CircularBlockBuffer::readBlock(uint8_t *buffer, size_t size) {
     return size;
 }
 
-uint8_t *CircularBlockBuffer::getCurWritePointer() {
+uint8_t * const CircularBlockBuffer::getCurWritePointer() {
     return &(_buffer[_writeBlockCur * _blockSize]);
 }
 
-uint8_t *CircularBlockBuffer::getNextWritePointer() {
+uint8_t * const CircularBlockBuffer::getNextWritePointer() {
     return &(_buffer[_writeBlockNext * _blockSize]);
 }
 
 
-uint8_t *CircularBlockBuffer::getReadPointer() {
+uint8_t * const CircularBlockBuffer::getReadPointer() {
     return &(_buffer[_readBlock * _blockSize]);
 }
 
@@ -163,22 +163,9 @@ void CircularBlockBuffer::incrementWritePointer(int reserve) {
     if (_readBlock == _writeBlockCur) _empty = false;
 
     _writeBlockCur = _writeBlockNext++; // set and post increment
-    //_writeOffsetCur = _writeOffsetNext;
-
-    //++_writeBlockCur;
-    //_writeOffsetCur += _blockSize;
-
-    //++_writeBlockNext;
-    //_writeOffsetNext += _blockSize;
-
-    /*if (_writeBlockCur >= _blockCount) {
-        _writeBlockCur = 0;
-        _writeOffsetCur = 0;
-    }*/
 
     if (_writeBlockNext >= _blockCount) {
         _writeBlockNext = 0;
-        //_writeOffsetNext = 0;
     }
 }
 

@@ -30,9 +30,9 @@ public:
     size_t writeBlock(const uint8_t *buffer, size_t size);
     size_t readBlock(uint8_t *buffer, size_t size);
 
-    uint8_t * getCurWritePointer();
-    uint8_t * getNextWritePointer();
-    uint8_t * getReadPointer();
+    uint8_t * const getCurWritePointer();
+    uint8_t * const getNextWritePointer();
+    uint8_t * const getReadPointer();
 
     int get_contiguous_read_blocks() const;
     //int get_contiguous_write_blocks_cur() const;

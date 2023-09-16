@@ -10,7 +10,10 @@
 
 #include "utils/SDManager.h"
 
+#include "utils/Provider.h"
+#include "utils/BufferedInputStream.h"
 #include "Equalizer.h"
+
 
 const int audio_b_size = 4096;
 const int audio_b_count = 8;
@@ -26,6 +29,9 @@ struct __attribute__((packed)) WAVConfigurationPacket {
     char name[MAX_WAV_NAME_LENGTH]{};
 };
 
+/*
+State Controller
+*/
 class Audio_Player {
 public:
     Audio_Player();
@@ -44,20 +50,20 @@ public:
     void stop();
     void pause();
 
-    int get_max_frequency();
-    int get_min_frequency();
+    //int get_max_frequency();
+    //int get_min_frequency();
 
-    bool is_mode_tone();
+    //bool is_mode_tone();
 
     unsigned int get_sample_rate();
     unsigned int get_size();
 
-    void set_name(String name);
+    /*void set_name(String name);
 
     int ready_blocks();
     int remaining_blocks();
 
-    WAVConfigurationPacket make_wav_config();
+    WAVConfigurationPacket make_wav_config();*/
     void ble_configuration(WAVConfigurationPacket& configuration);
 
     static void config_callback(SensorConfigurationPacket * config);
@@ -66,38 +72,23 @@ public:
     void set_ready(int frequency);
 
     bool _ready = false;
+    
+    Provider * source;
 private:
-    bool _stream = false;
-    bool _opened = false;
-
-    bool _tone = false;
-    int _last_frequency = 0;
+    //bool _tone = false;
+    //int _last_frequency = 0;
 
     static bool _paused;
 
-    float buffer[EQ_ORDER][2] = {0}; //{{0,0},{0,0},{0,0},{0,0}};
+    bool _running = false;
 
-    int _default_offset = 44;
-    unsigned int _cur_read_sd = _default_offset;
+    //ExFatFile _file;
 
-    int _preload_blocks = 6; // 12
+    //Tone * _tone_player;
 
-    String _name = "Play.wav";
-
-    ExFatFile _file;
-
-    Tone * _tone_player;
-
-    void i2s_setup();
-    bool sd_setup();
-
-    void preload_buffer();
-    unsigned int sd_to_buffer();
-    unsigned int sd_to_buffer(int multi);
+    //void i2s_setup();
 
     bool check_completed();
-
-    bool open_file();
 
     void _check_ready();
 };

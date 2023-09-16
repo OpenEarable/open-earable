@@ -66,15 +66,15 @@ void Configuration_Handler::update() {
         update_pdm(_pdm_update_blocks);
     }*/
     
-    while (!check_overlap() && max(pdm_mic_sensor.ready_blocks(), audio_player.ready_blocks()) >= min_update) {
+    while (!check_overlap() && max(pdm_mic_sensor.ready_blocks(), (*audio_player.source->stream)->ready()) >= min_update) {
         // check priority
-        float diff = pdm_mic_sensor.remaining_blocks() - audio_player.remaining_blocks();
+        float diff = pdm_mic_sensor.remaining_blocks() - (*audio_player.source->stream)->remaining();
         //float mean = (pdm_mic_sensor.remaining_blocks() + audio_player.remaining_blocks()) / 2.0;
         int blocks = abs(diff) + min_update / 2; //max(mean * STD, min_update / 2); //min_update / 2;
         //unsigned long t1 = millis();
 
         if (diff > 0) {
-            update_play(min(blocks,audio_player.ready_blocks()-1));
+            update_play(min(blocks,(*audio_player.source->stream)->ready()-1));
         } else {
             update_pdm(min(blocks,pdm_mic_sensor.ready_blocks()-1));
         }
@@ -146,25 +146,27 @@ bool Configuration_Handler::update_pdm(int max_buffers) {
 }
 
 bool Configuration_Handler::update_play(int max_buffers) {
-    if (audio_player.is_mode_tone()) {
+    /*if (audio_player.is_mode_tone()) {
         for (int i = 0; i < _play_update_blocks; ++i) {
             audio_player.update();
         }
-    }
+    }*/
 
     //int remaining = int(_edge_ml_delay - (millis() - _edge_ml_last));
     //int max_buffers = max(0, min(n, remaining / apx_play));
 
-    if (max_buffers <= 0 || audio_player.ready_blocks() == 0) return false;
+    if (max_buffers <= 0 || (*audio_player.source->stream)->ready() == 0) return false;
 
-    int cont = audio_player.update_contiguous(max_buffers);
+   //int cont = audio_player.update_contiguous(max_buffers);
+   int cont = audio_player.source->provide(max_buffers);
 
     if (check_overlap()) return true; // Make sure that time limit is not reached
     //counter += cont;
     cont = max_buffers - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
     if (!cont || max_buffers == cont) return false;
     if (check_overlap()) return true; // Make sure that time limit is not reached
-    cont = audio_player.update_contiguous(cont);
+    //cont = audio_player.update_contiguous(cont);
+    cont = audio_player.source->provide(cont);
     //counter += cont;
     return check_overlap();
 }
@@ -261,7 +263,5 @@ void Configuration_Handler::config_callback(SensorConfigurationPacket *config) {
 
     conf_handler.configure(config_num, config_info);
 }
-
-
 
 Configuration_Handler conf_handler;

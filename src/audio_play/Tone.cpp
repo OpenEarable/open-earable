@@ -10,7 +10,8 @@ Tone::~Tone() {
 }
 
 void Tone::setup() {
-    _circ = i2s_player.get_buffer();
+    //_circ = i2s_player.get_buffer();
+    stream = &(i2s_player.stream);
 }
 
 short Tone::_sinewave(int tick) {
@@ -22,10 +23,10 @@ void Tone::_calc_multi() {
 }
 
 void Tone::start(int frequency) {
-    if (!_circ) return;
+    if (!stream) return;
 
-    int blocks = _circ->getBlockCount();
-    _block_size = _circ->getBlockSize();
+    int blocks = (*stream)->buffer.getBlockCount();
+    _block_size = (*stream)->buffer.getBlockSize();
 
     if (!_original_blocks) {
         _original_blocks = blocks;
@@ -33,10 +34,10 @@ void Tone::start(int frequency) {
 
     int offset = (blocks - _extra_blocks) * _block_size;
 
-    _circ->setSizes(_block_size, blocks - _extra_blocks);
+    (*stream)->buffer.setSizes(_block_size, blocks - _extra_blocks);
 
     _max_buffer = _extra_blocks * _block_size / 2;
-    uint8_t * buf = &(_circ->get_buffer()[offset]);
+    uint8_t * buf = &((*stream)->buffer.get_buffer()[offset]);
     _buffer = (short*)buf;
 
     // Limit frequency to boundary
@@ -79,17 +80,24 @@ void Tone::start(int frequency) {
 }
 
 void Tone::end() {
-    if (!_circ) return;
+    if (!stream) return;
 
-    int size = _circ->getBlockSize();
-    _circ->setSizes(size, _original_blocks);
+    int size = (*stream)->buffer.getBlockSize();
+    (*stream)->buffer.setSizes(size, _original_blocks);
     _original_blocks = 0;
 }
 
-void Tone::update() {
-    if (i2s_player.available() < 2) return;
+int Tone::provide(int n) {
+    for(int i = 0; i < n; i++) {
+        update();
+    }
+    return n;
+}
 
-    uint8_t * ptr = i2s_player.getWritePointer();
+void Tone::update() {
+    if ((*stream)->ready() < 2) return;
+
+    uint8_t * ptr = (*stream)->buffer.getCurWritePointer();
 
     int first_block = _end_index - _cur_pos;
 
@@ -98,7 +106,7 @@ void Tone::update() {
         memcpy(ptr, &(_buffer[_cur_pos]), _block_size);
         _cur_pos += _block_size/2;
         if (_cur_pos >= _end_index) _cur_pos -= _end_index;
-        i2s_player.incrementWritePointer();
+        (*stream)->provide(1);
         return;
     }
 
@@ -107,7 +115,7 @@ void Tone::update() {
     int second_block = _block_size/2 - first_block;
 
     if (!second_block) {
-        i2s_player.incrementWritePointer();
+        (*stream)->provide(1);
         return;
     }
     int second_size = second_block*sizeof(short);
@@ -116,7 +124,7 @@ void Tone::update() {
     _cur_pos = second_block;
 
     if (_cur_pos >= _end_index) _cur_pos -= _end_index;
-    i2s_player.incrementWritePointer();
+    (*stream)->provide(1);
 }
 
 int Tone::get_max_frequency() {
@@ -126,3 +134,17 @@ int Tone::get_max_frequency() {
 int Tone::get_min_frequency() {
     return _frequency_low;
 }
+
+/*void Audio_Player::start_tone(int frequency) {
+    if (_stream) {
+        return;
+    }
+    _tone = true;
+    _stream = true;
+
+    i2s_player.clear_buffer();
+
+    _tone_player->start(frequency);
+    i2s_player.begin();
+    play();
+}*/

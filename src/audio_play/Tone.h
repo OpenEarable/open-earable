@@ -4,8 +4,9 @@
 #include "Arduino.h" // Needed for PI
 #include "I2S_Player.h"
 #include "utils/CircularBlockBuffer.h"
+#include "utils/Provider.h"
 
-class Tone {
+class Tone : public Provider {
 public:
     Tone();
     ~Tone();
@@ -17,6 +18,8 @@ public:
     int get_max_frequency();
     int get_min_frequency();
 
+    int provide(int n) override;
+
 private:
     const int _frequency_low = 300;
     const int _frequency_high = 22000;
@@ -24,7 +27,7 @@ private:
     const short _short_max = 32767;
     const float _sample_rate = 45454.5; // Determined by i2s config
 
-    CircularBlockBuffer * _circ;
+    //CircularBlockBuffer * _circ;
 
     int _original_blocks{};
     int _block_size{};

@@ -26,6 +26,11 @@ void Equalizer::reset() {
     //memset(buffer, 0, sizeof(buffer));
     //Serial.print("sizeof(buffer): ");
     //Serial.println(sizeof(buffer));
+    #pragma unroll
+    for(int i = 0; i < EQ_ORDER; i++) {
+        buffer[i][0] = 0;
+        buffer[i][1] = 0;
+    }
 }
 
 void Equalizer::update(int16_t * data, int length) {
