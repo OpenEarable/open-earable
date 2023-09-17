@@ -34,11 +34,7 @@ public:
     Equalizer * eq;
 
     void setBlockBufferSizes(int blockSize, int blockCount);
-
     void setBuffer(uint8_t * buffer, int blockSize, int blockCount);
-
-    void set_mode_file(bool play_file);
-    bool get_mode_file();
 
     void start() override;
     void stop() override;
@@ -49,46 +45,21 @@ public:
     void end();
     //void uninit();
 
-    /*void play();
-    void stop();
-    void pause();
-    void completed();
-
-    bool get_turn_off();
-    bool get_end();
-    bool get_completed();
-
-    int get_contiguous_blocks() const;
-
-    int available();
-    int remaining();
-    uint8_t * getWritePointer();
-    void incrementWritePointer();*/
-
     bool check_config_status();
-
     void clear_buffer();
 
-    void i2s_interrupt();
-
     CircularBlockBuffer * get_buffer();
+
+    bool is_running();
+
+    void i2s_interrupt();
 
 private:
     int _sckPin = EPIN_BCLK;    //23  P0_16
     int _lrckPin = EPIN_LRCLK;  //13  P0_13
     int _sdoutPin = EPIN_DIN;   //32  P1_0
 
-    bool _ignore_first = true;
-
-    bool play_mode_file = true;
-
-    //CircularBlockBuffer _blockBuffer;
-    //BufferedInputStream _stream;
-    bool consume(int n) override;
-
     bool _i2s_config_status = false;
-
-    //void stop();
 
     //bool _end_flag = false;         // End of playback, buffer is empty
     bool _turn_off_flag = false;    // Request end, will play rest of buffer
@@ -96,6 +67,7 @@ private:
 
     int count = 0;
 
+    bool consume(int n) override;
 };
 
 extern I2S_Player i2s_player;

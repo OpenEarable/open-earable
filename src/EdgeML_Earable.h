@@ -7,6 +7,7 @@
 
 #include <audio_pdm/PDM_MIC_Sensor.h>
 #include <audio_play/Audio_Player.h>
+#include <audio_play/WavPlayer.h>
 #include <configuration_handler/Configuration_Handler.h>
 
 #include <sd_logger/SD_Logger.h>
@@ -95,8 +96,7 @@ public:
     }
 
     void set_player_file_name(String name) {
-        //audio_player->source->set_name(std::move(name));
-        //audio_player.start();
+        audio_player.setSource(new WavPlayer(name));
     }
 
     void set_recorder_file_name(String name) {

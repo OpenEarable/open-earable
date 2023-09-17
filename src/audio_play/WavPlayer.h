@@ -1,7 +1,7 @@
 #ifndef WAV_PLAYER_H
 #define WAV_PLAYER_H
 
-#include "utils/Provider.h"
+#include "AudioSource.h"
 #include "utils/SDManager.h"
 #include "Play_Service.h"
 
@@ -9,18 +9,20 @@
 * TODO: check file format
 */
 
-class WavPlayer : public Provider {
+class WavPlayer : public AudioSource {
 public:
-    WavPlayer(BufferedStream ** stream);
+    WavPlayer(String name);
     ~WavPlayer();
     int provide(int n) override;
     bool available() override;
     void begin() override;
+    void end() override;
+    bool setStream(BufferedStream ** stream) override;
 
-    WAVConfigurationPacket make_wav_config();
+    WAVConfigurationPacket get_config() override;
     //void ble_configuration(WAVConfigurationPacket& configuration);
 
-    void set_name(String name);
+    //void set_name(String name);
     unsigned int get_sample_rate();
     unsigned int get_size();
 private:
@@ -29,7 +31,7 @@ private:
     bool _available = false;
     bool _opened = false;
     
-    String _name = "play_file.wav"; //"Play.wav";
+    String _name;
 
     int _default_offset = 44;
     unsigned int _cur_read_sd = _default_offset;

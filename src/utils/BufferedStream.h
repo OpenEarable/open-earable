@@ -11,13 +11,16 @@ public:
     virtual int ready() = 0;
     virtual int get_contiguous_blocks() = 0;
     CircularBlockBuffer buffer;
-    void close() {
-        _closed = true;
+    void open() {
+        _available = true;
     };
-    bool closed() {
-        return _closed;
+    void close() {
+        _available = false;
+    };
+    bool available() {
+        return _available;
     };
 private:
-    bool _closed = false;
+    bool _available = false;
 };
 #endif

@@ -2,11 +2,9 @@
 #define OPEN_EARABLE_TONE_H
 
 #include "Arduino.h" // Needed for PI
-#include "I2S_Player.h"
-#include "utils/CircularBlockBuffer.h"
-#include "utils/Provider.h"
+#include "AudioSource.h"
 
-class Tone : public Provider {
+class Tone : public AudioSource {
 public:
     Tone();
     ~Tone();
@@ -19,6 +17,7 @@ public:
     int get_min_frequency();
 
     int provide(int n) override;
+    WAVConfigurationPacket get_config() override;
 
 private:
     const int _frequency_low = 300;

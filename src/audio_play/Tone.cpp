@@ -1,5 +1,6 @@
 #include "Tone.h"
 
+#include "I2S_Player.h"
 
 Tone::Tone() {
 
@@ -41,9 +42,7 @@ void Tone::start(int frequency) {
     _buffer = (short*)buf;
 
     // Limit frequency to boundary
-    frequency = min(frequency, _frequency_high);
-    frequency = max(frequency, _frequency_low);
-    _current_frequency = frequency;
+    _current_frequency = constrain(frequency, _frequency_low, _frequency_high);
 
     // Calculate multiplier
     _calc_multi();
@@ -148,3 +147,16 @@ int Tone::get_min_frequency() {
     i2s_player.begin();
     play();
 }*/
+
+WAVConfigurationPacket Tone::get_config() {
+    String _name = String(_frequency_high) + "Hz";
+
+    WAVConfigurationPacket wav_packet;
+    wav_packet.state = 0;
+    wav_packet.size = _name.length();
+
+    for (int i=0; i<_name.length(); i++) {
+        wav_packet.name[i] = _name[i];
+    }
+    return wav_packet;
+}

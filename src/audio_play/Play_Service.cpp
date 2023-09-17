@@ -14,9 +14,8 @@ void Play_Service::begin() {
     BLE.addService(*_wavPlayService);
     _wavPlayC->setEventHandler(BLEWritten, receiveWavConfig);
 
-    //TODO: chang back
-    //_current = audio_player.make_wav_config();
-    //_wavPlayC->writeValue(&_current, sizeof(WAVConfigurationPacket));
+    _current = audio_player.make_wav_config();
+    _wavPlayC->writeValue(&_current, sizeof(WAVConfigurationPacket));
 }
 
 void Play_Service::receiveWavConfig(BLEDevice central, BLECharacteristic characteristic) {

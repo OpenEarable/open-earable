@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "*.cps": "javascript",
+        "type_traits": "cpp",
+        "limits": "cpp",
+        "chrono": "cpp",
+        "algorithm": "cpp"
+    }
+}

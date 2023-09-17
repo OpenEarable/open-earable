@@ -1,51 +1,59 @@
 #include "WavPlayer.h"
 
-WavPlayer::WavPlayer(BufferedStream ** stream) {
+WavPlayer::WavPlayer(String name) {
     //_file = *file;
-    this->stream = stream;
+    //this->stream = stream;
+    this->_name = name;
 }
 
 WavPlayer::~WavPlayer() {
     //delete _file;
+    end();
 }
 
 void WavPlayer::begin() {
+    if (_available || !stream || !(*stream)) return;
     _available = sd_setup();
+
+    if (!_available) return;
 
     _cur_read_sd = _default_offset;
     _file.seekSet(_default_offset);
 
     preload_buffer();
+
+    (*stream)->open();
+    _available = (*stream)->available();
+}
+
+void WavPlayer::end() {
+    sd_manager.closeFile(&_file);
+    (*stream)->close();
 }
 
 bool WavPlayer::available() {
     return _available;
 }
 
-int WavPlayer::provide(int n) {
-    /*if (!_available) {
-        _check_ready();
-        return 0;
+bool WavPlayer::setStream(BufferedStream ** stream) {
+    if (_available) {
+        end();
     }
+    this->stream = stream;
+}
 
-    /*if (_tone) {
-        _tone_player->update();
-        return 0;
-    }*/
-    //if ((*stream)->ready() < 2) return 0;
-    //if (check_completed()) return 0;
+int WavPlayer::provide(int n) {
+    if (!_available) return 0;
 
     int blocks = (*stream)->get_contiguous_blocks();
 
     int cont = min(blocks, n);
 
-    Serial.println(cont);
-
     if (!cont) return 0;
 
     unsigned int read = sd_to_buffer(cont);
 
-    if (read == 0) {
+    if (read < cont) {
         (*stream)->close();
     }
     return cont;
@@ -57,10 +65,10 @@ bool WavPlayer::sd_setup() {
     return _file.isOpen();
 }
 
-void WavPlayer::set_name(String name) {
+/*void WavPlayer::set_name(String name) {
     _name = std::move(name);
     _opened = false;
-}
+}*/
 
 void WavPlayer::preload_buffer() {
     int cont = provide(_preload_blocks);
@@ -78,10 +86,10 @@ unsigned int WavPlayer::sd_to_buffer(int multi) {
     read_total += read;
 
     if (read != 0) {
-        (*stream)->provide(multi);
+        (*stream)->provide(read / audio_b_size);
     }
 
-    return read_total;
+    return read_total / audio_b_size;
 }
 
 unsigned int WavPlayer::get_sample_rate() {
@@ -107,7 +115,7 @@ bool WavPlayer::open_file() {
     return _opened;
 }
 
-WAVConfigurationPacket WavPlayer::make_wav_config() {
+WAVConfigurationPacket WavPlayer::get_config() {
     WAVConfigurationPacket wav_packet;
     wav_packet.state = 0;
     wav_packet.size = _name.length();

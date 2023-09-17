@@ -9,8 +9,7 @@ uint8_t AUDIO_BUFFER[audio_b_size * audio_b_count] __attribute__((aligned (16)))
 bool Audio_Player::_paused = false;
 
 Audio_Player::Audio_Player() {
-    //_tone_player = new Tone();
-    source = new WavPlayer(&(i2s_player.stream));
+    //source = new WavPlayer(&(i2s_player.stream));
 }
 
 Audio_Player::~Audio_Player() {
@@ -18,37 +17,32 @@ Audio_Player::~Audio_Player() {
 }
 
 bool Audio_Player::init() {
-    //i2s_setup();
     i2s_player.setBuffer(AUDIO_BUFFER, audio_b_size, audio_b_count);
+    if (!source) return false;
     source->begin();
-    //_tone_player->setup(); // Tone setup after i2s_setup!
     return source->available();
 }
 
-/*void Audio_Player::i2s_setup() {
-    // i2s_player.setBlockBufferSizes(_blockSize, _blockCount);
-    i2s_player.setBuffer(AUDIO_BUFFER, audio_b_size, audio_b_count);
-}*/
+void Audio_Player::setSource(AudioSource * source) {
+    this->source = source;
+    source->setStream(&(i2s_player.stream));
+}
 
 void Audio_Player::start() {
     if (_running) {
         return;
     }
-    _running = true;
 
     if (!source->available()) {
         //i2s_player.clear_buffer();
         i2s_player.reset_buffer();
 
         source->begin();
-        if (!source->available()) {
-            _running = false;
-            return;
-        }
+        if (!source->available()) return;
     }
 
-    //eq->reset();
-    //preload_buffer();
+     _running = true;
+
     i2s_player.begin();
     play();
 }
@@ -61,51 +55,38 @@ void Audio_Player::end() {
 
     stop();
     i2s_player.end();
-    /*if (_tone) {
-        _tone_player->end();
-    }*/
 }
 
 void Audio_Player::play() {
     i2s_player.start();
 }
 
-void Audio_Player::stop() {
-    i2s_player.stop();
-}
-
 void Audio_Player::pause() {
     i2s_player.stop();
 }
 
-bool Audio_Player::check_completed() {
-    /*if (i2s_player.stream->closed() && i2s_player.is_running()) {
+void Audio_Player::stop() {
+    i2s_player.stop();
+    i2s_player.end();
+    source->end();
+}
+
+/*bool Audio_Player::check_completed() {
+    if (!i2s_player.stream->available() && !i2s_player.is_running()) {
         end();
         return true;
-    }*/
+    }
     return false;
-}
+}*/
 
 void Audio_Player::_check_ready() {
     // This function avoids starting player during interrupts
     if (!_ready) return;
-
-    /*if (_last_frequency) {
-        start_tone(_last_frequency);
-    } else {
-        start();
-    }*/
     start();
     _ready = false;
 }
 
 void Audio_Player::set_ready() {
-    //_last_frequency = 0;
-    _ready = true;
-}
-
-void Audio_Player::set_ready(int frequency) {
-    //_last_frequency = frequency;
     _ready = true;
 }
 
@@ -136,17 +117,9 @@ void Audio_Player::config_callback(SensorConfigurationPacket *config) {
         return;
     }
 
+    audio_player.set_ready();
+
     // tone <= max_file > => Play file else play tone
-    if (tone == 1) {
-        i2s_player.set_mode_file(true);
-        audio_player.set_ready();
-        //audio_player.start(); // Started in ready
-    }
-    else {
-        i2s_player.set_mode_file(false);
-        audio_player.set_ready(tone);
-        //audio_player.start_tone(tone); // Started in ready
-    }
 }
 
 void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
@@ -182,6 +155,10 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
         set_ready();
         // start();
     }
+}
+
+WAVConfigurationPacket Audio_Player::make_wav_config() {
+    return source->get_config();
 }
 
 Audio_Player audio_player;
