@@ -3,6 +3,7 @@
 
 #include "AudioSource.h"
 #include "utils/SDManager.h"
+#include "utils/WaveInfo.h"
 #include "Play_Service.h"
 
 /**
@@ -15,9 +16,9 @@ public:
     ~WavPlayer();
     int provide(int n) override;
     bool available() override;
-    void begin() override;
+    bool begin() override;
     void end() override;
-    bool setStream(BufferedStream ** stream) override;
+    void setStream(BufferedStream ** stream) override;
 
     WAVConfigurationPacket get_config() override;
     //void ble_configuration(WAVConfigurationPacket& configuration);
@@ -27,14 +28,15 @@ public:
     unsigned int get_size();
 private:
     ExFatFile _file;
+    WaveInfo info;
 
     bool _available = false;
     bool _opened = false;
     
     String _name;
 
-    int _default_offset = 44;
-    unsigned int _cur_read_sd = _default_offset;
+    //int _default_offset = 44;
+    unsigned int _cur_read_sd = 0;
 
     int _preload_blocks = 6; // 12
 

@@ -64,7 +64,7 @@ void I2S_Player::begin() {
     //setting up the I2S transfer
     nrf_i2s_transfer_set(NRF_I2S, stream->buffer.getBlockSize()/WORD_SIZE, NULL, (uint32_t const *)stream->buffer.getReadPointer());
 
-    eq->update((int16_t *)stream->buffer.getReadPointer(), stream->buffer.getBlockSize() / sizeof(int16_t));
+    //eq->update((int16_t *)stream->buffer.getReadPointer(), stream->buffer.getBlockSize() / sizeof(int16_t));
 
     //enable i2s peripheral
     nrf_i2s_enable(NRF_I2S);
@@ -114,14 +114,9 @@ void I2S_Player::i2s_interrupt() {
 
         bool stream_available = consume(1);
 
-        /*
-        _end_flag not needed, provider.end() will be true
-        */
-
         if (stream->remaining()) {
             nrf_i2s_tx_buffer_set(NRF_I2S, (uint32_t const *)stream->buffer.getReadPointer());
-            //stream->buffer.incrementReadPointer();
-            eq->update((int16_t *)stream->buffer.getReadPointer(), stream->buffer.getBlockSize() / sizeof(int16_t));
+            //eq->update((int16_t *)stream->buffer.getReadPointer(), stream->buffer.getBlockSize() / sizeof(int16_t));
         } else if (!stream_available) {
             stop();
         }

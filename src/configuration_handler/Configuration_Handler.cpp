@@ -54,30 +54,25 @@ void Configuration_Handler::update() {
     const float STD = 0.5;
 
     /*Serial.print("Play: ");
-    Serial.print(audio_player.remaining_blocks());
+    Serial.print((*audio_player.source->stream)->remaining());
     Serial.print(" PDM: ");
-    Serial.println(pdm_mic_sensor.remaining_blocks());*/
+    Serial.println((*recorder.target->stream)->remaining());*/
 
-    /*if (_cycle++ % 2) {
-        if (update_pdm(_pdm_update_blocks)) return;
-        update_play(_play_update_blocks);
-    } else {
-        if (update_play(_play_update_blocks)) return;
-        update_pdm(_pdm_update_blocks);
-    }*/
+    Provider * provider;
     
-    while (!check_overlap() && max(pdm_mic_sensor.ready_blocks(), (*audio_player.source->stream)->ready()) >= min_update) {
+    while (!check_overlap() && max((*recorder.target->stream)->ready(), (*audio_player.source->stream)->ready()) >= min_update) {
         // check priority
-        float diff = pdm_mic_sensor.remaining_blocks() - (*audio_player.source->stream)->remaining();
+        float diff = (*recorder.target->stream)->remaining() - (*audio_player.source->stream)->remaining() * 1.5;
         //float mean = (pdm_mic_sensor.remaining_blocks() + audio_player.remaining_blocks()) / 2.0;
         int blocks = abs(diff) + min_update / 2; //max(mean * STD, min_update / 2); //min_update / 2;
         //unsigned long t1 = millis();
 
         if (diff > 0) {
-            update_play(min(blocks,(*audio_player.source->stream)->ready()-1));
+            provider = audio_player.source;
         } else {
-            update_pdm(min(blocks,pdm_mic_sensor.ready_blocks()-1));
+            provider = recorder.target;
         }
+        update(provider, min(blocks,(*provider->stream)->ready()-1));
     }
 
     long now = millis();
@@ -99,75 +94,16 @@ void Configuration_Handler::update_edge_ml() {
     }
 }
 
-/*bool Configuration_Handler::update_pdm() {
-    if (pdm_mic_sensor.ready_blocks() < _pdm_min_blocks) return false;
+bool Configuration_Handler::update(Provider * provider, int max_buffers) {
+    if (max_buffers <= 0 || (*provider->stream)->ready() == 0) return false;
 
-    int cont = pdm_mic_sensor.update_contiguous(_pdm_update_blocks);
-    if (check_overlap()) return true; // Make sure that time limit is not reached
-    cont = _pdm_update_blocks - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
-    if (!cont || _pdm_update_blocks == cont) return false;
-    pdm_mic_sensor.update_contiguous(cont);
-    return check_overlap();
-}
-
-bool Configuration_Handler::update_play() {
-    if (audio_player.is_mode_tone()) {
-        for (int i = 0; i < _play_update_blocks; ++i) {
-            audio_player.update();
-        }
-    }
-
-    if (audio_player.ready_blocks() < _play_min_blocks) return false;
-
-    int cont = audio_player.update_contiguous(_play_update_blocks);
+   int cont = provider->provide(max_buffers);
 
     if (check_overlap()) return true; // Make sure that time limit is not reached
-    cont = _play_update_blocks - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
-    if (!cont || _play_update_blocks == cont) return false;
-    audio_player.update_contiguous(cont);
-    return check_overlap();
-}*/
-
-bool Configuration_Handler::update_pdm(int max_buffers) {
-    //int remaining = int(_edge_ml_delay - (millis() - _edge_ml_last));
-    //int max_buffers = max(0,min(n, remaining / apx_pdm));
-
-    if (max_buffers <= 0 || pdm_mic_sensor.ready_blocks() == 0) return false;
-
-    int cont = pdm_mic_sensor.update_contiguous(max_buffers);
-    if (check_overlap()) return true; // Make sure that time limit is not reached
-    //counter += cont;
     cont = max_buffers - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
     if (!cont || max_buffers == cont) return false;
     if (check_overlap()) return true; // Make sure that time limit is not reached
-    cont = pdm_mic_sensor.update_contiguous(cont);
-    //counter += cont;
-    return check_overlap();
-}
-
-bool Configuration_Handler::update_play(int max_buffers) {
-    /*if (audio_player.is_mode_tone()) {
-        for (int i = 0; i < _play_update_blocks; ++i) {
-            audio_player.update();
-        }
-    }*/
-
-    //int remaining = int(_edge_ml_delay - (millis() - _edge_ml_last));
-    //int max_buffers = max(0, min(n, remaining / apx_play));
-
-    if (max_buffers <= 0 || (*audio_player.source->stream)->ready() == 0) return false;
-
-   //int cont = audio_player.update_contiguous(max_buffers);
-   int cont = audio_player.source->provide(max_buffers);
-
-    if (check_overlap()) return true; // Make sure that time limit is not reached
-    //counter += cont;
-    cont = max_buffers - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
-    if (!cont || max_buffers == cont) return false;
-    if (check_overlap()) return true; // Make sure that time limit is not reached
-    //cont = audio_player.update_contiguous(cont);
-    cont = audio_player.source->provide(cont);
-    //counter += cont;
+    cont = provider->provide(cont);
     return check_overlap();
 }
 
@@ -220,7 +156,7 @@ void Configuration_Handler::configure(int config_num, int config_info) {
 
     config.sensorId = PDM_MIC;
     config.sampleRate = float(conf->PDM_rate);
-    PDM_MIC_Sensor::config_callback(&config);
+    Recorder::config_callback(&config);
 
     float edge_rate = max(conf->BARO_rate, conf->IMU_rate);
 

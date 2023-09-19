@@ -3,12 +3,11 @@
 
 #include <Arduino.h>
 #include "Earable_Pins.h"
+#include "InputDevice.h"
 
 #ifndef analogPinToPinName
 #include <pinDefinitions.h>
 #endif
-
-#include "utils/CircularBlockBuffer.h"
 
 const int valid_sample_rates[] = {
         16000,
@@ -22,22 +21,26 @@ const int valid_sample_rates[] = {
         62500
 };
 
-class PDMClass2
-{
+class PDMClass2 : public InputDevice {
 public:
     PDMClass2();
     virtual ~PDMClass2();
 
     void setBuffer(uint8_t * buffer, int blockSize, int blockCount);
 
-    int start(bool high=false);
-    int start(int channels, int sampleRate, bool high=false);
+    bool begin(bool high=false);
+    bool begin(int channels, int sampleRate, bool high=false);
+
+    void start() override;
+    void stop() override;
+
+    bool consume(int n) override;
 
     void end();
 
-    virtual int available();
+    /*virtual int available();
     virtual int remaining();
-    virtual int read(void* buffer, size_t size);
+    virtual int read(void* buffer, size_t size);*/
 
     void onReceive(void(*)(void));
 
@@ -50,19 +53,9 @@ public:
     void setChannels(int channels);
     void setSampleRate(int sampleRate);
 
+    int getSampleRate();
+
     void setBlockBufferSizes(int blockSize, int blockCount);
-
-    size_t getTotalSize() const;
-    size_t getBlockSize() const;
-    size_t getBlockCount() const;
-
-    int get_contiguous_blocks() const;
-
-    uint8_t * getReadPointer();
-    void incrementReadPointer();
-
-    void clearBuffer();
-    void resetBuffer();
 
     bool checkSampleRateValid(int sampleRate);
 
@@ -86,9 +79,9 @@ private:
 
     unsigned long _buffer_hits = 0;
 
-    CircularBlockBuffer _blockBuffer;
-
     void (*_onReceive)(void);
+
+    bool _available = false;
 };
 
 extern PDMClass2 PDM2;

@@ -27,5 +27,5 @@ int BufferedOutputStream::ready() {
 }
 
 int BufferedOutputStream::get_contiguous_blocks() {
-    return buffer.get_contiguous_write_blocks(); // Use cur block
+    return buffer.get_contiguous_read_blocks();
 }

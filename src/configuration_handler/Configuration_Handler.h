@@ -5,7 +5,7 @@
 
 #include <custom_sensor/SensorID_Earable.h>
 
-#include <audio_pdm/PDM_MIC_Sensor.h>
+#include <audio_pdm/Recorder.h>
 #include "audio_play/Audio_Player.h"
 
 #include "ArduinoBLE.h"
@@ -42,7 +42,7 @@ private:
 
     unsigned int _cycle = 0;
 
-    unsigned int _overlap = 10; // Overlap time in ms
+    unsigned int _overlap = 15; // Overlap time in ms
     unsigned int _buffer_interval_time;
 
     bool _buffer_flag = false;
@@ -56,8 +56,9 @@ private:
     float _alternate_loop_rate = 20;
 
     void update_edge_ml();
-    bool update_pdm(int n);
-    bool update_play(int n);
+    //bool update_pdm(int n);
+    //bool update_play(int n);
+    bool update(Provider * provider, int n);
     bool check_overlap();
     void check_audioplayback(int config_info);
 };

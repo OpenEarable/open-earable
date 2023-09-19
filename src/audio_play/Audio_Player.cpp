@@ -1,8 +1,7 @@
 #include "Audio_Player.h"
-#include "WavPlayer.h"
+//#include "WavPlayer.h"
 
 #include <utility>
-
 
 uint8_t AUDIO_BUFFER[audio_b_size * audio_b_count] __attribute__((aligned (16)));
 
@@ -16,7 +15,7 @@ Audio_Player::~Audio_Player() {
     delete[] source;
 }
 
-bool Audio_Player::init() {
+bool Audio_Player::begin() {
     i2s_player.setBuffer(AUDIO_BUFFER, audio_b_size, audio_b_count);
     if (!source) return false;
     source->begin();

@@ -19,9 +19,6 @@ const int audio_b_size = 4096;
 const int audio_b_count = 8;
 extern uint8_t AUDIO_BUFFER[audio_b_size * audio_b_count] __attribute__((aligned (16)));
 
-#define EQ_ORDER 3
-//5
-
 /*
 State Controller
 */
@@ -30,13 +27,9 @@ public:
     Audio_Player();
     ~Audio_Player();
 
-    bool init();
-    void update();
-    int update_contiguous(int max_cont);
+    bool begin();
 
     void start();
-    //void start_tone(int frequency);
-
     void end();
 
     void play();
@@ -54,7 +47,6 @@ public:
     static void config_callback(SensorConfigurationPacket * config);
 
     void set_ready();
-    void set_ready(int frequency);
 
     bool _ready = false;
     

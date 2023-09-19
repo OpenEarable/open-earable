@@ -11,19 +11,21 @@ WavPlayer::~WavPlayer() {
     end();
 }
 
-void WavPlayer::begin() {
-    if (_available || !stream || !(*stream)) return;
+bool WavPlayer::begin() {
+    if (_available || !stream || !(*stream)) return false;
     _available = sd_setup();
 
-    if (!_available) return;
+    if (!_available) return false;
 
-    _cur_read_sd = _default_offset;
-    _file.seekSet(_default_offset);
+    _cur_read_sd = sizeof(info);
+    //_file.seekSet(_default_offset);
+    sd_manager.read_block(&_file, (uint8_t*)&info, sizeof(info));
 
     preload_buffer();
 
     (*stream)->open();
     _available = (*stream)->available();
+    return _available;
 }
 
 void WavPlayer::end() {
@@ -35,7 +37,7 @@ bool WavPlayer::available() {
     return _available;
 }
 
-bool WavPlayer::setStream(BufferedStream ** stream) {
+void WavPlayer::setStream(BufferedStream ** stream) {
     if (_available) {
         end();
     }
@@ -64,11 +66,6 @@ bool WavPlayer::sd_setup() {
     open_file();
     return _file.isOpen();
 }
-
-/*void WavPlayer::set_name(String name) {
-    _name = std::move(name);
-    _opened = false;
-}*/
 
 void WavPlayer::preload_buffer() {
     int cont = provide(_preload_blocks);

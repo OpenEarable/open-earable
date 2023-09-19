@@ -5,7 +5,11 @@
 #include <custom_sensor/SensorManager_Earable.h>
 #include <battery_service/Battery_Service.h>
 
-#include <audio_pdm/PDM_MIC_Sensor.h>
+//#include <audio_pdm/PDM_MIC_Sensor.h>
+#include <audio_pdm/Recorder.h>
+#include <audio_pdm/WavRecorder.h>
+#include <audio_pdm/PDM2.h>
+
 #include <audio_play/Audio_Player.h>
 #include <audio_play/WavPlayer.h>
 #include <configuration_handler/Configuration_Handler.h>
@@ -42,10 +46,12 @@ public:
         }
 
         // Can both be initialized without extra cost
-        bool success = pdm_mic_sensor.init();
+        //bool success = pdm_mic_sensor.init();
+        recorder.setDevice(&PDM2);
+        bool success = recorder.begin();
         if (_debug) success ? _debug->println("PDM Ready!") : _debug->println("PDM FAIL!");
 
-        success = audio_player.init();
+        success = audio_player.begin();
         if (_debug) success ? _debug->println("Player Ready!") : _debug->println("Player FAIL!");
 
 
@@ -72,7 +78,7 @@ public:
             edge_ml_generic.update();
 
             // Auto return if not active
-            pdm_mic_sensor.update();
+            //pdm_mic_sensor.update();
             //audio_player.update();
             audio_player.source->provide(1);
         }
@@ -100,21 +106,24 @@ public:
     }
 
     void set_recorder_file_name(String name) {
-        pdm_mic_sensor.set_name(std::move(name));
+        //pdm_mic_sensor.set_name(std::move(name));
+        recorder.setTarget(new WavRecorder(name));
     }
 
     // Possibly not needed (done with config)
     void setSampleRate(int sampleRate) {
-        pdm_mic_sensor.setSampleRate(sampleRate);
+        PDM2.setSampleRate(sampleRate);
     };
 
     void setGain(int gain) {
-        pdm_mic_sensor.setGain(gain);
+        PDM2.setGain(gain);
     };
 
     void use_serial_data_transmission(bool enabled) {
-        if (enabled) pdm_mic_sensor.enable_serial_data();
-        else pdm_mic_sensor.disable_serial_data();
+        /* TODO: replace
+        */
+        //if (enabled) pdm_mic_sensor.enable_serial_data();
+        //else pdm_mic_sensor.disable_serial_data();
     }
 
     void configure_sensor(SensorConfigurationPacket& config) {
@@ -142,7 +151,7 @@ void data_callback(int id, unsigned int timestamp, uint8_t * data, int size) {
 }
 
 void config_callback(SensorConfigurationPacket *config) {
-    PDM_MIC_Sensor::config_callback(config);
+    Recorder::config_callback(config);
     Audio_Player::config_callback(config);
     Configuration_Handler::config_callback(config);
 }
