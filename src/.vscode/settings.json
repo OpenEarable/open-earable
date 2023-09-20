@@ -4,6 +4,7 @@
         "type_traits": "cpp",
         "limits": "cpp",
         "chrono": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "typeinfo": "cpp"
     }
 }

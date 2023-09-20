@@ -51,7 +51,7 @@ void Configuration_Handler::update() {
     _buffer_flag = true;
 
     const int min_update = 2;
-    const float STD = 0.5;
+    //const float STD = 0.5;
 
     /*Serial.print("Play: ");
     Serial.print((*audio_player.source->stream)->remaining());
@@ -65,7 +65,6 @@ void Configuration_Handler::update() {
         float diff = (*recorder.target->stream)->remaining() - (*audio_player.source->stream)->remaining();
         //float mean = (pdm_mic_sensor.remaining_blocks() + audio_player.remaining_blocks()) / 2.0;
         int blocks = abs(diff) + min_update / 2; //max(mean * STD, min_update / 2); //min_update / 2;
-        //unsigned long t1 = millis();
 
         if (diff > 0) {
             provider = audio_player.source;

@@ -1,11 +1,11 @@
 #include "Audio_Player.h"
-//#include "WavPlayer.h"
+#include "WavPlayer.h"
 
 #include <utility>
 
 uint8_t AUDIO_BUFFER[audio_b_size * audio_b_count] __attribute__((aligned (16)));
 
-bool Audio_Player::_paused = false;
+//bool Audio_Player::_paused = false;
 
 Audio_Player::Audio_Player() {
     //source = new WavPlayer(&(i2s_player.stream));
@@ -28,11 +28,9 @@ void Audio_Player::setSource(AudioSource * source) {
 }
 
 void Audio_Player::start() {
-    if (_running) {
-        return;
-    }
+    if (_running) return;
 
-    if (!source->available()) {
+    if (!source || !source->available()) {
         //i2s_player.clear_buffer();
         i2s_player.reset_buffer();
 
@@ -47,9 +45,7 @@ void Audio_Player::start() {
 }
 
 void Audio_Player::end() {
-    if (!_running) {
-        return;
-    }
+    if (!_running) return;
     _running = false;
 
     stop();
@@ -57,14 +53,17 @@ void Audio_Player::end() {
 }
 
 void Audio_Player::play() {
+    if (!_running) return;
     i2s_player.start();
 }
 
 void Audio_Player::pause() {
+    if (!_running) return;
     i2s_player.stop();
 }
 
 void Audio_Player::stop() {
+    if (!_running) return;
     i2s_player.stop();
     i2s_player.end();
     source->end();
@@ -78,17 +77,6 @@ void Audio_Player::stop() {
     return false;
 }*/
 
-void Audio_Player::_check_ready() {
-    // This function avoids starting player during interrupts
-    if (!_ready) return;
-    start();
-    _ready = false;
-}
-
-void Audio_Player::set_ready() {
-    _ready = true;
-}
-
 void Audio_Player::config_callback(SensorConfigurationPacket *config) {
     // Check for PLAYER ID
     if (config->sensorId != PLAYER) return;
@@ -97,26 +85,24 @@ void Audio_Player::config_callback(SensorConfigurationPacket *config) {
     int tone = int(config->sampleRate);
 
     if (tone == 2) {
-        if (_paused) return;
-        _paused = true;
+        if (audio_player._paused) return;
+        audio_player._paused = true;
         audio_player.pause();
         return;
     } else if (tone == 3) {
-        if (!_paused) return;
-        _paused = false;
+        if (!audio_player._paused) return;
+        audio_player._paused = false;
         audio_player.play();
         return;
     }
-    _paused = false;
+    audio_player._paused = false;
 
     audio_player.end();
 
     // End playback if sample tone is 0
-    if (tone == 0) {
-        return;
-    }
+    if (tone == 0)  return;
 
-    audio_player.set_ready();
+    //audio_player.start();
 
     // tone <= max_file > => Play file else play tone
 }
@@ -141,19 +127,11 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
     _paused = false;
     end();
 
-    //TODO: move to WavPlayer
-
-    /*if (configuration.size) {
-        String name = String(configuration.name, configuration.size);
-
-        set_name(name);
-        i2s_player.set_mode_file(true);
-    }*/
-
-    if (configuration.state == 1) {
-        set_ready();
-        // start();
+    if (configuration.size) {
+        setSource(new WavPlayer(String(configuration.name, configuration.size)));
     }
+
+    if (state == 1)  start();
 }
 
 WAVConfigurationPacket Audio_Player::make_wav_config() {

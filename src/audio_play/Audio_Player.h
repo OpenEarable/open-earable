@@ -45,17 +45,17 @@ public:
 
     static void config_callback(SensorConfigurationPacket * config);
 
-    void set_ready();
+    //void set_ready();
 
-    bool _ready = false;
+    //bool _ready = false;
     
-    AudioSource * source;
+    AudioSource * source = NULL;
 private:
-    static bool _paused;
+    bool _paused = false;
     bool _running = false;
 
     //bool check_completed();
-    void _check_ready();
+    //void _check_ready();
 };
 
 extern Audio_Player audio_player;
