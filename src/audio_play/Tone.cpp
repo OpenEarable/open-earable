@@ -1,89 +1,66 @@
 #include "Tone.h"
 
-#include "I2S_Player.h"
+Tone::Tone(float frequency, float amplitude) {
+    //stream = &(i2s_player.stream);
+    set_frequency(frequency);
+    set_amplitude(amplitude);
+}
 
-Tone::Tone() {
-
+Tone::Tone(ToneSetting (*modulation)(), int call_every) {
+    _modulation = modulation;
+    this->call_every = call_every;
 }
 
 Tone::~Tone() {
 
 }
 
-void Tone::setup() {
-    //_circ = i2s_player.get_buffer();
-    stream = &(i2s_player.stream);
+void Tone::set_frequency(float frequency) {
+    this->_tone.frequency = constrain(frequency, _frequency_low, _frequency_high);
 }
 
-short Tone::_sinewave(int tick) {
-    return _short_max * sin((float)tick * _multiplier);
+void Tone::set_amplitude(float amplitude) {
+    this->_tone.amplitude = constrain(amplitude, 0, 1);
 }
 
-void Tone::_calc_multi() {
-    _multiplier = 2.0 * PI * float(_current_frequency) / _sample_rate;
-}
+bool Tone::begin() {
+    if (!stream) return false;
 
-void Tone::start(int frequency) {
-    if (!stream) return;
+    (*stream)->buffer.clear();
+    (*stream)->open();
 
-    int blocks = (*stream)->buffer.getBlockCount();
     _block_size = (*stream)->buffer.getBlockSize();
 
-    if (!_original_blocks) {
-        _original_blocks = blocks;
-    }
+    _delta = 2.f * PI / _sample_rate;
 
-    int offset = (blocks - _extra_blocks) * _block_size;
+    _t = 0;
+    t_call = 0;
 
-    (*stream)->buffer.setSizes(_block_size, blocks - _extra_blocks);
+    const int _preload_blocks = 6;
 
-    _max_buffer = _extra_blocks * _block_size / 2;
-    uint8_t * buf = &((*stream)->buffer.get_buffer()[offset]);
-    _buffer = (short*)buf;
+    int cont = provide(_preload_blocks);
 
-    // Limit frequency to boundary
-    _current_frequency = constrain(frequency, _frequency_low, _frequency_high);
+    Serial.print("preload blocks: ");
+    Serial.println(cont);
 
-    // Calculate multiplier
-    _calc_multi();
+    _available = true;
 
-    // fill buffer with values
-    for (int i = 0; i<_max_buffer; i++) {
-        _buffer[i] = _sinewave(i);
-    }
+    return true;
+}
 
-    short best_value = -_short_max;
-    int best_index = 0;
-    // find best 0
-    for (int i = 1; i<_max_buffer-1; i++) {
-        short cur = _buffer[i];
-        short next = _buffer[i+1];
-
-        if (next <= 0) continue;
-        if (cur>0) continue;
-
-        if (cur < best_value) continue;
-
-        best_value = cur;
-        best_index = i;
-    }
-
-    int counts = _max_buffer / best_index;
-    _end_index = best_index;
-
-    // fill rest buffer
-    for (int i = 0; i < counts-1; ++i) {
-        memcpy(&(_buffer[best_index*(i+1)]), _buffer, best_index*sizeof(short));
-        _end_index += best_index;
-    }
+bool Tone::available() {
+    return _available;
 }
 
 void Tone::end() {
+    _available = false;
     if (!stream) return;
+    (*stream)->close();
+}
 
-    int size = (*stream)->buffer.getBlockSize();
-    (*stream)->buffer.setSizes(size, _original_blocks);
-    _original_blocks = 0;
+void Tone::setStream(BufferedStream ** stream) {
+    if (_available) end();
+    this->stream = stream;
 }
 
 int Tone::provide(int n) {
@@ -94,35 +71,21 @@ int Tone::provide(int n) {
 }
 
 void Tone::update() {
-    if ((*stream)->ready() < 2) return;
+    if (!_available) return;
+    //if ((*stream)->ready() < 2) return;
 
-    uint8_t * ptr = (*stream)->buffer.getCurWritePointer();
+    int16_t * ptr = (int16_t*)((*stream)->buffer.getCurWritePointer());
 
-    int first_block = _end_index - _cur_pos;
-
-    int first_size = first_block*sizeof(short);
-    if (first_size > _block_size) {
-        memcpy(ptr, &(_buffer[_cur_pos]), _block_size);
-        _cur_pos += _block_size/2;
-        if (_cur_pos >= _end_index) _cur_pos -= _end_index;
-        (*stream)->provide(1);
-        return;
+    for (int i = 0; i < _block_size / sizeof(int16_t); i ++) {
+        ptr[i] = MAX_INT16 * (_tone.amplitude * sinf(_delta * _t));
+        _t += _tone.frequency;
+        _t = _t >= _sample_rate ? _t - _sample_rate : _t;
+        if (_modulation && ++t_call >= call_every) {
+            _tone = _modulation();
+            t_call -= call_every;
+        }
     }
 
-    memcpy(ptr, &(_buffer[_cur_pos]), first_size);
-
-    int second_block = _block_size/2 - first_block;
-
-    if (!second_block) {
-        (*stream)->provide(1);
-        return;
-    }
-    int second_size = second_block*sizeof(short);
-    memcpy(&(ptr[first_size]), _buffer, second_size);
-
-    _cur_pos = second_block;
-
-    if (_cur_pos >= _end_index) _cur_pos -= _end_index;
     (*stream)->provide(1);
 }
 
@@ -134,22 +97,8 @@ int Tone::get_min_frequency() {
     return _frequency_low;
 }
 
-/*void Audio_Player::start_tone(int frequency) {
-    if (_stream) {
-        return;
-    }
-    _tone = true;
-    _stream = true;
-
-    i2s_player.clear_buffer();
-
-    _tone_player->start(frequency);
-    i2s_player.begin();
-    play();
-}*/
-
 WAVConfigurationPacket Tone::get_config() {
-    String _name = String(_frequency_high) + "Hz";
+    String _name = String(_tone.frequency) + "Hz";
 
     WAVConfigurationPacket wav_packet;
     wav_packet.state = 0;

@@ -12,7 +12,9 @@ WavPlayer::~WavPlayer() {
 }
 
 bool WavPlayer::begin() {
-    if (_available || !stream || !(*stream)) return false;
+    if (!stream || !(*stream)) return false;
+    
+    if (_available) return true;
     _available = sd_setup();
 
     if (!_available) return false;

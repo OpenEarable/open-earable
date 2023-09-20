@@ -14,7 +14,6 @@
 #include "utils/BufferedInputStream.h"
 #include "Equalizer.h"
 
-
 const int audio_b_size = 4096;
 const int audio_b_count = 8;
 extern uint8_t AUDIO_BUFFER[audio_b_size * audio_b_count] __attribute__((aligned (16)));

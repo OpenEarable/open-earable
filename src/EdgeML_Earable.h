@@ -12,6 +12,7 @@
 
 #include <audio_play/Audio_Player.h>
 #include <audio_play/WavPlayer.h>
+#include <audio_play/Tone.h>
 #include <configuration_handler/Configuration_Handler.h>
 
 #include <sd_logger/SD_Logger.h>
@@ -103,6 +104,10 @@ public:
 
     void set_player_file_name(String name) {
         audio_player.setSource(new WavPlayer(name));
+    }
+
+    void set_tone_freq(float frequency) {
+        audio_player.setSource(new Tone(frequency));
     }
 
     void set_recorder_file_name(String name) {

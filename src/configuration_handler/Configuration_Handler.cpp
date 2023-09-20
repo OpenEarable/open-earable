@@ -62,7 +62,7 @@ void Configuration_Handler::update() {
     
     while (!check_overlap() && max((*recorder.target->stream)->ready(), (*audio_player.source->stream)->ready()) >= min_update) {
         // check priority
-        float diff = (*recorder.target->stream)->remaining() - (*audio_player.source->stream)->remaining() * 1.5;
+        float diff = (*recorder.target->stream)->remaining() - (*audio_player.source->stream)->remaining();
         //float mean = (pdm_mic_sensor.remaining_blocks() + audio_player.remaining_blocks()) / 2.0;
         int blocks = abs(diff) + min_update / 2; //max(mean * STD, min_update / 2); //min_update / 2;
         //unsigned long t1 = millis();

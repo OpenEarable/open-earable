@@ -4,48 +4,54 @@
 #include "Arduino.h" // Needed for PI
 #include "AudioSource.h"
 
+struct ToneSetting {
+    float frequency;
+    float amplitude;
+};
+
 class Tone : public AudioSource {
 public:
-    Tone();
+    Tone(float frequency = 440, float amplitude = 0.5);
+    Tone(ToneSetting (*modulation)(), int call_every = 16);
     ~Tone();
-    void setup();
-    void start(int frequency);
-    void end();
-    void update();
+
+    void set_frequency(float frequency);
+    void set_amplitude(float amplitude);
+
+    int provide(int n) override;
+    bool available() override;
+    bool begin() override;
+    void end() override;
+    void setStream(BufferedStream ** stream) override;
 
     int get_max_frequency();
     int get_min_frequency();
 
-    int provide(int n) override;
     WAVConfigurationPacket get_config() override;
 
 private:
-    const int _frequency_low = 300;
-    const int _frequency_high = 22000;
+    bool _available = false;
 
-    const short _short_max = 32767;
-    const float _sample_rate = 45454.5; // Determined by i2s config
+    const float _frequency_low = 300;
+    const float _frequency_high = 22000;
 
-    //CircularBlockBuffer * _circ;
+    const float _sample_rate = (float)1e6/23; // Determined by i2s config
 
-    int _original_blocks{};
-    int _block_size{};
+    int _block_size;
+    float _delta;
 
-    int _extra_blocks = 6;
-    int _max_buffer{};
-    short * _buffer;
+    ToneSetting _tone;
+    ToneSetting (*_modulation)() = NULL;
+    int call_every = 16;
 
-    int _cur_pos = 0;
-    int _end_index;
+    //const float _2_PI = 2.f * PI;
 
-    int _current_frequency = 500;
+    float _t = 0;
+    int t_call = 0;
 
-    double _multiplier{};
+    const float MAX_INT16 = ((1 << 15)-1);
 
-    short _sinewave(int tick);
-    void _calc_multi();
-
+    void update();
 };
-
 
 #endif //OPEN_EARABLE_TONE_H

@@ -38,10 +38,6 @@ public:
 
     void end();
 
-    /*virtual int available();
-    virtual int remaining();
-    virtual int read(void* buffer, size_t size);*/
-
     void onReceive(void(*)(void));
 
     //PORTENTA_H7 min -12 max 51

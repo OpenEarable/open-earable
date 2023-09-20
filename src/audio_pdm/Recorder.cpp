@@ -12,7 +12,7 @@ Recorder::~Recorder() {
 }
 
 bool Recorder::begin() {
-    if (_available) return false;
+    if (_available) return true;
     PDM2.setBuffer(PDM_BUFFER, pdm_b_size, pdm_b_count);
     if (!target) return false;
     target->begin();
@@ -78,10 +78,8 @@ void Recorder::config_callback(SensorConfigurationPacket *config) {
         sample_rate = sampleRate_default;
     }
 
+    // Set sample rate
     recorder._sampleRate = sample_rate;
-
-    // Set sample rate in PMD Sensor
-    // PDM2.setSampleRate(sample_rate);
 
     // Make sure that pdm mic is not running already!
     recorder.stop();
