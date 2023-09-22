@@ -39,10 +39,10 @@ OpenEarable is controlled and streams sensor data via BLE (Bluetooth Low Energy)
 ## Setup
 
 ### Arduino IDE
-Download and install the Arduino IDE. As OpenEarable is based on the "Arduino Nano 33 BLE Sense" board. Therefore you first have to install the required dependencies in your Arduino IDE following this [Setup Guide](https://docs.arduino.cc/hardware/nano-33-ble-sense).
+Download and install the Arduino IDE. OpenEarable is based on the "Arduino Nano 33 BLE Sense" board. Therefore, you first have to install the required dependencies in your Arduino IDE following this [Setup Guide](https://docs.arduino.cc/hardware/nano-33-ble-sense).
 
-### C++ Libraries
-The following C++ Libraries have to be installed in your Arduino IDE:
+### Arduino Libraries
+The following Arduino Libraries have to be installed in your Arduino IDE by navigating to `Sketch -> Include Library -> Manage Libraries`:
 - [EdgeML-Arduino](https://github.com/edge-ml/EdgeML-Arduino)
 - [Adafruit_BMP280](https://github.com/adafruit/Adafruit_BMP280_Library)
 - [DFRobot_BMX160](https://github.com/DFRobot/DFRobot_BMX160)
@@ -69,7 +69,7 @@ To fully integrate the optimized SPI files, changes to the Arduino Nano 33 BLE b
 
 4. At the bottom of the new window, there is a hyperlink labeled under "More preferences can be edited directly in the file". Click on this hyperlink to access the file explorer.
 
-5. Navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/libraries`. (Please note: If you have a different version than 4.0.4 of mbed_nano installed or you don't have it installed at all, you can change or add it by navigating to `Tools -> Board -> Boards Manager`. Search for `Arduino Mbed OS Nano Boards` and install the desired version.)
+5. Navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/libraries`. *Please note:* If you have a different version than mbed_nano 4.0.4 installed or you don't have it installed at all, you can change or add it by navigating to `Tools -> Board -> Boards Manager`. Search for `Arduino Mbed OS Nano Boards` and install the desired version.
 
 6. Locate the existing SPI library folder within this directory. It needs to be swapped with the provided folder named "SPI" in "resources/spi_files"".
 
