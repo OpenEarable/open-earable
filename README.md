@@ -10,7 +10,8 @@ OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing 
 ## Table of Contents
 - [Introduction](#Introduction)
 - [Setup](#Setup)
-  - [C++ Libraries](#C++-Libraries)
+  - [Arduino IDE](#Arduino-IDE) 
+  - [Arduino Libraries](#Arduino-Libraries)
   - [SD Card Setup](#SD-Card-Setup)
   - [SPI Setup](#SPI-Setup)
   - [sdfat Library Setup](#sdfat-Library-Setup)
@@ -73,25 +74,23 @@ To fully integrate the optimized SPI files, changes to the Arduino Nano 33 BLE b
 
 6. Locate the existing `SPI` library folder within this directory. It needs to be swapped with the provided folder named "SPI" in "resources/spi_files" found in this repository.
 
-7. Similarly, navigate to the following directory: `arduino/hardware/mbed_nano/4.0.4/cores/arduino/mbed/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/drivers/include`.
+7. Similarly, navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/cores/arduino/mbed/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/drivers/include`.
 
-8. In this directory, locate the file named "nrfx_spi.h" and replace it with the provided "nrfx_spi.h" file from the "resources/spi_files" folder.
+8. In this directory, locate the file named "nrfx_spi.h" and replace it with the provided "nrfx_spi.h" file from the "resources/spi_files" folder of this repository.
 
-9. Additionally, paste the "nrfx_spim.c" file from the "resources/spi_files" subfolder into the same directory.
+9. In the same directory, replace the "nrfx_spim.c" file with the "nrfx_spim.c" file provided under "resources/spi_files" of this repository.
 
 ### sdfat Library Setup
-One of the library requirements is the Adafruit Fork of the SdFat library from Bill Greiman.
+One of the library requirements is the SdFat library from Bill Greiman.
 This library is used to send data to the SD card.
 If the Arduino default SD Card library is used or if the SdFat library is used without changing its configurations OpenEarable data transfer is very slow topping about 33kbps.
-This is not sufficient to record audio.
-
-However, with the SdFat library it is possible to get write speeds of up to 400kbps without the SPI changes and up to 1.5Mbps with the SPI changes.
-To achieve those speeds, the SdFatConfig of the SdFat library needs to be modified.
+This is not sufficient to record audio. However, with Bill Greiman's library and some small modifications it is possible to get write speeds up to 1.5Mbps.
+To achieve the required SD card speed, the SdFatConfig of the SdFat library needs to be modified.
 
 Go to the "Arduino/libraries" folder and locate the "SdFat" library folder. There find the `SdFatConfig.h`.
-Replace it with the provided config file found under "resources/sdfat_config"
+Replace it with the provided config file `SdFatConfig.h` found in the `resources/sdfat_config` folder of this repository.
 
-(The most notable change was setting of the `USE_SPI_ARRAY_TRANSFER` flag.)
+<! -- The most notable change was setting of the `USE_SPI_ARRAY_TRANSFER` flag.) -->
 
 ## Usage
 ### Example
