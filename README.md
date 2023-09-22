@@ -66,7 +66,7 @@ To fully integrate the optimized SPI files, changes to the Arduino Nano 33 BLE b
 
 4. At the bottom of the new window, there is a hyperlink labeled under "More preferences can be edited directly in the file". Click on this hyperlink to access the file explorer.
 
-5. Inside the "packages" folder, navigate to the following directory: `arduino/hardware/mbed_nano/4.0.4/libraries`.
+5. Navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/libraries`.
 
 6. Locate the existing SPI library folder within this directory. It needs to be swapped with the provided folder named "SPI" in "resources/spi_files"".
 
