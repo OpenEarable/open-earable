@@ -71,7 +71,7 @@ To fully integrate the optimized SPI files, changes to the Arduino Nano 33 BLE b
 
 5. Navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/libraries`. *Please note:* If you have a different version than mbed_nano 4.0.4 installed or you don't have it installed at all, you can change or add it by navigating to `Tools -> Board -> Boards Manager`. Search for `Arduino Mbed OS Nano Boards` and install the desired version.
 
-6. Locate the existing SPI library folder within this directory. It needs to be swapped with the provided folder named "SPI" in "resources/spi_files"".
+6. Locate the existing `SPI` library folder within this directory. It needs to be swapped with the provided folder named "SPI" in "resources/spi_files" found in this repository.
 
 7. Similarly, navigate to the following directory: `arduino/hardware/mbed_nano/4.0.4/cores/arduino/mbed/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/drivers/include`.
 
