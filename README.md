@@ -85,11 +85,9 @@ One of the library dependencies is the SdFat library from Bill Greiman.
 This library is used to send data to the SD card.
 To achieve the desired write speeds of up to 1.5Mbps the library has to be modified slighlty.
 
-1. Go to the `Arduino/libraries` folder and locate the `SdFat` library folder. There find the `SdFatConfig.h`.
+1. Go to the `Arduino/libraries` folder, locate the `SdFat` library folder and open it. (Note: typically, the Arduino libraries folder is located at `~/Documents/Arduino/libraries`)
    
-3. Replace it with the provided `SdFatConfig.h` file found in the `resources/sdfat_config` folder of this repository.
-
-<! -- The most notable change was setting of the `USE_SPI_ARRAY_TRANSFER` flag.) -->
+3. Replace the `SdFatConfig.h` in the `SdFat`folder with the provided `SdFatConfig.h` file found in the `resources/sdfat_config` folder of this repository.
 
 ## Usage
 ### Example
