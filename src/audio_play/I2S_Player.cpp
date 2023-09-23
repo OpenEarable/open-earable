@@ -7,13 +7,15 @@ sampling_mode file_mode = {NRF_I2S_MCK_32MDIV23, NRF_I2S_RATIO_32X};
 sampling_mode const_freq = {NRF_I2S_MCK_32MDIV11, NRF_I2S_RATIO_64X};
 
 
-I2S_Player::I2S_Player() {
+I2S_Player::I2S_Player(bool use_eq) {
+    this->use_eq = use_eq;
     eq = new Equalizer();
     stream = new BufferedInputStream();
 }
 
 I2S_Player::~I2S_Player() {
-
+    delete eq;
+    delete stream;
 }
 
 void I2S_Player::setBlockBufferSizes(int blockSize, int blockCount) {
@@ -29,6 +31,7 @@ bool I2S_Player::consume(int n) {
 }
 
 void I2S_Player::begin() {
+    if (_available) return;
     //initializing i2s pins
     nrf_i2s_pins_set(NRF_I2S,
                      digitalPinToPinName(_sckPin),
@@ -64,7 +67,7 @@ void I2S_Player::begin() {
     //setting up the I2S transfer
     nrf_i2s_transfer_set(NRF_I2S, stream->buffer.getBlockSize()/WORD_SIZE, NULL, (uint32_t const *)stream->buffer.getReadPointer());
 
-    eq->update((int16_t *)stream->buffer.getReadPointer(), stream->buffer.getBlockSize() / sizeof(int16_t));
+    if (use_eq) eq->update((int16_t *)stream->buffer.getReadPointer(), stream->buffer.getBlockSize() / sizeof(int16_t));
 
     //enable i2s peripheral
     nrf_i2s_enable(NRF_I2S);
@@ -80,6 +83,8 @@ void I2S_Player::begin() {
 
     //enabling I2S interrupt in NVIC
     NRFX_IRQ_ENABLE(I2S_IRQn);
+
+    _available = true;
 }
 
 void I2S_Player::end() {
@@ -87,18 +92,22 @@ void I2S_Player::end() {
     nrf_i2s_int_disable(NRF_I2S, NRF_I2S_INT_TXPTRUPD_MASK);
     nrf_i2s_disable(NRF_I2S);
 
-    _turn_off_flag = true;
+    _running = false;
+    _available = false;
 
     stream->buffer.clear();
 }
 
 void I2S_Player::start() {
-    _turn_off_flag = false;
+    if (!_available) return;
+    _running = true;
     nrf_i2s_task_trigger(NRF_I2S, NRF_I2S_TASK_START);
 }
 
 void I2S_Player::stop() {
+    if (!_available) return;
     nrf_i2s_task_trigger(NRF_I2S, NRF_I2S_TASK_STOP);
+    _running = false;
 }
 
 bool I2S_Player::check_config_status() {
@@ -116,7 +125,7 @@ void I2S_Player::i2s_interrupt() {
 
         if (stream->remaining()) {
             nrf_i2s_tx_buffer_set(NRF_I2S, (uint32_t const *)stream->buffer.getReadPointer());
-            eq->update((int16_t *)stream->buffer.getReadPointer(), stream->buffer.getBlockSize() / sizeof(int16_t));
+            if (use_eq) eq->update((int16_t *)stream->buffer.getReadPointer(), stream->buffer.getBlockSize() / sizeof(int16_t));
         } else if (!stream_available) {
             stop();
         }
@@ -142,7 +151,7 @@ void i2s_irq_handler(void) {
 }
 
 bool I2S_Player::is_running() {
-    return !_turn_off_flag;
+    return _running;
 }
 
 I2S_Player i2s_player;

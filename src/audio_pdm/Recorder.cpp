@@ -1,5 +1,4 @@
 #include "Recorder.h"
-#include "PDM2.h"
 
 uint8_t PDM_BUFFER[pdm_b_size * pdm_b_count] __attribute__((aligned (16)));
 
@@ -11,25 +10,68 @@ Recorder::~Recorder() {
     
 }
 
+void Recorder::setSampleRate(int sample_rate) {
+    _sampleRate = sample_rate;
+    if (device) _sampleRate = device->setSampleRate(sample_rate);
+    if (target) target->setSampleRate(_sampleRate);
+}
+
 bool Recorder::begin() {
     if (_available) return true;
-    PDM2.setBuffer(PDM_BUFFER, pdm_b_size, pdm_b_count);
-    if (!target) return false;
+    if (!device || !target) return false;
+    device->setBuffer(PDM_BUFFER, pdm_b_size, pdm_b_count);
+    _sampleRate = device->setSampleRate(_sampleRate);
+    target->setSampleRate(_sampleRate);
     target->begin();
     if (!target->available()) return false;
-    _available = pdm_setup();
+    _available = device->begin();
     if(!_available) target->end();
     return _available;
 }
 
+bool Recorder::available() {
+    return _available;
+}
+
 void Recorder::end() {
-    PDM2.end();
+    if (_available) return;
+    device->end();
+    target->end();
     _available = false;
+}
+
+void Recorder::print_info() {
+    Serial.println("RECORDER INFO:");
+    Serial.print("sample rate: ");
+    Serial.println(_sampleRate);
+    Serial.print("target: ");
+    if (target) {
+        Serial.println("SET");
+        if (target->available()) {
+            Serial.println("taget: available");
+            //Serial.print("taget samplerate: ");
+            //Serial.println(target->);
+        } else Serial.println("taget: not available");
+    } else Serial.println("NOT SET");
+
+    Serial.print("device: ");
+    if (device) {
+        Serial.println("SET");
+        if (device->available()) {
+            Serial.println("device: available");
+            Serial.print("device samplerate: ");
+            Serial.println(device->getSampleRate());
+        } else  Serial.println("device: not available");
+    } else Serial.println("NOT SET");
 }
 
 void Recorder::record() {
     if (!_available) begin();
-    if (_available) PDM2.start();
+    if (_available) device->start();
+    else {
+        Serial.println("Failed to setup recorder!");
+        print_info();
+    }
 }
 
 /**
@@ -37,27 +79,25 @@ void Recorder::record() {
 */
 void Recorder::stop() {
     if (!_available) return;
-    PDM2.end();
+    device->end();
     target->end();
     _available = false;
 }
 
 void Recorder::setDevice(InputDevice * device) {
     this->device = device;
-    if (target) this->target->setStream(&(device->stream));
+    _sampleRate = device->setSampleRate(_sampleRate);
+
+    if (target) {
+        target->setStream(&(device->stream));
+        target->setSampleRate(_sampleRate);
+    }
 }
 
 void Recorder::setTarget(AudioTarget * target) {
     this->target = target;
+    target->setSampleRate(_sampleRate);
     if (device) this->target->setStream(&(device->stream));
-}
-
-bool Recorder::pdm_setup() {
-    //PDM2.setBlockBufferSizes(_blockSize, _blockCount);
-    PDM2.setBuffer(PDM_BUFFER, pdm_b_size, pdm_b_count);
-    PDM2.setSampleRate(_sampleRate);
-    PDM2.setGain(_gain);
-    return PDM2.begin();
 }
 
 void Recorder::config_callback(SensorConfigurationPacket *config) {
@@ -74,12 +114,7 @@ void Recorder::config_callback(SensorConfigurationPacket *config) {
     }
 
     // Check for valid sample rate
-    if (!PDM2.checkSampleRateValid(sample_rate)) {
-        sample_rate = sampleRate_default;
-    }
-
-    // Set sample rate
-    recorder._sampleRate = sample_rate;
+    recorder.setSampleRate(sample_rate);
 
     // Make sure that pdm mic is not running already!
     recorder.stop();

@@ -28,7 +28,7 @@ extern sampling_mode const_freq;
 
 class I2S_Player : public OutputDevice {
 public:
-    I2S_Player();
+    I2S_Player(bool use_eq = false);
     ~I2S_Player();
 
     Equalizer * eq;
@@ -61,13 +61,14 @@ private:
 
     bool _i2s_config_status = false;
 
-    //bool _end_flag = false;         // End of playback, buffer is empty
-    bool _turn_off_flag = false;    // Request end, will play rest of buffer
-    //bool _completed_flag = false;
+    bool _available = false;         // End of playback, buffer is empty
+    bool _running = false;    // Request end, will play rest of buffer
 
     int count = 0;
 
     bool consume(int n) override;
+
+    bool use_eq = false;
 };
 
 extern I2S_Player i2s_player;

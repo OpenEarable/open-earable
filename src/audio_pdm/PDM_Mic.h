@@ -21,22 +21,26 @@ const int valid_sample_rates[] = {
         62500
 };
 
-class PDMClass2 : public InputDevice {
+const int sampleRate_default = 41667;  // 16000 Hz / 41667 Hz / 62500 Hz  // Default
+
+class PDM_Mic : public InputDevice {
 public:
-    PDMClass2();
-    virtual ~PDMClass2();
+    PDM_Mic();
+    virtual ~PDM_Mic();
 
-    void setBuffer(uint8_t * buffer, int blockSize, int blockCount);
+    bool begin() override;
+    bool begin(int channels, int sampleRate);
 
-    bool begin(bool high=false);
-    bool begin(int channels, int sampleRate, bool high=false);
+    void end() override;
 
     void start() override;
     void stop() override;
 
-    bool consume(int n) override;
+    bool available() override;
 
-    void end();
+    int setSampleRate(int sampleRate) override;
+
+    bool consume(int n) override;
 
     void onReceive(void(*)(void));
 
@@ -47,13 +51,10 @@ public:
 
     void setPins(int dinPin, int clkPin);
     void setChannels(int channels);
-    void setSampleRate(int sampleRate);
 
-    int getSampleRate();
+    int getSampleRate() override;
 
     void setBlockBufferSizes(int blockSize, int blockCount);
-
-    bool checkSampleRateValid(int sampleRate);
 
     unsigned long get_buffer_hits();
 
@@ -69,7 +70,7 @@ private:
     int _channels = 1;
     int _sampleRate = 16000;
 
-    int _gain = 20;
+    int _gain = 80;
 
     bool _first = true;
 
@@ -78,8 +79,10 @@ private:
     void (*_onReceive)(void);
 
     bool _available = false;
+
+    bool checkSampleRateValid(int sampleRate);
 };
 
-extern PDMClass2 PDM2;
+extern PDM_Mic pdm_mic;
 
 #endif

@@ -27,8 +27,6 @@ public:
     ~Audio_Player();
 
     bool begin();
-
-    void start();
     void end();
 
     void play();
@@ -45,14 +43,13 @@ public:
 
     static void config_callback(SensorConfigurationPacket * config);
 
-    //void set_ready();
-
-    //bool _ready = false;
+    bool available();
     
-    AudioSource * source = NULL;
+    AudioSource * source;
 private:
-    bool _paused = false;
+    //bool _paused = false;
     bool _running = false;
+    bool _available = false;
 
     //bool check_completed();
     //void _check_ready();

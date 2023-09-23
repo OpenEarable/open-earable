@@ -5,10 +5,9 @@
 #include <custom_sensor/SensorManager_Earable.h>
 #include <battery_service/Battery_Service.h>
 
-//#include <audio_pdm/PDM_MIC_Sensor.h>
+#include <audio_pdm/PDM_Mic.h>
 #include <audio_pdm/Recorder.h>
 #include <audio_pdm/WavRecorder.h>
-#include <audio_pdm/PDM2.h>
 
 #include <audio_play/Audio_Player.h>
 #include <audio_play/WavPlayer.h>
@@ -48,13 +47,12 @@ public:
 
         // Can both be initialized without extra cost
         //bool success = pdm_mic_sensor.init();
-        recorder.setDevice(&PDM2);
+        recorder.setDevice(&pdm_mic);
         bool success = recorder.begin();
         if (_debug) success ? _debug->println("PDM Ready!") : _debug->println("PDM FAIL!");
 
         success = audio_player.begin();
         if (_debug) success ? _debug->println("Player Ready!") : _debug->println("Player FAIL!");
-
 
         edge_ml_generic.ble_manual_advertise();
         edge_ml_generic.set_ble_config("Earable", "2.0.0");
@@ -72,17 +70,7 @@ public:
     void update() {
         _battery->update();
 
-        if (conf_handler.check_active()) {
-            conf_handler.update();
-        } else {
-            // Possibly rewrite
-            edge_ml_generic.update();
-
-            // Auto return if not active
-            //pdm_mic_sensor.update();
-            //audio_player.update();
-            audio_player.source->provide(1);
-        }
+        conf_handler.update();
 
         earable_btn.update();
     };
@@ -117,11 +105,11 @@ public:
 
     // Possibly not needed (done with config)
     void setSampleRate(int sampleRate) {
-        PDM2.setSampleRate(sampleRate);
+        recorder.setSampleRate(sampleRate);
     };
 
     void setGain(int gain) {
-        PDM2.setGain(gain);
+        pdm_mic.setGain(gain);
     };
 
     void use_serial_data_transmission(bool enabled) {

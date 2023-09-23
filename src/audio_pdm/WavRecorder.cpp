@@ -11,10 +11,14 @@ WavRecorder::~WavRecorder() {
 bool WavRecorder::begin() {
     (*stream)->open();
     _wavWriter->setName(_name);
-    _wavWriter->setSampleRate(PDM2.getSampleRate());
+    _wavWriter->setSampleRate(_sampleRate);
     const bool writer_begin = _wavWriter->begin();
     if (writer_begin) start();
     return writer_begin;  
+}
+
+void WavRecorder::setSampleRate(int sampleRate) {
+    _sampleRate = sampleRate;
 }
 
 bool WavRecorder::available() {

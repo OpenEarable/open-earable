@@ -15,6 +15,10 @@ Equalizer::Equalizer() {
     //reset();
 }
 
+Equalizer::~Equalizer() {
+    //reset();
+}
+
 void Equalizer::reset() {
     #pragma unroll
     for(int i = 0; i < EQ_ORDER; i++) {

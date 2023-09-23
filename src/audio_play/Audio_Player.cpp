@@ -12,14 +12,20 @@ Audio_Player::Audio_Player() {
 }
 
 Audio_Player::~Audio_Player() {
-    delete[] source;
+    //delete[] source;
+}
+
+bool Audio_Player::available() {
+    return _available;
 }
 
 bool Audio_Player::begin() {
+    if (_available) return true;
     i2s_player.setBuffer(AUDIO_BUFFER, audio_b_size, audio_b_count);
     if (!source) return false;
     source->begin();
-    return source->available();
+    _available = source->available();
+    return _available;
 }
 
 void Audio_Player::setSource(AudioSource * source) {
@@ -27,11 +33,12 @@ void Audio_Player::setSource(AudioSource * source) {
     source->setStream(&(i2s_player.stream));
 }
 
-void Audio_Player::start() {
-    if (_running) return;
+void Audio_Player::play() {
+    if (!source || _running) return;
 
-    if (!source || !source->available()) {
-        //i2s_player.clear_buffer();
+    if (!_available) begin();
+
+    if (!source->available()) {
         i2s_player.reset_buffer();
 
         source->begin();
@@ -41,29 +48,26 @@ void Audio_Player::start() {
      _running = true;
 
     i2s_player.begin();
-    play();
-}
-
-void Audio_Player::end() {
-    if (!_running) return;
-    _running = false;
-
-    stop();
-    i2s_player.end();
-}
-
-void Audio_Player::play() {
-    if (!_running) return;
     i2s_player.start();
 }
 
+void Audio_Player::end() {
+    if (!_available) return;
+    //_running = false;
+
+    stop();
+    i2s_player.end();
+    _available = false;
+}
+
 void Audio_Player::pause() {
-    if (!_running) return;
+    if (!_available || !_running) return;
     i2s_player.stop();
 }
 
 void Audio_Player::stop() {
-    if (!_running) return;
+    if (!_available || !_running) return;
+    _running = false;
     i2s_player.stop();
     i2s_player.end();
     source->end();
@@ -85,13 +89,13 @@ void Audio_Player::config_callback(SensorConfigurationPacket *config) {
     int tone = int(config->sampleRate);
 
     if (tone == 2) {
-        if (audio_player._paused) return;
-        audio_player._paused = true;
+        //if (audio_player._paused) return;
+        //audio_player._paused = true;
         audio_player.pause();
         return;
     } else if (tone == 3) {
-        if (!audio_player._paused) return;
-        audio_player._paused = false;
+        //if (!audio_player._paused) return;
+        //audio_player._paused = false;
         audio_player.play();
         return;
     }
@@ -102,7 +106,7 @@ void Audio_Player::config_callback(SensorConfigurationPacket *config) {
     // End playback if sample tone is 0
     if (tone == 0)  return;
 
-    //audio_player.start();
+    //audio_player.play();
 
     // tone <= max_file > => Play file else play tone
 }
@@ -111,31 +115,31 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
     int state = configuration.state;
 
     if (state == 2) {
-        if (_paused) return;
+        //if (_paused) return;
         if (!_running) return;
-        _paused = true;
+        //_paused = true;
         audio_player.pause();
         return;
     } else if (state == 3) {
-        if (!_paused) return;
+        //if (!_paused) return;
         if (!_running) return;
-        _paused = false;
+        //_paused = false;
         audio_player.play();
         return;
     }
 
-    _paused = false;
+    //_paused = false;
     end();
 
     if (configuration.size) {
         setSource(new WavPlayer(String(configuration.name, configuration.size)));
     }
 
-    if (state == 1)  start();
+    if (state == 1)  play();
 }
 
 WAVConfigurationPacket Audio_Player::make_wav_config() {
-    return source->get_config();
+    return source ? source->get_config() : WAVConfigurationPacket();
 }
 
 Audio_Player audio_player;

@@ -6,7 +6,6 @@
 #include <custom_sensor/SensorID_Earable.h>
 
 #include "utils/WAVWriter.h"
-#include "PDM2.h"
 
 class WavRecorder : public AudioTarget {
 public:
@@ -22,7 +21,7 @@ public:
     void start();
     void stop();
 
-    void setSampleRate(int sampleRate);
+    void setSampleRate(int sampleRate) override;
     void setGain(int gain);
 
     void enable_serial_data();
@@ -32,7 +31,7 @@ private:
 
     int initial_drop = 1;
 
-    const String _name; // = "Recording.wav";
+    const String _name;
     int _sampleRate = 0;
 
     WAVWriter * _wavWriter;

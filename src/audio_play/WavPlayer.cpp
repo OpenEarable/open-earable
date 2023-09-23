@@ -1,8 +1,6 @@
 #include "WavPlayer.h"
 
 WavPlayer::WavPlayer(String name) {
-    //_file = *file;
-    //this->stream = stream;
     this->_name = name;
 }
 

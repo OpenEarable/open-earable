@@ -54,28 +54,30 @@ void Configuration_Handler::update() {
     //const float STD = 0.5;
 
     /*Serial.print("Play: ");
+    //Serial.print(audio_player.available());
     Serial.print((*audio_player.source->stream)->remaining());
     Serial.print(" PDM: ");
     Serial.println((*recorder.target->stream)->remaining());*/
 
     Provider * provider;
     
-    while (!check_overlap() && max((*recorder.target->stream)->ready(), (*audio_player.source->stream)->ready()) >= min_update) {
+    while (!check_overlap() && max(recorder.available() ? (*recorder.target->stream)->ready() : 0, audio_player.available() ? (*audio_player.source->stream)->ready() : 0) >= min_update) {
         // check priority
-        float diff = (*recorder.target->stream)->remaining() - (*audio_player.source->stream)->remaining();
+        float diff = (recorder.available() ? (*recorder.target->stream)->remaining() : 0) - (audio_player.available() ? (*audio_player.source->stream)->remaining() : 0);
         //float mean = (pdm_mic_sensor.remaining_blocks() + audio_player.remaining_blocks()) / 2.0;
         int blocks = abs(diff) + min_update / 2; //max(mean * STD, min_update / 2); //min_update / 2;
 
-        if (diff > 0) {
+        if (audio_player.available() && diff > 0) {
             provider = audio_player.source;
-        } else {
+        } else if (recorder.available()) {
             provider = recorder.target;
+        } else {
+            break; // needed?
         }
         update(provider, min(blocks,(*provider->stream)->ready()-1));
     }
 
     long now = millis();
-
     Serial.println(now - (long)_edge_ml_last - (long)_edge_ml_delay);
 }
 
