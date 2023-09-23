@@ -3,12 +3,11 @@
 
 #include <Arduino.h>
 #include "Earable_Pins.h"
+#include "InputDevice.h"
 
 #ifndef analogPinToPinName
 #include <pinDefinitions.h>
 #endif
-
-#include "utils/CircularBlockBuffer.h"
 
 const int valid_sample_rates[] = {
         16000,
@@ -22,21 +21,26 @@ const int valid_sample_rates[] = {
         62500
 };
 
-class PDMClass2
-{
+const int sampleRate_default = 41667;  // 16000 Hz / 41667 Hz / 62500 Hz  // Default
+
+class PDM_Mic : public InputDevice {
 public:
-    PDMClass2();
-    virtual ~PDMClass2();
+    PDM_Mic();
+    virtual ~PDM_Mic();
 
-    void setBuffer(uint8_t * buffer, int blockSize, int blockCount);
+    bool begin() override;
+    bool begin(int channels, int sampleRate);
 
-    int start(bool high=false);
-    int start(int channels, int sampleRate, bool high=false);
+    void end() override;
 
-    void end();
+    void start() override;
+    void stop() override;
 
-    virtual int available();
-    virtual int read(void* buffer, size_t size);
+    bool available() override;
+
+    int setSampleRate(int sampleRate) override;
+
+    bool consume(int n) override;
 
     void onReceive(void(*)(void));
 
@@ -47,23 +51,10 @@ public:
 
     void setPins(int dinPin, int clkPin);
     void setChannels(int channels);
-    void setSampleRate(int sampleRate);
+
+    int getSampleRate() override;
 
     void setBlockBufferSizes(int blockSize, int blockCount);
-
-    size_t getTotalSize() const;
-    size_t getBlockSize() const;
-    size_t getBlockCount() const;
-
-    int get_contiguous_blocks() const;
-
-    uint8_t * getReadPointer();
-    void incrementReadPointer();
-
-    void clearBuffer();
-    void resetBuffer();
-
-    bool checkSampleRateValid(int sampleRate);
 
     unsigned long get_buffer_hits();
 
@@ -79,17 +70,19 @@ private:
     int _channels = 1;
     int _sampleRate = 16000;
 
-    int _gain = 20;
+    int _gain = 80;
 
     bool _first = true;
 
     unsigned long _buffer_hits = 0;
 
-    CircularBlockBuffer _blockBuffer;
-
     void (*_onReceive)(void);
+
+    bool _available = false;
+
+    bool checkSampleRateValid(int sampleRate);
 };
 
-extern PDMClass2 PDM2;
+extern PDM_Mic pdm_mic;
 
 #endif

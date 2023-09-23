@@ -1,4 +1,5 @@
-#include "PDM2.h"
+#include "PDM_mic.h"
+#include "utils/BufferedOutputStream.h"
 
 #if defined(ARDUINO_ARCH_NRF52840)
 
@@ -14,14 +15,25 @@
 #define NRF_PDM_FREQ_3200K  (nrf_pdm_freq_t)(0x19000000UL)               ///< PDM_CLK= 3.200 MHz (32 MHz / 10) => Fs= 50000 Hz [Ratio80 => Fs= 40000 Hz]
 #define NRF_PDM_FREQ_4000K  (nrf_pdm_freq_t)(0x20000000UL)               ///< PDM_CLK= 4.000 MHz (32 MHz /  8) => Fs= 62500 Hz [Ratio80 => Fs= 50000 Hz]
 
-PDMClass2::PDMClass2() {
+PDM_Mic::PDM_Mic() {
     _onReceive = NULL;
+    stream = new BufferedOutputStream();
 }
 
-PDMClass2::~PDMClass2() {
+PDM_Mic::~PDM_Mic() {
+
 }
 
-int PDMClass2::start(bool high) {
+/**
+ * TODO: check at and of FILE
+*/
+bool PDM_Mic::consume(int n) {
+    stream->consume(true);
+    return stream->available();
+}
+
+bool PDM_Mic::begin() {
+    if (_available) return true;
     // Enable high frequency oscillator if not already enabled
     if (NRF_CLOCK->EVENTS_HFCLKSTARTED == 0) {
         NRF_CLOCK->TASKS_HFCLKSTART = 1;
@@ -62,19 +74,23 @@ int PDMClass2::start(bool high) {
             break;
         case 50000:
             // Untested
-            if (high) {
+            /*if (high) {
                 nrf_pdm_clock_set(NRF_PDM_FREQ_3200K);
             } else {
                 NRF_PDM->RATIO = ((PDM_RATIO_RATIO_Ratio80 << PDM_RATIO_RATIO_Pos) & PDM_RATIO_RATIO_Msk);
                 nrf_pdm_clock_set(NRF_PDM_FREQ_4000K);
-            }
+            }*/
+            NRF_PDM->RATIO = ((PDM_RATIO_RATIO_Ratio80 << PDM_RATIO_RATIO_Pos) & PDM_RATIO_RATIO_Msk);
+            nrf_pdm_clock_set(NRF_PDM_FREQ_4000K);
             break;
         case 62500:
             // Untested
             nrf_pdm_clock_set(NRF_PDM_FREQ_4000K);
             break;
         default:
-            return 0; // unsupported
+            Serial.print("unsupported sample rate: ");
+            Serial.println(_sampleRate);
+            return false; // unsupported
     }
 
     switch (_channels) {
@@ -87,7 +103,9 @@ int PDMClass2::start(bool high) {
             break;
 
         default:
-            return 0; // unsupported
+            Serial.print("unsupported number of channels: ");
+            Serial.println(_channels);
+            return false; // unsupported
     }
 
     if(_gain == -1) {
@@ -110,31 +128,46 @@ int PDMClass2::start(bool high) {
     nrf_pdm_int_enable(NRF_PDM_INT_STARTED | NRF_PDM_INT_STOPPED);
 
     // clear the buffer
-    _blockBuffer.reset();
+    stream->buffer.reset();
 
-    nrf_pdm_buffer_set((uint32_t*)_blockBuffer.getCurWritePointer(), _blockBuffer.getBlockSize() / (sizeof(int16_t) * _channels));
+    nrf_pdm_buffer_set((uint32_t*)stream->buffer.getCurWritePointer(), stream->buffer.getBlockSize() / (sizeof(int16_t) * _channels));
 
     // set the PDM IRQ priority and enable
     NVIC_SetPriority(PDM_IRQn, PDM_IRQ_PRIORITY);
     NVIC_ClearPendingIRQ(PDM_IRQn);
     NVIC_EnableIRQ(PDM_IRQn);
 
+    _available = true;
+    return _available;
+}
+
+bool PDM_Mic::begin(int channels, int sampleRate/*, bool high*/) {
+    _channels = channels;
+    _sampleRate = sampleRate;
+
+    return begin();
+}
+
+bool PDM_Mic::available() {
+    return _available;
+}
+
+void PDM_Mic::start() {
+    if (!_available) return;
+
+    _first = true;
+    
     // enable and trigger start task
     nrf_pdm_enable();
     nrf_pdm_event_clear(NRF_PDM_EVENT_STARTED);
     nrf_pdm_task_trigger(NRF_PDM_TASK_START);
-
-    return 1;
 }
 
-int PDMClass2::start(int channels, int sampleRate, bool high) {
-    _channels = channels;
-    _sampleRate = sampleRate;
-
-    return start(high);
+void PDM_Mic::stop() {
+    nrf_pdm_task_trigger(NRF_PDM_TASK_STOP);
 }
 
-void PDMClass2::end() {
+void PDM_Mic::end() {
     // disable PDM and IRQ
     nrf_pdm_disable();
 
@@ -146,83 +179,51 @@ void PDMClass2::end() {
     nrf_pdm_psel_disconnect();
 
     pinMode(_clkPin, INPUT);
+
+    _available = false;;
 }
 
-int PDMClass2::available() {
-    //NVIC_DisableIRQ(PDM_IRQn);
-
-    size_t avail = _blockBuffer.available_read();
-
-    //NVIC_EnableIRQ(PDM_IRQn);
-
-    return avail;
-}
-
-int PDMClass2::read(void* buffer, size_t size) {
-    //NVIC_DisableIRQ(PDM_IRQn);
-
-    int read = (int)_blockBuffer.readBlock((uint8_t*)buffer, size);
-
-    //NVIC_EnableIRQ(PDM_IRQn);
-
-    return read;
-}
-
-void PDMClass2::onReceive(void(*function)(void)) {
+void PDM_Mic::onReceive(void(*function)(void)) {
     _onReceive = function;
 }
 
-void PDMClass2::setPins(int dinPin, int clkPin) {
+void PDM_Mic::setPins(int dinPin, int clkPin) {
     _dinPin = dinPin;
     _clkPin = clkPin;
 }
 
-void PDMClass2::setChannels(int channels) {
+void PDM_Mic::setChannels(int channels) {
     _channels = channels;
 }
 
-void PDMClass2::setSampleRate(int sampleRate) {
-    _sampleRate = sampleRate;
+int PDM_Mic::setSampleRate(int sampleRate) {
+    _sampleRate = pdm_mic.checkSampleRateValid(sampleRate) ? sampleRate : sampleRate_default;
+    return _sampleRate;
 }
 
-void PDMClass2::setGain(int gain) {
+void PDM_Mic::setGain(int gain) {
     _gain = gain;
-    nrf_pdm_gain_set(_gain, _gain);
+    if (_available) nrf_pdm_gain_set(_gain, _gain);
 }
 
-void PDMClass2::setBlockBufferSizes(int blockSize, int blockCount) {
-    _blockBuffer.setSizes(blockSize, blockCount);
+int PDM_Mic::getSampleRate() {
+    return _sampleRate;
 }
 
-size_t PDMClass2::getTotalSize() const {
-    return _blockBuffer.getTotalSize();
-}
-
-size_t PDMClass2::getBlockSize() const {
-    return _blockBuffer.getBlockSize();
-}
-
-size_t PDMClass2::getBlockCount() const {
-    return _blockBuffer.getBlockCount();
-}
-
-int PDMClass2::get_contiguous_blocks() const {
-    return _blockBuffer.get_contiguous_read_blocks();
-}
-
-void PDMClass2::IrqHandler(bool halftranfer) {
+void PDM_Mic::IrqHandler(bool halftranfer) {
     if (nrf_pdm_event_check(NRF_PDM_EVENT_STARTED)) {
         nrf_pdm_event_clear(NRF_PDM_EVENT_STARTED);
-        if (!_blockBuffer.check_collision_r_next()) {
+        if (!stream->buffer.check_collision_r_next()) {
 
             if (!_first) {
-                _blockBuffer.incrementWritePointer();
+                consume(1);
             } else {
                 _first = false;
             }
 
             // switch to the next buffer
-            nrf_pdm_buffer_set((uint32_t*)_blockBuffer.getNextWritePointer(), _blockBuffer.getBlockSize() / (sizeof(int16_t) * _channels));
+            nrf_pdm_buffer_set((uint32_t*)stream->buffer.getNextWritePointer(), stream->buffer.getBlockSize() / (sizeof(int16_t) * _channels));
+            //stream->buffer.incrementWritePointer();
 
             // call receive callback if provided
             if (_onReceive) {
@@ -240,24 +241,7 @@ void PDMClass2::IrqHandler(bool halftranfer) {
     }
 }
 
-void PDMClass2::resetBuffer() {
-    _blockBuffer.reset();
-    _first = true;
-}
-
-void PDMClass2::clearBuffer() {
-    _blockBuffer.clear();
-}
-
-uint8_t *PDMClass2::getReadPointer() {
-    return _blockBuffer.getReadPointer();
-}
-
-void PDMClass2::incrementReadPointer() {
-    _blockBuffer.incrementReadPointer();
-}
-
-bool PDMClass2::checkSampleRateValid(int sampleRate) {
+bool PDM_Mic::checkSampleRateValid(int sampleRate) {
     for (int rate : valid_sample_rates) {
         if (rate == sampleRate) {
             return true;
@@ -266,25 +250,21 @@ bool PDMClass2::checkSampleRateValid(int sampleRate) {
     return false;
 }
 
-unsigned long PDMClass2::get_buffer_hits() {
+unsigned long PDM_Mic::get_buffer_hits() {
     return _buffer_hits;
 }
 
-void PDMClass2::setBuffer(uint8_t *buffer, int blockSize, int blockCount) {
-    _blockBuffer.set_buffer(buffer, blockSize, blockCount);
-}
-
-CircularBlockBuffer *PDMClass2::get_buffer() {
-    return &_blockBuffer;
+CircularBlockBuffer *PDM_Mic::get_buffer() {
+    return &stream->buffer;
 }
 
 extern "C" {
 __attribute__((__used__)) void PDM_IRQHandler_v(void)
 {
-    PDM2.IrqHandler(true);
+    pdm_mic.IrqHandler(true);
 }
 }
 
-PDMClass2 PDM2;
+PDM_Mic pdm_mic;
 
 #endif

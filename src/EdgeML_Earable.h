@@ -9,8 +9,13 @@
 #include <custom_sensor/SensorManager_Earable.h>
 #include <battery_service/Battery_Service.h>
 
-#include <audio_pdm/PDM_MIC_Sensor.h>
+#include <audio_pdm/PDM_Mic.h>
+#include <audio_pdm/Recorder.h>
+#include <audio_pdm/WavRecorder.h>
+
 #include <audio_play/Audio_Player.h>
+#include <audio_play/WavPlayer.h>
+#include <audio_play/Tone.h>
 #include <configuration_handler/Configuration_Handler.h>
 
 #include <sd_logger/SD_Logger.h>
@@ -37,7 +42,7 @@ public:
         _battery = new Battery_Service();
 
         edge_ml_generic.set_config_callback(config_callback);
-        edge_ml_generic.set_data_callback(data_callback);
+        //edge_ml_generic.set_data_callback(data_callback);
 
         if (_debug) {
             _battery->debug(*_debug);
@@ -48,12 +53,13 @@ public:
         }
 
         // Can both be initialized without extra cost
-        bool success = pdm_mic_sensor.init();
+        //bool success = pdm_mic_sensor.init();
+        recorder.setDevice(&pdm_mic);
+        bool success = recorder.begin();
         if (_debug) success ? _debug->println("PDM Ready!") : _debug->println("PDM FAIL!");
 
-        success = audio_player.init();
+        success = audio_player.begin();
         if (_debug) success ? _debug->println("Player Ready!") : _debug->println("Player FAIL!");
-
 
         edge_ml_generic.ble_manual_advertise();
         edge_ml_generic.set_ble_config(device_name, device_version);
@@ -71,16 +77,7 @@ public:
     void update() {
         _battery->update();
 
-        if (conf_handler.check_active()) {
-            conf_handler.update();
-        } else {
-            // Possibly rewrite
-            edge_ml_generic.update();
-
-            // Auto return if not active
-            pdm_mic_sensor.update();
-            audio_player.update();
-        }
+        conf_handler.update();
 
         earable_btn.update();
     };
@@ -101,25 +98,32 @@ public:
     }
 
     void set_player_file_name(String name) {
-        audio_player.set_name(std::move(name));
+        audio_player.setSource(new WavPlayer(name));
+    }
+
+    void set_tone_freq(float frequency) {
+        audio_player.setSource(new Tone(frequency));
     }
 
     void set_recorder_file_name(String name) {
-        pdm_mic_sensor.set_name(std::move(name));
+        //pdm_mic_sensor.set_name(std::move(name));
+        recorder.setTarget(new WavRecorder(name));
     }
 
     // Possibly not needed (done with config)
     void setSampleRate(int sampleRate) {
-        pdm_mic_sensor.setSampleRate(sampleRate);
+        recorder.setSampleRate(sampleRate);
     };
 
     void setGain(int gain) {
-        pdm_mic_sensor.setGain(gain);
+        pdm_mic.setGain(gain);
     };
 
     void use_serial_data_transmission(bool enabled) {
-        if (enabled) pdm_mic_sensor.enable_serial_data();
-        else pdm_mic_sensor.disable_serial_data();
+        /* TODO: replace
+        */
+        //if (enabled) pdm_mic_sensor.enable_serial_data();
+        //else pdm_mic_sensor.disable_serial_data();
     }
 
     void configure_sensor(SensorConfigurationPacket& config) {
@@ -147,7 +151,7 @@ void data_callback(int id, unsigned int timestamp, uint8_t * data, int size) {
 }
 
 void config_callback(SensorConfigurationPacket *config) {
-    PDM_MIC_Sensor::config_callback(config);
+    Recorder::config_callback(config);
     Audio_Player::config_callback(config);
     Configuration_Handler::config_callback(config);
 }

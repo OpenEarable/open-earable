@@ -1,4 +1,5 @@
 #include "I2S_Player.h"
+#include "Arduino.h"
 
 void i2s_irq_handler(void);
 
@@ -6,19 +7,31 @@ sampling_mode file_mode = {NRF_I2S_MCK_32MDIV23, NRF_I2S_RATIO_32X};
 sampling_mode const_freq = {NRF_I2S_MCK_32MDIV11, NRF_I2S_RATIO_64X};
 
 
-I2S_Player::I2S_Player() {
-
+I2S_Player::I2S_Player(bool use_eq) {
+    this->use_eq = use_eq;
+    eq = new Equalizer();
+    stream = new BufferedInputStream();
 }
 
 I2S_Player::~I2S_Player() {
-
+    delete eq;
+    delete stream;
 }
 
 void I2S_Player::setBlockBufferSizes(int blockSize, int blockCount) {
-    _blockBuffer.setSizes(blockSize, blockCount);
+    stream->buffer.setSizes(blockSize, blockCount);
 }
 
-void I2S_Player::start() {
+/**
+ * TODO: check at and of FILE
+*/
+bool I2S_Player::consume(int n) {
+    stream->consume(true);
+    return stream->available();
+}
+
+void I2S_Player::begin() {
+    if (_available) return;
     //initializing i2s pins
     nrf_i2s_pins_set(NRF_I2S,
                      digitalPinToPinName(_sckPin),
@@ -28,7 +41,7 @@ void I2S_Player::start() {
                      NC);
 
     sampling_mode * mode = &file_mode;
-    if (!play_mode_file) mode = &const_freq;
+    //if (!play_mode_file) mode = &const_freq;
 
 
     /* I2S MASTER CONFIGURATION */
@@ -48,10 +61,13 @@ void I2S_Player::start() {
     // Do buffer reset externally!
 
     // Ignore first block in buffer
-    _blockBuffer.incrementReadPointer(); // Requires buffer to be filled with at least 2 blocks
+    consume(1);
+    //stream->buffer.incrementReadPointer(); // Requires buffer to be filled with at least 2 blocks
 
     //setting up the I2S transfer
-    nrf_i2s_transfer_set(NRF_I2S, _blockBuffer.getBlockSize()/WORD_SIZE, NULL, (uint32_t const *)_blockBuffer.getReadPointer());
+    nrf_i2s_transfer_set(NRF_I2S, stream->buffer.getBlockSize()/WORD_SIZE, NULL, (uint32_t const *)stream->buffer.getReadPointer());
+
+    if (use_eq) eq->update((int16_t *)stream->buffer.getReadPointer(), stream->buffer.getBlockSize() / sizeof(int16_t));
 
     //enable i2s peripheral
     nrf_i2s_enable(NRF_I2S);
@@ -67,6 +83,8 @@ void I2S_Player::start() {
 
     //enabling I2S interrupt in NVIC
     NRFX_IRQ_ENABLE(I2S_IRQn);
+
+    _available = true;
 }
 
 void I2S_Player::end() {
@@ -74,55 +92,22 @@ void I2S_Player::end() {
     nrf_i2s_int_disable(NRF_I2S, NRF_I2S_INT_TXPTRUPD_MASK);
     nrf_i2s_disable(NRF_I2S);
 
-    _end_flag = true;
-    _turn_off_flag = true;
+    _running = false;
+    _available = false;
 
-    clear_buffer();
+    stream->buffer.clear();
 }
 
-void I2S_Player::set_mode_file(bool play_file) {
-    play_mode_file = play_file;
-}
-
-bool I2S_Player::get_mode_file() {
-    return play_mode_file;
-}
-
-void I2S_Player::play() {
-    _end_flag = false;
-    _turn_off_flag = false;
+void I2S_Player::start() {
+    if (!_available) return;
+    _running = true;
     nrf_i2s_task_trigger(NRF_I2S, NRF_I2S_TASK_START);
 }
 
 void I2S_Player::stop() {
+    if (!_available) return;
     nrf_i2s_task_trigger(NRF_I2S, NRF_I2S_TASK_STOP);
-    _end_flag = true;
-}
-
-void I2S_Player::pause() {
-    nrf_i2s_task_trigger(NRF_I2S, NRF_I2S_TASK_STOP);
-}
-
-void I2S_Player::completed() {
-    _completed_flag = true;
-    _turn_off_flag = true;
-}
-
-int I2S_Player::available() {
-    //return !_blockBuffer.check_collision_r_next();
-    return _blockBuffer.available_write();
-}
-
-uint8_t *I2S_Player::getWritePointer() {
-    return _blockBuffer.getCurWritePointer(); // Use cur block
-}
-
-void I2S_Player::incrementWritePointer() {
-    _blockBuffer.incrementWritePointer();
-}
-
-void I2S_Player::clear_buffer() {
-    _blockBuffer.clear();
+    _running = false;
 }
 
 bool I2S_Player::check_config_status() {
@@ -136,51 +121,37 @@ void I2S_Player::i2s_interrupt() {
         //clear TXPTRUPD event
         nrf_i2s_event_clear(NRF_I2S, NRF_I2S_EVENT_TXPTRUPD);
 
+        bool stream_available = consume(1);
 
-        if (_end_flag) {
-            return;
-        }
-
-        if (_blockBuffer.available_read()) {
-            nrf_i2s_tx_buffer_set(NRF_I2S, (uint32_t const *)_blockBuffer.getReadPointer());
-            _blockBuffer.incrementReadPointer();
-        } else if (_turn_off_flag) {
+        if (stream->remaining()) {
+            nrf_i2s_tx_buffer_set(NRF_I2S, (uint32_t const *)stream->buffer.getReadPointer());
+            if (use_eq) eq->update((int16_t *)stream->buffer.getReadPointer(), stream->buffer.getBlockSize() / sizeof(int16_t));
+        } else if (!stream_available) {
             stop();
         }
     }
 }
 
-bool I2S_Player::get_turn_off() {
-    return _turn_off_flag;
-}
-
-bool I2S_Player::get_end() {
-    return _end_flag;
-}
-
-bool I2S_Player::get_completed() {
-    return _completed_flag;
-}
-
 void I2S_Player::setBuffer(uint8_t *buffer, int blockSize, int blockCount) {
-    _blockBuffer.set_buffer(buffer, blockSize, blockCount);
+    stream->buffer.set_buffer(buffer, blockSize, blockCount);
 }
 
 CircularBlockBuffer *I2S_Player::get_buffer() {
-    return &_blockBuffer;
-}
-
-int I2S_Player::get_contiguous_blocks() const {
-    return _blockBuffer.get_contiguous_write_blocks_cur(); // Use cur block
+    return &(stream->buffer);
 }
 
 void I2S_Player::reset_buffer() {
     // reset the buffer
-    _blockBuffer.reset();
+    stream->buffer.reset();
+    eq->reset();
 }
 
 void i2s_irq_handler(void) {
     i2s_player.i2s_interrupt();
+}
+
+bool I2S_Player::is_running() {
+    return _running;
 }
 
 I2S_Player i2s_player;
