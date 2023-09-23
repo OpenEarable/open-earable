@@ -77,8 +77,8 @@ void Configuration_Handler::update() {
         update(provider, min(blocks,(*provider->stream)->ready()-1));
     }
 
-    long now = millis();
-    Serial.println(now - (long)_edge_ml_last - (long)_edge_ml_delay);
+    //long now = millis();
+    //Serial.println(now - (long)_edge_ml_last - (long)_edge_ml_delay);
 }
 
 void Configuration_Handler::update_edge_ml() {

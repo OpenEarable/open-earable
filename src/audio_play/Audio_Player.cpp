@@ -99,7 +99,7 @@ void Audio_Player::config_callback(SensorConfigurationPacket *config) {
         audio_player.play();
         return;
     }
-    audio_player._paused = false;
+    //audio_player._paused = false;
 
     audio_player.end();
 
@@ -113,6 +113,14 @@ void Audio_Player::config_callback(SensorConfigurationPacket *config) {
 
 void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
     int state = configuration.state;
+
+    Serial.println("Player Config");
+    Serial.print("state: ");
+    Serial.println(state);
+
+    Serial.println("file: ");
+    Serial.print(String(configuration.name, configuration.size));
+
 
     if (state == 2) {
         //if (_paused) return;
