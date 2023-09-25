@@ -47,12 +47,10 @@ public:
     
     AudioSource * source;
 private:
-    //bool _paused = false;
     bool _running = false;
     bool _available = false;
 
     //bool check_completed();
-    //void _check_ready();
 };
 
 extern Audio_Player audio_player;

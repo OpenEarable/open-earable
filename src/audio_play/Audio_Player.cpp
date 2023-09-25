@@ -89,24 +89,17 @@ void Audio_Player::config_callback(SensorConfigurationPacket *config) {
     int tone = int(config->sampleRate);
 
     if (tone == 2) {
-        //if (audio_player._paused) return;
-        //audio_player._paused = true;
         audio_player.pause();
         return;
     } else if (tone == 3) {
-        //if (!audio_player._paused) return;
-        //audio_player._paused = false;
         audio_player.play();
         return;
     }
-    //audio_player._paused = false;
 
     audio_player.end();
 
     // End playback if sample tone is 0
     if (tone == 0)  return;
-
-    //audio_player.play();
 
     // tone <= max_file > => Play file else play tone
 }
@@ -114,36 +107,21 @@ void Audio_Player::config_callback(SensorConfigurationPacket *config) {
 void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
     int state = configuration.state;
 
-    Serial.println("Player Config");
-    Serial.print("state: ");
-    Serial.println(state);
-
-    Serial.println("file: ");
-    Serial.print(String(configuration.name, configuration.size));
-
-
-    if (state == 2) {
-        //if (_paused) return;
-        if (!_running) return;
-        //_paused = true;
-        audio_player.pause();
-        return;
-    } else if (state == 3) {
-        //if (!_paused) return;
-        if (!_running) return;
-        //_paused = false;
-        audio_player.play();
-        return;
+    switch(state) {
+    case 1:
+        if (configuration.size) {
+            end();
+            setSource(new WavPlayer(String(configuration.name, configuration.size)));
+        }
+        play();
+        break;
+    case 2:
+        pause();
+        break;
+    case 3:
+        stop();
+        break;
     }
-
-    //_paused = false;
-    end();
-
-    if (configuration.size) {
-        setSource(new WavPlayer(String(configuration.name, configuration.size)));
-    }
-
-    if (state == 1)  play();
 }
 
 WAVConfigurationPacket Audio_Player::make_wav_config() {

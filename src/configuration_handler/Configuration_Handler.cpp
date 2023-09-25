@@ -1,10 +1,11 @@
 #include "Configuration_Handler.h"
+#include "task_manager/TaskManager.h"
 
 
 const int max_config = 16;
 
 const configuration_bundle CONFS[max_config]= {
-        {50, 50, 62500},     // 1
+        {30, 30, 62500},     // 1
         {30, 30, 41667},     // 2
         {30, 30, 16000},     // 3
         {30, 30, 0},         // 4
@@ -24,89 +25,7 @@ const configuration_bundle CONFS[max_config]= {
         {0, 0, 16000},     // 15
 };
 
-/*
-const configuration_bundle CONFS[max_config]= {
-        {30, 30, 62500},     // 1
-        {30, 30, 41667},     // 2
-        {30, 30, 0},         // 3
-        {20, 20, 62500},     // 4
-        {20, 20, 41667},     // 5
-        {20, 20, 0},         // 6
-};
-*/
-
-
 // NOTE! IMU_rate and BARO_rate must be compatible
-
-
-bool Configuration_Handler::check_active() {
-    return _config_active;
-}
-
-void Configuration_Handler::update() {
-    update_edge_ml();
-    BLE.poll();
-
-    if (_buffer_flag) return;
-    _buffer_flag = true;
-
-    const int min_update = 2;
-    //const float STD = 0.5;
-
-    /*Serial.print("Play: ");
-    //Serial.print(audio_player.available());
-    Serial.print((*audio_player.source->stream)->remaining());
-    Serial.print(" PDM: ");
-    Serial.println((*recorder.target->stream)->remaining());*/
-
-    Provider * provider;
-    
-    while (!check_overlap() && max(recorder.available() ? (*recorder.target->stream)->ready() : 0, audio_player.available() ? (*audio_player.source->stream)->ready() : 0) >= min_update) {
-        // check priority
-        float diff = (recorder.available() ? (*recorder.target->stream)->remaining() : 0) - (audio_player.available() ? (*audio_player.source->stream)->remaining() : 0);
-        //float mean = (pdm_mic_sensor.remaining_blocks() + audio_player.remaining_blocks()) / 2.0;
-        int blocks = abs(diff) + min_update / 2; //max(mean * STD, min_update / 2); //min_update / 2;
-
-        if (audio_player.available() && diff > 0) {
-            provider = audio_player.source;
-        } else if (recorder.available()) {
-            provider = recorder.target;
-        } else {
-            break; // needed?
-        }
-        update(provider, min(blocks,(*provider->stream)->ready()-1));
-    }
-
-    //long now = millis();
-    //Serial.println(now - (long)_edge_ml_last - (long)_edge_ml_delay);
-}
-
-void Configuration_Handler::update_edge_ml() {
-    unsigned int now = millis();
-    if (now - _edge_ml_last >= _edge_ml_delay) {
-        //Serial.print("delay: ");
-        //Serial.println(now - _edge_ml_last - _edge_ml_delay);
-        _edge_ml_last = now;
-        _buffer_flag = false;
-        //now = millis();
-        edge_ml_generic.update();
-        //Serial.print(" edge_ml time: ");
-        //Serial.println(millis() - now);
-    }
-}
-
-bool Configuration_Handler::update(Provider * provider, int max_buffers) {
-    if (max_buffers <= 0 || (*provider->stream)->ready() == 0) return false;
-
-   int cont = provider->provide(max_buffers);
-
-    if (check_overlap()) return true; // Make sure that time limit is not reached
-    cont = max_buffers - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
-    if (!cont || max_buffers == cont) return false;
-    if (check_overlap()) return true; // Make sure that time limit is not reached
-    cont = provider->provide(cont);
-    return check_overlap();
-}
 
 void Configuration_Handler::stop_all() {
     SensorConfigurationPacket config;
@@ -159,16 +78,7 @@ void Configuration_Handler::configure(int config_num, int config_info) {
     config.sampleRate = float(conf->PDM_rate);
     Recorder::config_callback(&config);
 
-    float edge_rate = max(conf->BARO_rate, conf->IMU_rate);
-
-    if (edge_rate == 0) {
-        edge_rate = _alternate_loop_rate;
-    }
-
-    _edge_ml_delay = (int)(1000.0/edge_rate);
-    _edge_ml_last = millis();
-
-    _buffer_interval_time = _edge_ml_delay - _overlap;
+    task_manager.begin(max(conf->BARO_rate, conf->IMU_rate));
 }
 
 void Configuration_Handler::check_audioplayback(int config_info) {
@@ -180,11 +90,6 @@ void Configuration_Handler::check_audioplayback(int config_info) {
     if (config_info<=4) config_info -= 1; // adjust
     config.sampleRate = float(config_info);
     Audio_Player::config_callback(&config);
-
-}
-
-bool Configuration_Handler::check_overlap() {
-    return (millis() - _edge_ml_last > _buffer_interval_time);
 }
 
 void Configuration_Handler::config_callback(SensorConfigurationPacket *config) {

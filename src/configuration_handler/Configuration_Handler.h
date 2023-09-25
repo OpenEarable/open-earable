@@ -22,10 +22,6 @@ extern const configuration_bundle CONFS[];
 
 class Configuration_Handler {
 public:
-    bool check_active();
-
-    void update();
-
     void configure(int config_num, int config_info);
     void stop_all();
 
@@ -37,29 +33,8 @@ private:
 
     float _rate_factor = 1.25;
 
-    unsigned int _edge_ml_delay;
-    unsigned int _edge_ml_last;
-
     unsigned int _cycle = 0;
 
-    unsigned int _overlap = 15; // Overlap time in ms
-    unsigned int _buffer_interval_time;
-
-    bool _buffer_flag = false;
-
-    int _pdm_min_blocks = 5;
-    int _play_min_blocks = 5; // MUST be 1 bigger than play_update
-
-    int _pdm_update_blocks = 4;
-    int _play_update_blocks = 4;
-
-    float _alternate_loop_rate = 20;
-
-    void update_edge_ml();
-    //bool update_pdm(int n);
-    //bool update_play(int n);
-    bool update(Provider * provider, int n);
-    bool check_overlap();
     void check_audioplayback(int config_info);
 };
 

@@ -6,8 +6,9 @@
 #define EDGE_ML_EARABLE_EDGEML_EARABLE_H
 
 #include "EdgeML.h"
-#include <custom_sensor/SensorManager_Earable.h>
 #include <battery_service/Battery_Service.h>
+#include "button_service/Button.h"
+#include "led_service/LED_Service.h"
 
 #include <audio_pdm/PDM_Mic.h>
 #include <audio_pdm/Recorder.h>
@@ -16,12 +17,13 @@
 #include <audio_play/Audio_Player.h>
 #include <audio_play/WavPlayer.h>
 #include <audio_play/Tone.h>
+
+#include <custom_sensor/SensorManager_Earable.h>
 #include <configuration_handler/Configuration_Handler.h>
 
-#include <sd_logger/SD_Logger.h>
+#include <task_manager/TaskManager.h>
 
-#include "button_service/Button.h"
-#include "led_service/LED_Service.h"
+#include <sd_logger/SD_Logger.h>
 
 #include <utility>
 
@@ -71,13 +73,16 @@ public:
         button_service.begin();
         led_service.begin();
 
+        task_manager.begin();
+
         BLE.advertise();
     };
 
     void update() {
         _battery->update();
 
-        conf_handler.update();
+        //conf_handler.update();
+        task_manager.update();
 
         earable_btn.update();
     };
