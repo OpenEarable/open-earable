@@ -48,7 +48,7 @@ The following Arduino Libraries have to be installed in your Arduino IDE by navi
 - [Adafruit_BMP280](https://github.com/adafruit/Adafruit_BMP280_Library)
 - [DFRobot_BMX160](https://github.com/DFRobot/DFRobot_BMX160)
 - [ArduinoBLE](https://github.com/arduino-libraries/ArduinoBLE)
-- [SdFat (by Bill Greiman!)](https://github.com/adafruit/SdFat)
+- [SdFat - Adafruit Fork](https://github.com/adafruit/SdFat)
 
 
 ### SD Card Setup
