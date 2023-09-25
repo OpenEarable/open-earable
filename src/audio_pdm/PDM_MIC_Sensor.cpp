@@ -18,6 +18,13 @@ bool PDM_MIC_Sensor::init() {
 void PDM_MIC_Sensor::update() {
     if (!_stream) return;
 
+    if (_first_ignore) {
+        if (!PDM2.available()) return;
+        PDM2.incrementReadPointer();
+        _first_ignore = false;
+        return;
+    }
+
     while (PDM2.available()) {
         uint8_t *read_pointer = PDM2.getReadPointer();
         int size = (int) PDM2.getBlockSize();
@@ -40,6 +47,13 @@ int PDM_MIC_Sensor::update_contiguous(int max_cont) {
 
     if (!cont) return 0;
 
+    if (_first_ignore) {
+        cont -= 1;
+        PDM2.incrementReadPointer();
+        _first_ignore = false;
+        if (!cont) return 0; // maybe change to 1
+    }
+
     uint8_t *read_pointer = PDM2.getReadPointer();
     int size = (int) PDM2.getBlockSize() * cont;
 
@@ -59,6 +73,7 @@ void PDM_MIC_Sensor::start() {
     if (_stream) {
         return;
     }
+    _first_ignore = true;
     _stream = true;
     _wavWriter->cleanFile();
     _wavWriter->writeHeader();
@@ -125,19 +140,14 @@ void PDM_MIC_Sensor::disable_chunks() {
     _chunks_enabled = false;
 }
 
-void PDM_MIC_Sensor::pre_open_file() {
-    _wavWriter->pre_open_file();
-}
-
 int PDM_MIC_Sensor::ready_blocks() {
     return PDM2.available();
 }
 
-/*
+
 void PDM_MIC_Sensor::config_callback(SensorConfigurationPacket *config) {
     // Check for PDM MIC ID
-    return;
-    //if (config->sensorId != PDM_MIC) return;
+    if (config->sensorId != PDM_MIC) return;
 
     // Get sample rate
     int sample_rate = int(config->sampleRate);
@@ -161,6 +171,6 @@ void PDM_MIC_Sensor::config_callback(SensorConfigurationPacket *config) {
     // Start pdm mic
     pdm_mic_sensor.start();
 }
-*/
+
 
 PDM_MIC_Sensor pdm_mic_sensor;

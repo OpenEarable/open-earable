@@ -48,7 +48,7 @@ void CircularBlockBuffer::reset() {
     }
 
     if (!_buffer) {
-        Serial.println("Reallocation failed!");
+        Serial.println("SHIT!");
     }
 
     memset(_buffer, 0x00, _totalSize);
@@ -57,13 +57,12 @@ void CircularBlockBuffer::reset() {
     _writeBlockCur = 0;
     _writeBlockNext = 1;
 
-    /*_readOffset = 0;
+    _readOffset = 0;
     _writeOffsetCur = 0;
-    _writeOffsetNext = _blockSize;*/
+    _writeOffsetNext = _blockSize;
 
     _collision_w_count = 0;
     _collision_r_count = 0;
-    _empty = true;
 }
 
 size_t CircularBlockBuffer::writeBlock(const uint8_t *buffer, size_t size) {
@@ -80,7 +79,7 @@ size_t CircularBlockBuffer::writeBlock(const uint8_t *buffer, size_t size) {
         return 0;
     }
 
-    memcpy(getCurWritePointer(), buffer, size);
+    memcpy(&_buffer[_writeOffsetCur], buffer, size);
 
     incrementWritePointer();
 
@@ -102,82 +101,113 @@ size_t CircularBlockBuffer::readBlock(uint8_t *buffer, size_t size) {
         return 0;
     }
 
-    memcpy(buffer, getReadPointer(), size);
+    memcpy(buffer, &_buffer[_readOffset], size);
 
     incrementReadPointer();
 
     return size;
 }
 
-uint8_t * const CircularBlockBuffer::getCurWritePointer() {
-    return &(_buffer[_writeBlockCur * _blockSize]);
+uint8_t *CircularBlockBuffer::getCurWritePointer() {
+    return &(_buffer[_writeOffsetCur]);
 }
 
-uint8_t * const CircularBlockBuffer::getNextWritePointer() {
-    return &(_buffer[_writeBlockNext * _blockSize]);
+uint8_t *CircularBlockBuffer::getNextWritePointer() {
+    return &(_buffer[_writeOffsetNext]);
 }
 
 
-uint8_t * const CircularBlockBuffer::getReadPointer() {
-    return &(_buffer[_readBlock * _blockSize]);
+uint8_t *CircularBlockBuffer::getReadPointer() {
+    return &(_buffer[_readOffset]);
 }
 
 int CircularBlockBuffer::get_contiguous_read_blocks() const {
-    return min(available_read(), _blockCount - _readBlock);
+    if (_readBlock == _writeBlockCur) return 0;
+
+    long diff = (long)(_writeBlockCur - _readBlock);
+
+    if (diff < 0) {
+        return (int)(_blockCount - _readBlock);
+    }
+    return diff;
 }
 
-int CircularBlockBuffer::get_contiguous_write_blocks() const {
-    return min(available_write(), _blockCount - _writeBlockCur);
+int CircularBlockBuffer::get_contiguous_write_blocks_cur() const {
+    if (_writeBlockCur == _readBlock) return 0;
+
+    long diff = (long)(_readBlock - _writeBlockCur);
+
+    if (diff < 0) {
+        return (int)(_blockCount - _writeBlockCur);
+    }
+    return diff;
+}
+
+
+int CircularBlockBuffer::get_contiguous_write_blocks_next() const {
+    if (_writeBlockNext == _readBlock) return 0;
+
+    long diff = (long)(_readBlock - _writeBlockNext);
+
+    if (diff < 0) {
+        return (int)(_blockCount - _writeBlockNext);
+    }
+    return diff;
 }
 
 void CircularBlockBuffer::clear() {
-    //_readOffset = _writeOffsetCur;
+    _readOffset = _writeOffsetCur;
     _readBlock = _writeBlockCur;
-    _empty = true;
 }
 
 int CircularBlockBuffer::available_read() const {
-    if (_readBlock == _writeBlockCur) return _empty ? 0 : _blockCount;
+    if (_readBlock == _writeBlockCur) return 0;
 
-    int diff = _writeBlockCur - _readBlock;
+    long diff = (long)(_writeBlockCur - _readBlock);
 
-    return diff < 0 ? _blockCount + diff : diff;
+    if (diff < 0) {
+        return (int)(_blockCount + diff);
+    }
+    return diff;
 }
 
 int CircularBlockBuffer::available_write() const {
-    if (_writeBlockCur == _readBlock) return _empty ? _blockCount : 0;
+    if (_writeBlockNext == _readBlock) return 0;
 
-    int diff = _readBlock - _writeBlockCur;
-    return diff < 0 ? _blockCount + diff : diff;
+    long diff = (long)(_readBlock - _writeBlockNext);
+
+    if (diff < 0) {
+        return (int)(_blockCount + diff);
+    }
+    return diff;
 }
 
-/*int CircularBlockBuffer::getWritePointer(int offset) const {
-    int _offset_pointer = _readBlock + offset;
-    
 
-}*/
+void CircularBlockBuffer::incrementWritePointer() {
+    ++_writeBlockCur;
+    _writeOffsetCur += _blockSize;
 
+    ++_writeBlockNext;
+    _writeOffsetNext += _blockSize;
 
-void CircularBlockBuffer::incrementWritePointer(int reserve) {
-    //if (_readBlock == _writeBlockCur + reserve) _empty = true;
-    if (_readBlock == _writeBlockCur) _empty = false;
-
-    _writeBlockCur = _writeBlockNext++; // set and post increment
+    if (_writeBlockCur >= _blockCount) {
+        _writeBlockCur = 0;
+        _writeOffsetCur = 0;
+    }
 
     if (_writeBlockNext >= _blockCount) {
         _writeBlockNext = 0;
+        _writeOffsetNext = 0;
     }
 }
 
 void CircularBlockBuffer::incrementReadPointer() {
     ++_readBlock;
-    //_readOffset += _blockSize;
-
-    if (_readBlock == _writeBlockCur) _empty = true;
+    _readOffset += _blockSize;
 
     if (_readBlock >= _blockCount) {
         _readBlock = 0;
-        //_readOffset = 0;
+        _readOffset = 0;
     }
 }
 
@@ -207,3 +237,4 @@ void CircularBlockBuffer::set_buffer(uint8_t *buffer, int blockSize, int blockCo
     _external_buffer = true;
     reset();
 }
+

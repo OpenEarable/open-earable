@@ -10,49 +10,89 @@
 
 #include "utils/SDManager.h"
 
-#include "AudioSource.h"
-#include "utils/BufferedInputStream.h"
-#include "Equalizer.h"
-
 const int audio_b_size = 4096;
-const int audio_b_count = 8;
+const int audio_b_count = 12;
 extern uint8_t AUDIO_BUFFER[audio_b_size * audio_b_count] __attribute__((aligned (16)));
 
-/*
-State Controller
-*/
+#define MAX_WAV_NAME_LENGTH 64
+
+struct __attribute__((packed)) WAVConfigurationPacket {
+    uint8_t state{};    // 0 => don't start; 1 => start; 2 => pause; 3 => unpause;
+    uint8_t size{};     // size of name; max 64
+    char name[MAX_WAV_NAME_LENGTH]{};
+};
+
 class Audio_Player {
 public:
     Audio_Player();
     ~Audio_Player();
 
-    bool begin();
+    bool init();
+    void update();
+    int update_contiguous(int max_cont);
+
+    void start();
+    void start_tone(int frequency);
+
     void end();
 
     void play();
     void stop();
     void pause();
 
+    int get_max_frequency();
+    int get_min_frequency();
+
+    bool is_mode_tone();
+
     unsigned int get_sample_rate();
     unsigned int get_size();
+
+    void set_name(String name);
+
+    int ready_blocks();
 
     WAVConfigurationPacket make_wav_config();
     void ble_configuration(WAVConfigurationPacket& configuration);
 
-    void setSource(AudioSource * source);
-
     static void config_callback(SensorConfigurationPacket * config);
 
-    bool available();
-    
-    AudioSource * source;
-private:
-    //bool _paused = false;
-    bool _running = false;
-    bool _available = false;
+    void set_ready();
+    void set_ready(int frequency);
 
-    //bool check_completed();
-    //void _check_ready();
+    bool _ready = false;
+private:
+    bool _stream = false;
+    bool _opened = false;
+
+    bool _tone = false;
+    int _last_frequency = 0;
+
+    static bool _paused;
+
+    int _default_offset = 44;
+    unsigned int _cur_read_sd = _default_offset;
+
+    int _preload_blocks = 4; // 12
+
+    String _name = "Play.wav";
+
+    ExFatFile _file;
+
+    Tone * _tone_player;
+
+    void i2s_setup();
+    bool sd_setup();
+
+    void preload_buffer();
+    unsigned int sd_to_buffer();
+    unsigned int sd_to_buffer(int multi);
+
+    bool check_completed();
+
+    bool open_file();
+
+    void _check_ready();
 };
 
 extern Audio_Player audio_player;

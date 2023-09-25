@@ -3,9 +3,8 @@
 
 #include <Arduino.h>
 #include "Earable_Pins.h"
-#include <nrfx_pwm.h>
 
-/*enum Color {
+enum Color {
     OFF,
     GREEN,
     BLUE,
@@ -14,23 +13,22 @@
     YELLOW,
     MAGENTA,
     WHITE
-};*/
+};
 
 class LED {
 public:
     LED(int pin_r, int pin_g, int pin_b);
 
-    bool init();
+    void invert();
 
-    //void set_color(Color col);
-    void set_color(const uint8_t col[3]);
+    void set_color(Color col);
 
 private:
-    int _r,_g,_b;
+    int _r;
+    int _g;
+    int _b;
 
-    nrfx_pwm_t m_pwm = NRFX_PWM_INSTANCE(3);
-    nrf_pwm_sequence_t seq0;
-    nrf_pwm_values_individual_t seq0_values = {0,0,0,0};
+    bool _inverted = false;
 };
 
 extern LED earable_led;

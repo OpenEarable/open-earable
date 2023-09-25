@@ -1,5 +1,5 @@
-#ifndef CIRCULAR_BLOCKBUFFER_H
-#define CIRCULAR_BLOCKBUFFER_H
+#ifndef TEST_CIRCULARBLOCKBUFFER_H
+#define TEST_CIRCULARBLOCKBUFFER_H
 
 
 #include <stddef.h>
@@ -30,16 +30,15 @@ public:
     size_t writeBlock(const uint8_t *buffer, size_t size);
     size_t readBlock(uint8_t *buffer, size_t size);
 
-    uint8_t * const getCurWritePointer();
-    uint8_t * const getNextWritePointer();
-    uint8_t * const getReadPointer();
+    uint8_t * getCurWritePointer();
+    uint8_t * getNextWritePointer();
+    uint8_t * getReadPointer();
 
     int get_contiguous_read_blocks() const;
-    //int get_contiguous_write_blocks_cur() const;
-    int get_contiguous_write_blocks() const;
-    //int get_contiguous_write_blocks_next() const;
+    int get_contiguous_write_blocks_cur() const;
+    int get_contiguous_write_blocks_next() const;
 
-    void incrementWritePointer(int reserve = 0);
+    void incrementWritePointer();
     void incrementReadPointer();
 
     int available_read() const; // Blocks available_read to read
@@ -61,20 +60,17 @@ private:
     size_t _blockSize{};
     int _totalSize{};
 
-    bool _empty = true;
-    //int _buffer_fill = 0;
-
     volatile unsigned int _readBlock{};
     volatile unsigned int _writeBlockCur{};
     volatile unsigned int _writeBlockNext{};
 
-    /*volatile unsigned int _readOffset{};
+    volatile unsigned int _readOffset{};
     volatile unsigned int _writeOffsetCur{};
-    volatile unsigned int _writeOffsetNext{};*/
+    volatile unsigned int _writeOffsetNext{};
 
     volatile unsigned long _collision_w_count = 0;
     volatile unsigned long _collision_r_count = 0;
 };
 
 
-#endif //CIRCULAR_BLOCKBUFFER_H
+#endif //TEST_CIRCULARBLOCKBUFFER_H

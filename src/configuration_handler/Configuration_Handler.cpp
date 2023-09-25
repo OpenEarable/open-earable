@@ -4,7 +4,7 @@
 const int max_config = 16;
 
 const configuration_bundle CONFS[max_config]= {
-        {50, 50, 62500},     // 1
+        {30, 30, 62500},     // 1
         {30, 30, 41667},     // 2
         {30, 30, 16000},     // 3
         {30, 30, 0},         // 4
@@ -50,61 +50,50 @@ void Configuration_Handler::update() {
     if (_buffer_flag) return;
     _buffer_flag = true;
 
-    const int min_update = 2;
-    //const float STD = 0.5;
-
-    /*Serial.print("Play: ");
-    //Serial.print(audio_player.available());
-    Serial.print((*audio_player.source->stream)->remaining());
-    Serial.print(" PDM: ");
-    Serial.println((*recorder.target->stream)->remaining());*/
-
-    Provider * provider;
-    
-    while (!check_overlap() && max(recorder.available() ? (*recorder.target->stream)->ready() : 0, audio_player.available() ? (*audio_player.source->stream)->ready() : 0) >= min_update) {
-        // check priority
-        float diff = (recorder.available() ? (*recorder.target->stream)->remaining() : 0) - (audio_player.available() ? (*audio_player.source->stream)->remaining() : 0);
-        //float mean = (pdm_mic_sensor.remaining_blocks() + audio_player.remaining_blocks()) / 2.0;
-        int blocks = abs(diff) + min_update / 2; //max(mean * STD, min_update / 2); //min_update / 2;
-
-        if (audio_player.available() && diff > 0) {
-            provider = audio_player.source;
-        } else if (recorder.available()) {
-            provider = recorder.target;
-        } else {
-            break; // needed?
-        }
-        update(provider, min(blocks,(*provider->stream)->ready()-1));
+    if (_cycle++ % 2) {
+        if (update_pdm()) return;
+        update_play();
+    } else {
+        if (update_play()) return;
+        update_pdm();
     }
-
-    //long now = millis();
-    //Serial.println(now - (long)_edge_ml_last - (long)_edge_ml_delay);
 }
 
 void Configuration_Handler::update_edge_ml() {
     unsigned int now = millis();
-    if (now - _edge_ml_last >= _edge_ml_delay) {
-        //Serial.print("delay: ");
-        //Serial.println(now - _edge_ml_last - _edge_ml_delay);
+    if (now - _edge_ml_last > _edge_ml_delay) {
         _edge_ml_last = now;
         _buffer_flag = false;
-        //now = millis();
         edge_ml_generic.update();
-        //Serial.print(" edge_ml time: ");
-        //Serial.println(millis() - now);
     }
 }
 
-bool Configuration_Handler::update(Provider * provider, int max_buffers) {
-    if (max_buffers <= 0 || (*provider->stream)->ready() == 0) return false;
+bool Configuration_Handler::update_pdm() {
+    if (pdm_mic_sensor.ready_blocks() < _pdm_min_blocks) return false;
 
-   int cont = provider->provide(max_buffers);
+    int cont = pdm_mic_sensor.update_contiguous(_pdm_update_blocks);
+    if (check_overlap()) return true; // Make sure that time limit is not reached
+    cont = _pdm_update_blocks - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
+    if (!cont || _pdm_update_blocks == cont) return false;
+    pdm_mic_sensor.update_contiguous(cont);
+    return check_overlap();
+}
+
+bool Configuration_Handler::update_play() {
+    if (audio_player.is_mode_tone()) {
+        for (int i = 0; i < _play_update_blocks; ++i) {
+            audio_player.update();
+        }
+    }
+
+    if (audio_player.ready_blocks() < _play_min_blocks) return false;
+
+    int cont = audio_player.update_contiguous(_play_update_blocks);
 
     if (check_overlap()) return true; // Make sure that time limit is not reached
-    cont = max_buffers - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
-    if (!cont || max_buffers == cont) return false;
-    if (check_overlap()) return true; // Make sure that time limit is not reached
-    cont = provider->provide(cont);
+    cont = _play_update_blocks - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
+    if (!cont || _play_update_blocks == cont) return false;
+    audio_player.update_contiguous(cont);
     return check_overlap();
 }
 
@@ -157,7 +146,7 @@ void Configuration_Handler::configure(int config_num, int config_info) {
 
     config.sensorId = PDM_MIC;
     config.sampleRate = float(conf->PDM_rate);
-    Recorder::config_callback(&config);
+    PDM_MIC_Sensor::config_callback(&config);
 
     float edge_rate = max(conf->BARO_rate, conf->IMU_rate);
 
@@ -200,5 +189,7 @@ void Configuration_Handler::config_callback(SensorConfigurationPacket *config) {
 
     conf_handler.configure(config_num, config_info);
 }
+
+
 
 Configuration_Handler conf_handler;
