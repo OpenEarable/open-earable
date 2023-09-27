@@ -53,7 +53,6 @@ void Audio_Player::play() {
 
 void Audio_Player::end() {
     if (!_available) return;
-    //_running = false;
 
     stop();
     i2s_player.end();
@@ -80,29 +79,6 @@ void Audio_Player::stop() {
     }
     return false;
 }*/
-
-void Audio_Player::config_callback(SensorConfigurationPacket *config) {
-    // Check for PLAYER ID
-    if (config->sensorId != PLAYER) return;
-
-    // Get tone frequency
-    int tone = int(config->sampleRate);
-
-    if (tone == 2) {
-        audio_player.pause();
-        return;
-    } else if (tone == 3) {
-        audio_player.play();
-        return;
-    }
-
-    audio_player.end();
-
-    // End playback if sample tone is 0
-    if (tone == 0)  return;
-
-    // tone <= max_file > => Play file else play tone
-}
 
 void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
     int state = configuration.state;

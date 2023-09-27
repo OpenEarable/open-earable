@@ -40,7 +40,7 @@ public:
 
     int setSampleRate(int sampleRate) override;
 
-    bool consume(int n) override;
+    bool consume() override;
 
     void onReceive(void(*)(void));
 

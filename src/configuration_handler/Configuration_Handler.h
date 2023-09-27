@@ -33,9 +33,7 @@ private:
 
     float _rate_factor = 1.25;
 
-    unsigned int _cycle = 0;
-
-    void check_audioplayback(int config_info);
+    //void check_audioplayback(int config_info);
 };
 
 extern Configuration_Handler conf_handler;

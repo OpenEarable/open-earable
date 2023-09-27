@@ -74,7 +74,7 @@ void Tone::update() {
     if (!_available) return;
     //if ((*stream)->ready() < 2) return;
 
-    int16_t * ptr = (int16_t*)((*stream)->buffer.getCurWritePointer());
+    int16_t * ptr = (int16_t*)((*stream)->buffer.getWritePointer());
 
     for (int i = 0; i < _block_size / sizeof(int16_t); i ++) {
         ptr[i] = MAX_INT16 * (_tone.amplitude * sinf(_delta * _t));

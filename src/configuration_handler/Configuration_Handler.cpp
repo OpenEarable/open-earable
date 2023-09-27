@@ -44,7 +44,7 @@ void Configuration_Handler::configure(int config_num, int config_info) {
     const configuration_bundle * conf;
     SensorConfigurationPacket config;
 
-    check_audioplayback(config_info);
+    //check_audioplayback(config_info);
 
     // config_num == 0 --> STOP
     // config_num > 0  --> config_num is configuration
@@ -52,7 +52,6 @@ void Configuration_Handler::configure(int config_num, int config_info) {
 
     stop_all();
     _current_conf_num = config_num;
-    _cycle = 0;
 
     if (config_num == 0) {
         _config_active = false;
@@ -81,7 +80,7 @@ void Configuration_Handler::configure(int config_num, int config_info) {
     task_manager.begin(max(conf->BARO_rate, conf->IMU_rate));
 }
 
-void Configuration_Handler::check_audioplayback(int config_info) {
+/*void Configuration_Handler::check_audioplayback(int config_info) {
     if (!config_info) return;
     SensorConfigurationPacket config;
     // Use latency to control player
@@ -89,8 +88,8 @@ void Configuration_Handler::check_audioplayback(int config_info) {
     config.sensorId = PLAYER;
     if (config_info<=4) config_info -= 1; // adjust
     config.sampleRate = float(config_info);
-    Audio_Player::config_callback(&config);
-}
+    //Audio_Player::config_callback(&config);
+}*/
 
 void Configuration_Handler::config_callback(SensorConfigurationPacket *config) {
     // Check for Configuration ID

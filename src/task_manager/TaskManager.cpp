@@ -10,10 +10,10 @@ void TaskManager::update() {
     const int _max_blocks = 2;
     //const float STD = 0.5;
 
-    /*Serial.print("Play: ");
+    Serial.print("Play: ");
     Serial.print(audio_player.available() ? (*audio_player.source->stream)->remaining() : -1);
     Serial.print(" PDM: ");
-    Serial.println(recorder.available() ? (*recorder.target->stream)->remaining() : -1);*/
+    Serial.println(recorder.available() ? (*recorder.target->stream)->remaining() : -1);
 
     Provider * provider;
 
@@ -35,8 +35,8 @@ void TaskManager::update() {
         }
 
         long start = millis();
-        //_blocks_handled += update(provider, min(blocks,(*provider->stream)->ready()-1));
-        int cont = update(provider, min(blocks,(*provider->stream)->ready()-1));
+        //_blocks_handled += update(provider, min(blocks,(*provider->stream)->ready()));
+        int cont = update(provider, min(blocks,(*provider->stream)->ready()));
         float _time = millis() - start;
         
         _blocks_handled += cont;
@@ -54,10 +54,10 @@ void TaskManager::update() {
         if (_blocks_handled >= _max_blocks) break;
     }
 
-    long now = millis();
+    /*long now = millis();
     Serial.print(now - (long)_edge_ml_last - (long)_edge_ml_delay);
     Serial.print(", ");
-    Serial.println(_blocks_handled);
+    Serial.println(_blocks_handled);*/
 
     /*Serial.print("I2S: ");
     Serial.print(_mean_i2s);
@@ -94,7 +94,6 @@ int TaskManager::update(Provider * provider, int max_buffers) {
     if (check_overlap(provider)) return cont; // Make sure that time limit is not reached
     //cont = max_buffers - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
     if (!cont || max_buffers == cont || check_overlap(provider)) return cont;
-    //if (check_overlap()) return true; // Make sure that time limit is not reached
     int cont2 = provider->provide(max_buffers - cont);
     return cont + cont2;
 }

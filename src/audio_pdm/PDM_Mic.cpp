@@ -27,7 +27,7 @@ PDM_Mic::~PDM_Mic() {
 /**
  * TODO: check at and of FILE
 */
-bool PDM_Mic::consume(int n) {
+bool PDM_Mic::consume() {
     stream->consume(true);
     return stream->available();
 }
@@ -130,7 +130,7 @@ bool PDM_Mic::begin() {
     // clear the buffer
     stream->buffer.reset();
 
-    nrf_pdm_buffer_set((uint32_t*)stream->buffer.getCurWritePointer(), stream->buffer.getBlockSize() / (sizeof(int16_t) * _channels));
+    nrf_pdm_buffer_set((uint32_t*)stream->buffer.getWritePointer(), stream->buffer.getBlockSize() / (sizeof(int16_t) * _channels));
 
     // set the PDM IRQ priority and enable
     NVIC_SetPriority(PDM_IRQn, PDM_IRQ_PRIORITY);
@@ -213,26 +213,22 @@ int PDM_Mic::getSampleRate() {
 void PDM_Mic::IrqHandler(bool halftranfer) {
     if (nrf_pdm_event_check(NRF_PDM_EVENT_STARTED)) {
         nrf_pdm_event_clear(NRF_PDM_EVENT_STARTED);
-        if (!stream->buffer.check_collision_r_next()) {
+        if (stream->remaining() > 0) {
 
             if (!_first) {
-                consume(1);
+                consume();
             } else {
                 _first = false;
             }
 
             // switch to the next buffer
-            nrf_pdm_buffer_set((uint32_t*)stream->buffer.getNextWritePointer(), stream->buffer.getBlockSize() / (sizeof(int16_t) * _channels));
+            nrf_pdm_buffer_set((uint32_t*)stream->buffer.getWritePointer(1), stream->buffer.getBlockSize() / (sizeof(int16_t) * _channels));
             //stream->buffer.incrementWritePointer();
 
             // call receive callback if provided
-            if (_onReceive) {
-                _onReceive();
-            }
+            if (_onReceive) _onReceive();
         } else {
-            // buffer hit
-            _buffer_hits++;
-            // nrf_pdm_disable(); // uncomment to stop recording when buffer hit
+            // TODO:log collision
         }
     } else if (nrf_pdm_event_check(NRF_PDM_EVENT_STOPPED)) {
         nrf_pdm_event_clear(NRF_PDM_EVENT_STOPPED);
@@ -251,7 +247,7 @@ bool PDM_Mic::checkSampleRateValid(int sampleRate) {
 }
 
 unsigned long PDM_Mic::get_buffer_hits() {
-    return _buffer_hits;
+    return stream->buffer.get_num_underflow();
 }
 
 CircularBlockBuffer *PDM_Mic::get_buffer() {

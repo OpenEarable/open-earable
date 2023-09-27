@@ -43,7 +43,6 @@ public:
 
     void begin();
     void end();
-    //void uninit();
 
     bool check_config_status();
     void clear_buffer();
@@ -64,9 +63,7 @@ private:
     bool _available = false;         // End of playback, buffer is empty
     bool _running = false;    // Request end, will play rest of buffer
 
-    int count = 0;
-
-    bool consume(int n) override;
+    bool consume() override;
 
     bool use_eq = false;
 };

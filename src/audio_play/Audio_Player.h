@@ -41,8 +41,6 @@ public:
 
     void setSource(AudioSource * source);
 
-    static void config_callback(SensorConfigurationPacket * config);
-
     bool available();
     
     AudioSource * source;

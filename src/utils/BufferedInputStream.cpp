@@ -9,13 +9,11 @@ BufferedInputStream::~BufferedInputStream() {
 }
 
 void BufferedInputStream::provide(int n) {
-    for (int i = 0; i < n; i++) {
-        buffer.incrementWritePointer();
-    }
+    buffer.incrementWritePointer(n);
 }
 
 void BufferedInputStream::consume(bool blocking) {
-    buffer.incrementReadPointer();
+    buffer.incrementReadPointer(1,blocking);
 }
 
 int BufferedInputStream::remaining() {

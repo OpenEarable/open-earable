@@ -5,6 +5,10 @@
         "limits": "cpp",
         "chrono": "cpp",
         "algorithm": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "__locale": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "__string": "cpp"
     }
 }

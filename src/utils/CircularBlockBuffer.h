@@ -26,32 +26,22 @@ public:
     size_t getBlockCount() const;
 
     void reset();
-
-    size_t writeBlock(const uint8_t *buffer, size_t size);
-    size_t readBlock(uint8_t *buffer, size_t size);
-
-    uint8_t * const getCurWritePointer();
-    uint8_t * const getNextWritePointer();
-    uint8_t * const getReadPointer();
-
-    int get_contiguous_read_blocks() const;
-    //int get_contiguous_write_blocks_cur() const;
-    int get_contiguous_write_blocks() const;
-    //int get_contiguous_write_blocks_next() const;
-
-    void incrementWritePointer(int reserve = 0);
-    void incrementReadPointer();
-
-    int available_read() const; // Blocks available_read to read
-    int available_write() const; // Blocks available_read to write
-
     void clear();
 
-    bool check_collision_r_next() const;
-    bool check_collision_r_cur() const;
+    uint8_t * const getWritePointer(int n = 0);
+    uint8_t * const getReadPointer(int n = 0);
 
-    unsigned long get_r_collisions() const;
-    unsigned long get_w_collisions() const;
+    int get_contiguous_read_blocks() const;
+    int get_contiguous_write_blocks() const;
+
+    void incrementWritePointer(int n = 1, bool blocking = false);
+    void incrementReadPointer(int n = 1, bool blocking = false);
+
+    int available_read() const; // Blocks available to read until underflow
+    int available_write() const; // Blocks available to write until overflow
+
+    int get_num_underflow() const;
+    int get_num_overflow() const;
 
 private:
     bool _external_buffer = false;
@@ -61,19 +51,18 @@ private:
     size_t _blockSize{};
     int _totalSize{};
 
-    bool _empty = true;
-    //int _buffer_fill = 0;
+    volatile int _readBlock{};
+    volatile int _writeBlock{};
 
-    volatile unsigned int _readBlock{};
-    volatile unsigned int _writeBlockCur{};
-    volatile unsigned int _writeBlockNext{};
+    volatile int _reserve_write = 0;
+    volatile int _reserve_read = 0;
+    volatile int _reserve_write_total = 0;
+    volatile int _reserve_read_total = 0;
 
-    /*volatile unsigned int _readOffset{};
-    volatile unsigned int _writeOffsetCur{};
-    volatile unsigned int _writeOffsetNext{};*/
+    volatile int _underflow_count = 0;
+    volatile int _overflow_count = 0;
 
-    volatile unsigned long _collision_w_count = 0;
-    volatile unsigned long _collision_r_count = 0;
+    volatile int _buffer_fill = _blockCount;
 };
 
 

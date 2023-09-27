@@ -17,8 +17,8 @@ bool WavPlayer::begin() {
 
     if (!_available) return false;
 
+    // read info
     _cur_read_sd = sizeof(info);
-    //_file.seekSet(_default_offset);
     sd_manager.read_block(&_file, (uint8_t*)&info, sizeof(info));
 
     preload_buffer();
@@ -38,9 +38,7 @@ bool WavPlayer::available() {
 }
 
 void WavPlayer::setStream(BufferedStream ** stream) {
-    if (_available) {
-        end();
-    }
+    if (_available) end();
     this->stream = stream;
 }
 
@@ -48,7 +46,6 @@ int WavPlayer::provide(int n) {
     if (!_available) return 0;
 
     int blocks = (*stream)->get_contiguous_blocks();
-
     int cont = min(blocks, n);
 
     if (!cont) return 0;
@@ -75,10 +72,11 @@ void WavPlayer::preload_buffer() {
 }
 
 unsigned int WavPlayer::sd_to_buffer(int multi) {
-    uint8_t * ptr = (*stream)->buffer.getCurWritePointer();
+    uint8_t * ptr = (*stream)->buffer.getWritePointer();
 
     unsigned int read_total = 0;
     unsigned int read = sd_manager.read_block(&_file, ptr, audio_b_size * multi);
+
     _cur_read_sd += read;
     read_total += read;
 
@@ -90,17 +88,12 @@ unsigned int WavPlayer::sd_to_buffer(int multi) {
 }
 
 unsigned int WavPlayer::get_sample_rate() {
-    if (!open_file()) return 0;
-    uint64_t pos = _file.curPosition();
-    unsigned int rate;
-    sd_manager.read_block_at(&_file, 24, (uint8_t *) &rate, 4);
-    _file.seekSet(pos);
-    return rate;
+    if (!_available) return -1;
+    return info.sampleRate;
 }
 
 unsigned int WavPlayer::get_size() {
     if (!open_file()) return 0;
-    // uint64_t pos = _file.curPosition(); // old
     return _file.fileSize();
 }
 
@@ -114,11 +107,14 @@ bool WavPlayer::open_file() {
 
 WAVConfigurationPacket WavPlayer::get_config() {
     WAVConfigurationPacket wav_packet;
+
     wav_packet.state = 0;
     wav_packet.size = _name.length();
 
-    for (int i=0; i<_name.length(); i++) {
+    memcpy(wav_packet.name, _name.c_str(), _name.length());
+
+    /*for (int i=0; i<_name.length(); i++) {
         wav_packet.name[i] = _name[i];
-    }
+    }*/
     return wav_packet;
 }

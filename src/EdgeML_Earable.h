@@ -40,6 +40,8 @@ public:
     EdgeML_Earable() = default;
 
     void begin() {
+        Serial.begin(0);
+
         _interface = new SensorManager_Earable();
         _battery = new Battery_Service();
 
@@ -157,7 +159,7 @@ void data_callback(int id, unsigned int timestamp, uint8_t * data, int size) {
 
 void config_callback(SensorConfigurationPacket *config) {
     Recorder::config_callback(config);
-    Audio_Player::config_callback(config);
+    //Audio_Player::config_callback(config);
     Configuration_Handler::config_callback(config);
 }
 

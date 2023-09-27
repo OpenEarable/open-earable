@@ -3,10 +3,14 @@
 
 #include "BufferedStream.h"
 
+/**
+* Device that consumes a BufferedStream. Incase of an OutputStream it reads from the 
+* Buffer. For an InputSream it writes to the Buffer.
+*/
 class Consumer {
 public:
-    virtual bool consume(int n) = 0;
-//protected: // make protected in the end
+    virtual bool consume() = 0;
+//protected: // TODO: make protected in the end
     BufferedStream * stream;
 };
 #endif

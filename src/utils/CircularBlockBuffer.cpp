@@ -1,6 +1,9 @@
 #include "CircularBlockBuffer.h"
 #include "Arduino.h"
 
+#define positiveOffset(p,n) (p + n >= _blockCount ? p + n - _blockCount : p + n)
+#define negativeOffset(p,n) (p - n < 0 ? p - n + _blockCount : p - n)
+
 CircularBlockBuffer::CircularBlockBuffer() :
         _blockCount(DEFAULT_CBB_TOTAL_COUNT),
         _blockSize(DEFAULT_CBB_BLOCK_SIZE)
@@ -17,12 +20,12 @@ CircularBlockBuffer::~CircularBlockBuffer() {
 }
 
 void CircularBlockBuffer::setSizes(int blockSize, int blockCount) {
-    if (!blockSize) return;
-    if (!blockCount) return;
+    if (!blockSize || !blockCount) return;
 
     _blockSize = blockSize;
     _blockCount = blockCount;
     _totalSize = blockSize * blockCount;
+
     reset();
 }
 
@@ -54,72 +57,20 @@ void CircularBlockBuffer::reset() {
     memset(_buffer, 0x00, _totalSize);
 
     _readBlock = 0;
-    _writeBlockCur = 0;
-    _writeBlockNext = 1;
+    _writeBlock = 0;
 
-    /*_readOffset = 0;
-    _writeOffsetCur = 0;
-    _writeOffsetNext = _blockSize;*/
+    _overflow_count = 0;
+    _underflow_count = 0;
 
-    _collision_w_count = 0;
-    _collision_r_count = 0;
-    _empty = true;
+    clear();
 }
 
-size_t CircularBlockBuffer::writeBlock(const uint8_t *buffer, size_t size) {
-    if (size > _blockSize) {
-        size = _blockSize;
-    }
-
-    if (size == 0) {
-        return 0;
-    }
-
-    if (check_collision_r_next()) {
-        _collision_w_count++;
-        return 0;
-    }
-
-    memcpy(getCurWritePointer(), buffer, size);
-
-    incrementWritePointer();
-
-    return size;
+uint8_t * const CircularBlockBuffer::getWritePointer(int n) {
+    return &(_buffer[positiveOffset(_writeBlock, n) * _blockSize]);
 }
 
-size_t CircularBlockBuffer::readBlock(uint8_t *buffer, size_t size) {
-    // Check Blocks between read and write_cur
-    if (!available_read()) {
-        _collision_r_count++;
-        return 0;
-    }
-
-    if (size > _blockSize) {
-        size = _blockSize;
-    }
-
-    if (size == 0) {
-        return 0;
-    }
-
-    memcpy(buffer, getReadPointer(), size);
-
-    incrementReadPointer();
-
-    return size;
-}
-
-uint8_t * const CircularBlockBuffer::getCurWritePointer() {
-    return &(_buffer[_writeBlockCur * _blockSize]);
-}
-
-uint8_t * const CircularBlockBuffer::getNextWritePointer() {
-    return &(_buffer[_writeBlockNext * _blockSize]);
-}
-
-
-uint8_t * const CircularBlockBuffer::getReadPointer() {
-    return &(_buffer[_readBlock * _blockSize]);
+uint8_t * const CircularBlockBuffer::getReadPointer(int n) {
+    return &(_buffer[positiveOffset(_readBlock, n) * _blockSize]);
 }
 
 int CircularBlockBuffer::get_contiguous_read_blocks() const {
@@ -127,75 +78,67 @@ int CircularBlockBuffer::get_contiguous_read_blocks() const {
 }
 
 int CircularBlockBuffer::get_contiguous_write_blocks() const {
-    return min(available_write(), _blockCount - _writeBlockCur);
+    return min(available_write(), _blockCount - _writeBlock);
 }
 
 void CircularBlockBuffer::clear() {
-    //_readOffset = _writeOffsetCur;
-    _readBlock = _writeBlockCur;
-    _empty = true;
+    _readBlock = _writeBlock;
+    _buffer_fill = 0;
+
+    _reserve_write = 0;
+    _reserve_read = 0;
+    _reserve_write_total = 0;
+    _reserve_read_total = 0;
 }
 
 int CircularBlockBuffer::available_read() const {
-    if (_readBlock == _writeBlockCur) return _empty ? 0 : _blockCount;
-
-    int diff = _writeBlockCur - _readBlock;
-
-    return diff < 0 ? _blockCount + diff : diff;
+    return _buffer_fill - _reserve_write_total;
 }
 
 int CircularBlockBuffer::available_write() const {
-    if (_writeBlockCur == _readBlock) return _empty ? _blockCount : 0;
-
-    int diff = _readBlock - _writeBlockCur;
-    return diff < 0 ? _blockCount + diff : diff;
+    return _blockCount - _buffer_fill - _reserve_read_total;
 }
 
-/*int CircularBlockBuffer::getWritePointer(int offset) const {
-    int _offset_pointer = _readBlock + offset;
+// reserve <-- w --> n
+// reserved Blocks are asynchronously written from the moment the method is called
+void CircularBlockBuffer::incrementWritePointer(int n, bool blocking) {
+    int _available = available_write();
+
+    if (_available < n) {
+        _overflow_count += n - _available;
+    }
     
+    _reserve_write_total = max(0, _reserve_write_total - _reserve_write);
+    _reserve_write = blocking ? n : 0;
+    _reserve_write_total += _reserve_write;
 
-}*/
+    // points to next available write Block
+    _writeBlock = positiveOffset(_writeBlock, n);
+    _buffer_fill += n;
+}
 
+void CircularBlockBuffer::incrementReadPointer(int n, bool blocking) {
+    int _available = available_read();
 
-void CircularBlockBuffer::incrementWritePointer(int reserve) {
-    //if (_readBlock == _writeBlockCur + reserve) _empty = true;
-    if (_readBlock == _writeBlockCur) _empty = false;
-
-    _writeBlockCur = _writeBlockNext++; // set and post increment
-
-    if (_writeBlockNext >= _blockCount) {
-        _writeBlockNext = 0;
+    if (_available < n) {
+        _underflow_count += n - _available;
     }
+
+    _reserve_read_total = max(0, _reserve_read_total - _reserve_read);
+    _reserve_read = blocking ? n : 0;
+    _reserve_read_total += _reserve_read;
+
+    // points to next available read Block
+    _readBlock = positiveOffset(_readBlock, n);
+    _buffer_fill -= n;
 }
 
-void CircularBlockBuffer::incrementReadPointer() {
-    ++_readBlock;
-    //_readOffset += _blockSize;
-
-    if (_readBlock == _writeBlockCur) _empty = true;
-
-    if (_readBlock >= _blockCount) {
-        _readBlock = 0;
-        //_readOffset = 0;
-    }
+int CircularBlockBuffer::get_num_underflow() const {
+    return _underflow_count;
 }
 
-// check_collision
-bool CircularBlockBuffer::check_collision_r_next() const {
-    return _writeBlockNext == _readBlock;
-}
-
-bool CircularBlockBuffer::check_collision_r_cur() const {
-    return _writeBlockCur == _readBlock;
-}
-
-unsigned long CircularBlockBuffer::get_r_collisions() const {
-    return _collision_r_count;
-}
-
-unsigned long CircularBlockBuffer::get_w_collisions() const {
-    return _collision_w_count;
+int CircularBlockBuffer::get_num_overflow() const {
+    return _overflow_count;
 }
 
 void CircularBlockBuffer::set_buffer(uint8_t *buffer, int blockSize, int blockCount) {

@@ -9,6 +9,7 @@ sampling_mode const_freq = {NRF_I2S_MCK_32MDIV11, NRF_I2S_RATIO_64X};
 
 I2S_Player::I2S_Player(bool use_eq) {
     this->use_eq = use_eq;
+
     eq = new Equalizer();
     stream = new BufferedInputStream();
 }
@@ -25,13 +26,14 @@ void I2S_Player::setBlockBufferSizes(int blockSize, int blockCount) {
 /**
  * TODO: check at and of FILE
 */
-bool I2S_Player::consume(int n) {
+bool I2S_Player::consume() {
     stream->consume(true);
     return stream->available();
 }
 
 void I2S_Player::begin() {
     if (_available) return;
+
     //initializing i2s pins
     nrf_i2s_pins_set(NRF_I2S,
                      digitalPinToPinName(_sckPin),
@@ -61,8 +63,7 @@ void I2S_Player::begin() {
     // Do buffer reset externally!
 
     // Ignore first block in buffer
-    consume(1);
-    //stream->buffer.incrementReadPointer(); // Requires buffer to be filled with at least 2 blocks
+    consume(); // Requires buffer to be filled with at least 2 blocks
 
     //setting up the I2S transfer
     nrf_i2s_transfer_set(NRF_I2S, stream->buffer.getBlockSize()/WORD_SIZE, NULL, (uint32_t const *)stream->buffer.getReadPointer());
@@ -100,8 +101,8 @@ void I2S_Player::end() {
 
 void I2S_Player::start() {
     if (!_available) return;
-    _running = true;
     nrf_i2s_task_trigger(NRF_I2S, NRF_I2S_TASK_START);
+    _running = true;
 }
 
 void I2S_Player::stop() {
@@ -116,19 +117,16 @@ bool I2S_Player::check_config_status() {
 
 void I2S_Player::i2s_interrupt() {
 //Checking TXPTRUPD event
-    if (nrf_i2s_event_check(NRF_I2S, NRF_I2S_EVENT_TXPTRUPD))
-    {
+    if (nrf_i2s_event_check(NRF_I2S, NRF_I2S_EVENT_TXPTRUPD)) {
         //clear TXPTRUPD event
         nrf_i2s_event_clear(NRF_I2S, NRF_I2S_EVENT_TXPTRUPD);
 
-        bool stream_available = consume(1);
+        bool stream_available = consume();
 
         if (stream->remaining()) {
             nrf_i2s_tx_buffer_set(NRF_I2S, (uint32_t const *)stream->buffer.getReadPointer());
             if (use_eq) eq->update((int16_t *)stream->buffer.getReadPointer(), stream->buffer.getBlockSize() / sizeof(int16_t));
-        } else if (!stream_available) {
-            stop();
-        }
+        } else if (!stream_available) stop();
     }
 }
 
