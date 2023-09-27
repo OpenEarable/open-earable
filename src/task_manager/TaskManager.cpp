@@ -10,10 +10,10 @@ void TaskManager::update() {
     const int _max_blocks = 2;
     //const float STD = 0.5;
 
-    Serial.print("Play: ");
+    /*Serial.print("Play: ");
     Serial.print(audio_player.available() ? (*audio_player.source->stream)->remaining() : -1);
     Serial.print(" PDM: ");
-    Serial.println(recorder.available() ? (*recorder.target->stream)->remaining() : -1);
+    Serial.println(recorder.available() ? (*recorder.target->stream)->remaining() : -1);*/
 
     Provider * provider;
 

@@ -37,3 +37,6 @@
 # Macbook
 **/.DS_Store
 src/main.cpp
+
+# VS Code
+**/.vscode
