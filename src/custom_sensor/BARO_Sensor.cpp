@@ -66,8 +66,8 @@ void BARO_Sensor::get_pressure_and_temperature(float * value) {
         return;
     }
 
-    value[0] = Baro->readPressure();
-    value[1] = Baro->getTemperature();
+    value[0] = Baro->getTemperature();
+    value[1] = Baro->readPressure();
 }
 
 void BARO_Sensor::get_pressure(float &value) {

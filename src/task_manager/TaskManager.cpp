@@ -89,10 +89,10 @@ void TaskManager::update_edge_ml() {
 int TaskManager::update(Provider * provider, int max_buffers) {
     if (max_buffers <= 0 || (*provider->stream)->ready() == 0) return 0;
 
-   int cont = provider->provide(max_buffers);
+    int cont = provider->provide(max_buffers);
 
-    if (check_overlap(provider)) return cont; // Make sure that time limit is not reached
-    //cont = max_buffers - cont; // Compute rest: rest 0 => good; rest == total blocks => bad and return
+    // Make sure that time limit is not reached
+    // Compute rest: rest 0 => good; rest == total blocks => bad and return
     if (!cont || max_buffers == cont || check_overlap(provider)) return cont;
     int cont2 = provider->provide(max_buffers - cont);
     return cont + cont2;

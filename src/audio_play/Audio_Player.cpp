@@ -30,7 +30,7 @@ bool Audio_Player::begin() {
 
 void Audio_Player::setSource(AudioSource * source) {
     this->source = source;
-    source->setStream(&(i2s_player.stream));
+    if (source) source->setStream(&(i2s_player.stream));
 }
 
 void Audio_Player::play() {
@@ -81,13 +81,30 @@ void Audio_Player::stop() {
 }*/
 
 void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
-    int state = configuration.state;
-
-    switch(state) {
+    switch(configuration.state) {
     case 1:
         if (configuration.size) {
             end();
-            setSource(new WavPlayer(String(configuration.name, configuration.size)));
+
+            /*if (configuration.mode == 0) {
+                return;
+            }*/
+
+            switch (configuration.mode == 1) {
+            case 0:
+                setSource(NULL);
+                return;
+            case 1:
+                setSource(new WavPlayer(String(configuration.name, configuration.size)));
+                break;
+            case 2:
+                float * freq = (float*)(configuration.name);
+                setSource(new Tone(* freq));
+                break;
+            //case 3:
+            //default:
+            //    return;
+            }
         }
         play();
         break;
