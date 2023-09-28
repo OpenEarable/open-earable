@@ -40,7 +40,7 @@ void Configuration_Handler::stop_all() {
     }
 }
 
-void Configuration_Handler::configure(int config_num, int config_info) {
+void Configuration_Handler::configure(int config_num) {
     const configuration_bundle * conf;
     SensorConfigurationPacket config;
 
@@ -98,11 +98,12 @@ void Configuration_Handler::config_callback(SensorConfigurationPacket *config) {
     int config_num = int(config->sampleRate);
     int config_info = int(config->latency); // Additional extra info
 
-    Serial.println("CONFIG");
+    Serial.print("CONFIGURATION: ");
     Serial.println(String(config_num));
-    Serial.println(String(config_info));
+    /*Serial.print("info: ");
+    Serial.println(String(config_info));*/
 
-    conf_handler.configure(config_num, config_info);
+    conf_handler.configure(config_num);
 }
 
 Configuration_Handler conf_handler;

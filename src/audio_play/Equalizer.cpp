@@ -32,7 +32,7 @@ void Equalizer::update(int16_t * data, int length) {
     for (int n = 0; n < length; n++) {
         y[0] = data[n];
 
-        //#pragma unroll
+        #pragma unroll
         for (int k = 0; k < EQ_ORDER; k++) {
             y[k+1] = b[k][0] * y[k] + buffer[k][0];
             //#if (a[k][2] != 0 || b[k][2] == 0)

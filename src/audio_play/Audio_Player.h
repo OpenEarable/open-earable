@@ -6,7 +6,7 @@
 
 #include "Play_Service.h"
 #include "I2S_Player.h"
-#include "Tone.h"
+#include "ToneGenerator.h"
 
 #include "utils/SDManager.h"
 

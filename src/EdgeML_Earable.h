@@ -16,7 +16,7 @@
 
 #include <audio_play/Audio_Player.h>
 #include <audio_play/WavPlayer.h>
-#include <audio_play/Tone.h>
+#include <audio_play/ToneGenerator.h>
 
 #include <custom_sensor/SensorManager_Earable.h>
 #include <configuration_handler/Configuration_Handler.h>
@@ -109,7 +109,7 @@ public:
     }
 
     void set_tone_freq(float frequency) {
-        audio_player.setSource(new Tone(frequency));
+        audio_player.setSource(new ToneGenerator(frequency));
     }
 
     void set_recorder_file_name(String name) {

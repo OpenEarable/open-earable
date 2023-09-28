@@ -1,29 +1,67 @@
-#include "Tone.h"
+#include "ToneGenerator.h"
 
-Tone::Tone(float frequency, float amplitude) {
-    //stream = &(i2s_player.stream);
+//const float _2_PI = 2.f * PI;
+const float pi = PI;
+
+float triangle(float f) {
+    return 1-abs(abs(2*f / pi - 3)-2);
+}
+
+float square(float f) {
+    return f <= pi ? 1 : -1;
+}
+
+float saw(float f) {
+    return f / pi - (f > pi ? 2 : 0);
+}
+
+ToneGenerator::ToneGenerator(float frequency, float amplitude, Waveform type) {
     set_frequency(frequency);
     set_amplitude(amplitude);
+    set_waveform(type);
 }
 
-Tone::Tone(ToneSetting (*modulation)(), int call_every) {
+ToneGenerator::ToneGenerator(Tone (*modulation)(), int call_every, Waveform type) {
     _modulation = modulation;
     this->call_every = call_every;
+    set_waveform(type);
 }
 
-Tone::~Tone() {
+ToneGenerator::~ToneGenerator() {
 
 }
 
-void Tone::set_frequency(float frequency) {
+void ToneGenerator::set_frequency(float frequency) {
     this->_tone.frequency = constrain(frequency, _frequency_low, _frequency_high);
 }
 
-void Tone::set_amplitude(float amplitude) {
+void ToneGenerator::set_amplitude(float amplitude) {
     this->_tone.amplitude = constrain(amplitude, 0, 1);
 }
 
-bool Tone::begin() {
+void ToneGenerator::set_waveform(Waveform type) {
+    switch (type)
+    {
+    case SINE:
+        wave = sinf;
+        break;
+    case SQUARE:
+        wave = square;
+        break;
+    case TRIANGLE:
+        wave = triangle;
+        break;
+    case SAW:
+        wave = saw;
+        break;
+    default:
+        wave = sinf;
+        break;
+    }
+    
+}
+
+bool ToneGenerator::begin() {
     if (!stream) return false;
 
     (*stream)->buffer.clear();
@@ -48,36 +86,36 @@ bool Tone::begin() {
     return true;
 }
 
-bool Tone::available() {
+bool ToneGenerator::available() {
     return _available;
 }
 
-void Tone::end() {
+void ToneGenerator::end() {
     _available = false;
     if (!stream) return;
     (*stream)->close();
 }
 
-void Tone::setStream(BufferedStream ** stream) {
+void ToneGenerator::setStream(BufferedStream ** stream) {
     if (_available) end();
     this->stream = stream;
 }
 
-int Tone::provide(int n) {
+int ToneGenerator::provide(int n) {
     for(int i = 0; i < n; i++) {
         update();
     }
     return n;
 }
 
-void Tone::update() {
+void ToneGenerator::update() {
     if (!_available) return;
     //if ((*stream)->ready() < 2) return;
 
     int16_t * ptr = (int16_t*)((*stream)->buffer.getWritePointer());
 
     for (int i = 0; i < _block_size / sizeof(int16_t); i ++) {
-        ptr[i] = MAX_INT16 * (_tone.amplitude * sinf(_delta * _t));
+        ptr[i] = MAX_INT16 * (_tone.amplitude * wave(_delta * _t));
         _t += _tone.frequency;
         _t = _t >= _sample_rate ? _t - _sample_rate : _t;
         if (_modulation && ++t_call >= call_every) {
@@ -89,15 +127,15 @@ void Tone::update() {
     (*stream)->provide(1);
 }
 
-int Tone::get_max_frequency() {
+int ToneGenerator::get_max_frequency() {
     return _frequency_high;
 }
 
-int Tone::get_min_frequency() {
+int ToneGenerator::get_min_frequency() {
     return _frequency_low;
 }
 
-WAVConfigurationPacket Tone::get_config() {
+WAVConfigurationPacket ToneGenerator::get_config() {
     String _name = String(_tone.frequency) + "Hz";
 
     WAVConfigurationPacket wav_packet;

@@ -47,7 +47,7 @@ void I2S_Player::begin() {
 
 
     /* I2S MASTER CONFIGURATION */
-    _i2s_config_status = nrf_i2s_configure(NRF_I2S,                            //I2S instance
+    bool _i2s_config_status = nrf_i2s_configure(NRF_I2S,                            //I2S instance
                                           NRF_I2S_MODE_MASTER,                //I2S configured as master
                                           NRF_I2S_FORMAT_I2S,                 //I2S frame format
                                           NRF_I2S_ALIGN_LEFT,                 //Alignment of sample within a frame
@@ -85,7 +85,7 @@ void I2S_Player::begin() {
     //enabling I2S interrupt in NVIC
     NRFX_IRQ_ENABLE(I2S_IRQn);
 
-    _available = true;
+    _available = _i2s_config_status;
 }
 
 void I2S_Player::end() {
@@ -111,8 +111,8 @@ void I2S_Player::stop() {
     _running = false;
 }
 
-bool I2S_Player::check_config_status() {
-    return _i2s_config_status;
+bool I2S_Player::available() {
+    return _available;
 }
 
 void I2S_Player::i2s_interrupt() {

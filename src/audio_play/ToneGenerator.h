@@ -4,19 +4,27 @@
 #include "Arduino.h" // Needed for PI
 #include "AudioSource.h"
 
-struct ToneSetting {
+struct Tone {
     float frequency;
     float amplitude;
 };
 
-class Tone : public AudioSource {
+enum Waveform {
+    SINE,
+    SQUARE,
+    TRIANGLE,
+    SAW
+};
+
+class ToneGenerator : public AudioSource {
 public:
-    Tone(float frequency = 440, float amplitude = 0.5);
-    Tone(ToneSetting (*modulation)(), int call_every = 16);
-    ~Tone();
+    ToneGenerator(float frequency = 440, float amplitude = 0.5, Waveform type = SINE);
+    ToneGenerator(Tone (*modulation)(), int call_every = 16, Waveform type = SINE);
+    ~ToneGenerator();
 
     void set_frequency(float frequency);
     void set_amplitude(float amplitude);
+    void set_waveform(Waveform type);
 
     int provide(int n) override;
     bool available() override;
@@ -40,11 +48,9 @@ private:
     int _block_size;
     float _delta;
 
-    ToneSetting _tone;
-    ToneSetting (*_modulation)() = NULL;
+    Tone _tone;
+    Tone (*_modulation)() = NULL;
     int call_every = 16;
-
-    //const float _2_PI = 2.f * PI;
 
     float _t = 0;
     int t_call = 0;
@@ -52,6 +58,8 @@ private:
     const float MAX_INT16 = ((1 << 15)-1);
 
     void update();
+
+    float (*wave)(float) = sinf;
 };
 
 #endif //OPEN_EARABLE_TONE_H

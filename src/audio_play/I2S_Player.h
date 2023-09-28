@@ -44,7 +44,7 @@ public:
     void begin();
     void end();
 
-    bool check_config_status();
+    bool available();
     void clear_buffer();
 
     CircularBlockBuffer * get_buffer();
@@ -57,8 +57,6 @@ private:
     int _sckPin = EPIN_BCLK;    //23  P0_16
     int _lrckPin = EPIN_LRCLK;  //13  P0_13
     int _sdoutPin = EPIN_DIN;   //32  P1_0
-
-    bool _i2s_config_status = false;
 
     bool _available = false;         // End of playback, buffer is empty
     bool _running = false;    // Request end, will play rest of buffer

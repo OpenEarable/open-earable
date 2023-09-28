@@ -24,7 +24,10 @@ bool Audio_Player::begin() {
     i2s_player.setBuffer(AUDIO_BUFFER, audio_b_size, audio_b_count);
     if (!source) return false;
     source->begin();
-    _available = source->available();
+    if (!source->available()) return false;
+    i2s_player.begin();
+    _available = i2s_player.available();
+    if (!_available) source->end();
     return _available;
 }
 
@@ -45,9 +48,8 @@ void Audio_Player::play() {
         if (!source->available()) return;
     }
 
-     _running = true;
+    _running = true;
 
-    i2s_player.begin();
     i2s_player.start();
 }
 
@@ -56,11 +58,13 @@ void Audio_Player::end() {
 
     stop();
     i2s_player.end();
+
     _available = false;
 }
 
 void Audio_Player::pause() {
     if (!_available || !_running) return;
+    _running = false;
     i2s_player.stop();
 }
 
@@ -86,11 +90,7 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
         if (configuration.size) {
             end();
 
-            /*if (configuration.mode == 0) {
-                return;
-            }*/
-
-            switch (configuration.mode == 1) {
+            switch (configuration.mode) {
             case 0:
                 setSource(NULL);
                 return;
@@ -98,12 +98,9 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
                 setSource(new WavPlayer(String(configuration.name, configuration.size)));
                 break;
             case 2:
-                float * freq = (float*)(configuration.name);
-                setSource(new Tone(* freq));
+                Tone * tone = (Tone*)(configuration.name);
+                setSource(new ToneGenerator(tone->frequency,tone->amplitude,(Waveform)(configuration.size-1)));
                 break;
-            //case 3:
-            //default:
-            //    return;
             }
         }
         play();

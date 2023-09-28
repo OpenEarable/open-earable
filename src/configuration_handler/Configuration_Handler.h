@@ -22,7 +22,7 @@ extern const configuration_bundle CONFS[];
 
 class Configuration_Handler {
 public:
-    void configure(int config_num, int config_info);
+    void configure(int config_num);
     void stop_all();
 
     static void config_callback(SensorConfigurationPacket * config);
@@ -32,8 +32,6 @@ private:
     int _current_conf_num;
 
     float _rate_factor = 1.25;
-
-    //void check_audioplayback(int config_info);
 };
 
 extern Configuration_Handler conf_handler;
