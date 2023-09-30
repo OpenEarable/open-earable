@@ -9,7 +9,7 @@ Battery_Earable::Battery_Earable() {
 void Battery_Earable::begin() {
     pinMode(EPIN_BAT_REF, INPUT);
     pinMode(EPIN_BAT_CHRG, INPUT);
-    analogReference(_internal_ref);
+    analogReference(AR_INTERNAL1V2);
     nrfx_err_t error = nrfx_power_init(&_usb_config);
 }
 
@@ -18,6 +18,10 @@ int Battery_Earable::get_battery_level() const {
 }
 
 CharingState Battery_Earable::get_charging_state() const {
+    return _charging_state;
+}
+
+CharingState Battery_Earable::_update_charging_state() const {
     int charging = analogRead(EPIN_BAT_CHRG);
 
     nrfx_power_usb_state_t usb_power = nrfx_power_usbstatus_get();
@@ -43,7 +47,7 @@ void Battery_Earable::_update_battery() {
     int adc_value = analogRead(EPIN_BAT_REF);
     int uniform = _map_to_uniform(adc_value);
     _battery_level = _map_to_percentage(uniform);
-    _charging_state = get_charging_state();
+    _charging_state = _update_charging_state();
 }
 
 int Battery_Earable::_map_to_uniform(int value) const {

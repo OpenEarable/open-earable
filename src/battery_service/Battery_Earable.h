@@ -25,6 +25,8 @@ public:
 private:
     void _update_battery();
 
+    CharingState _update_charging_state() const;
+
     // Map adc value to uniform format
     int _map_to_uniform(int value) const;
 
@@ -36,14 +38,14 @@ private:
 
     int _battery_level = 0;
 
-    const _AnalogReferenceMode _internal_ref = AR_INTERNAL1V2;
+    //const _AnalogReferenceMode _internal_ref = AR_INTERNAL1V2;
     const int _adc_min = 734;
     const int _adc_max = 917;
     const int _uniform_max = 1000;
 
     nrfx_power_config_t _usb_config;
 
-    CharingState _charging_state;
+    CharingState _charging_state = BATTERY;
 };
 
 
