@@ -1,4 +1,4 @@
-# 🦻 OpenEarable Firmware
+# 🦻 OpenEarable - Firmware
 
 OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing applications. It provides a versatile prototyping platform with support for various sensors and actuators, making it suitable for earable research and development.
 
