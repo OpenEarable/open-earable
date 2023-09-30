@@ -1,15 +1,32 @@
 #include "Battery_Earable.h"
+#include "Serial.h"
+
+#define CHARGING_THRD 200
 
 Battery_Earable::Battery_Earable() {
 }
 
 void Battery_Earable::begin() {
-    pinMode(_battery_pin, INPUT);
+    pinMode(EPIN_BAT_REF, INPUT);
+    pinMode(EPIN_BAT_CHRG, INPUT);
     analogReference(_internal_ref);
+    nrfx_err_t error = nrfx_power_init(&_usb_config);
 }
 
 int Battery_Earable::get_battery_level() const {
     return _battery_level;
+}
+
+CharingState Battery_Earable::get_charging_state() const {
+    int charging = analogRead(EPIN_BAT_CHRG);
+
+    nrfx_power_usb_state_t usb_power = nrfx_power_usbstatus_get();
+
+    if (charging > CHARGING_THRD) return FULLY_CHARGED;
+
+    if (usb_power == NRFX_POWER_USB_STATE_READY) return CHARGING;
+
+    return BATTERY;
 }
 
 bool Battery_Earable::check_battery() {
@@ -23,9 +40,10 @@ bool Battery_Earable::check_battery() {
 }
 
 void Battery_Earable::_update_battery() {
-    int adc_value = analogRead(_battery_pin);
+    int adc_value = analogRead(EPIN_BAT_REF);
     int uniform = _map_to_uniform(adc_value);
     _battery_level = _map_to_percentage(uniform);
+    _charging_state = get_charging_state();
 }
 
 int Battery_Earable::_map_to_uniform(int value) const {

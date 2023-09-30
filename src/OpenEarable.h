@@ -28,16 +28,16 @@
 #include <utility>
 
 const String device_version = "1.3.0";
-const String device_name = "Earable";
+const String device_name = "OpenEarable";
 
-bool _data_logger_flag = true;
+bool _data_logger_flag = false;
 
 void data_callback(int id, unsigned int timestamp, uint8_t * data, int size);
 void config_callback(SensorConfigurationPacket *config);
 
-class EdgeML_Earable {
+class OpenEarable {
 public:
-    EdgeML_Earable() = default;
+    OpenEarable() = default;
 
     void begin() {
         Serial.begin(0);
@@ -148,18 +148,17 @@ private:
     Stream * _debug{};
 };
 
-EdgeML_Earable edge_ml_earable;
+OpenEarable open_earable;
 
 void data_callback(int id, unsigned int timestamp, uint8_t * data, int size) {
     if (_data_logger_flag) {
-        String data_string = edge_ml_earable.parse_to_string(id, data);
+        String data_string = open_earable.parse_to_string(id, data);
         SD_Logger::data_callback(id, timestamp, data_string);
     }
 }
 
 void config_callback(SensorConfigurationPacket *config) {
     Recorder::config_callback(config);
-    //Audio_Player::config_callback(config);
     Configuration_Handler::config_callback(config);
 }
 

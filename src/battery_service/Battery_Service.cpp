@@ -21,10 +21,13 @@ void Battery_Service::update() {
 void Battery_Service::_setup_ble_service() {
     batteryService = new BLEService(batteryServiceUuid);
     batteryLevelC = new BLEUnsignedCharCharacteristic(batteryUuid, BLERead | BLENotify);
+    chargingStateC = new BLEUnsignedCharCharacteristic(chargingUuid, BLERead | BLENotify);
 
     // Battery level
     BLE.setAdvertisedService(*batteryService);
     batteryService->addCharacteristic(*batteryLevelC);
+    batteryService->addCharacteristic(*chargingStateC);
     BLE.addService(*batteryService);
     batteryLevelC->setValue(0);
+    chargingStateC->setValue(0);
 }

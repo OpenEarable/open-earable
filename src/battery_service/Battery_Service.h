@@ -11,10 +11,11 @@ public:
     void begin();
     void update();
 private:
-    Battery_Earable * battery{};
+    Battery_Earable * battery;
 
-    BLEService * batteryService{};
-    BLEUnsignedCharCharacteristic * batteryLevelC{};
+    BLEService * batteryService;
+    BLEUnsignedCharCharacteristic * batteryLevelC;
+    BLEUnsignedCharCharacteristic * chargingStateC;
 
     void _setup_ble_service();
 };

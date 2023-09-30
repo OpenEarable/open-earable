@@ -6,6 +6,7 @@ extern const char * wavPlayServiceUuid;
 extern const char * wavPlayUuid;
 extern const char * batteryServiceUuid;
 extern const char * batteryUuid;
+extern const char * chargingUuid;
 extern const char * buttonServiceUuid;
 extern const char * buttonStateUuid;
 extern const char * ledServiceUuid;
