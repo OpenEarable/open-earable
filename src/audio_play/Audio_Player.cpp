@@ -1,5 +1,6 @@
 #include "Audio_Player.h"
 #include "WavPlayer.h"
+#include "JinglePlayer.h"
 
 #include <utility>
 
@@ -85,6 +86,7 @@ void Audio_Player::stop() {
 }*/
 
 void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
+    Tone * tone;
     switch(configuration.state) {
     case 1:
         if (configuration.size) {
@@ -98,8 +100,12 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
                 setSource(new WavPlayer(String(configuration.name, configuration.size)));
                 break;
             case 2:
-                Tone * tone = (Tone*)(configuration.name);
+                tone = (Tone*)(configuration.name);
                 setSource(new ToneGenerator(tone->frequency,tone->amplitude,(Waveform)(configuration.size-1)));
+                break;
+            case 3:
+                Serial.println(configuration.size);
+                setSource(JinglePlayer::getJingle((Jingle) (configuration.size - 1)));
                 break;
             }
         }

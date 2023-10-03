@@ -80,17 +80,6 @@ void Configuration_Handler::configure(int config_num) {
     task_manager.begin(max(conf->BARO_rate, conf->IMU_rate));
 }
 
-/*void Configuration_Handler::check_audioplayback(int config_info) {
-    if (!config_info) return;
-    SensorConfigurationPacket config;
-    // Use latency to control player
-
-    config.sensorId = PLAYER;
-    if (config_info<=4) config_info -= 1; // adjust
-    config.sampleRate = float(config_info);
-    //Audio_Player::config_callback(&config);
-}*/
-
 void Configuration_Handler::config_callback(SensorConfigurationPacket *config) {
     // Check for Configuration ID
     if (config->sensorId != CONFIGURATION) return;

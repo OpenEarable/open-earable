@@ -36,6 +36,14 @@ void SDManager::closeFile(ExFatFile *file) {
     _lastFile = nullptr;
 }
 
+bool SDManager::exists(const String& name) {
+    return sd->exists(name);
+}
+
+void SDManager::mkdir(const String& name) {
+    sd->mkdir(name);
+}
+
 void SDManager::remove(const String& name) {
     sd->remove(name);
 }

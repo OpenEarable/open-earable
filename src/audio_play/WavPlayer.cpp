@@ -48,7 +48,10 @@ int WavPlayer::provide(int n) {
     int blocks = (*stream)->get_contiguous_blocks();
     int cont = min(blocks, n);
 
-    if (!cont) return 0;
+    if (!cont) {
+        (*stream)->close();
+        return 0;
+    }
 
     unsigned int read = sd_to_buffer(cont);
 
@@ -80,11 +83,13 @@ unsigned int WavPlayer::sd_to_buffer(int multi) {
     _cur_read_sd += read;
     read_total += read;
 
+    const int blocks_read = read / (*stream)->buffer.getBlockSize();
+
     if (read != 0) {
-        (*stream)->provide(read / audio_b_size);
+        (*stream)->provide(blocks_read);
     }
 
-    return read_total / audio_b_size;
+    return blocks_read;
 }
 
 unsigned int WavPlayer::get_sample_rate() {

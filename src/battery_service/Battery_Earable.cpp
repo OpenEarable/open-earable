@@ -1,7 +1,7 @@
 #include "Battery_Earable.h"
 #include "Serial.h"
 
-#define CHARGING_THRD 200
+#define CHARGING_TRD 200
 
 Battery_Earable::Battery_Earable() {
 }
@@ -26,7 +26,7 @@ CharingState Battery_Earable::_update_charging_state() const {
 
     nrfx_power_usb_state_t usb_power = nrfx_power_usbstatus_get();
 
-    if (charging > CHARGING_THRD) return FULLY_CHARGED;
+    if (charging > CHARGING_TRD) return FULLY_CHARGED;
 
     if (usb_power == NRFX_POWER_USB_STATE_READY) return CHARGING;
 

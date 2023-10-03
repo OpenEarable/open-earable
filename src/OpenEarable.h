@@ -158,6 +158,9 @@ void data_callback(int id, unsigned int timestamp, uint8_t * data, int size) {
 }
 
 void config_callback(SensorConfigurationPacket *config) {
+    Serial.print("Configuration: ");
+    Serial.println(config->sensorId);
+    Serial.println(config->sampleRate);
     Recorder::config_callback(config);
     Configuration_Handler::config_callback(config);
 }
