@@ -1,4 +1,5 @@
 #include "Recorder.h"
+#include "WavRecorder.h"
 
 uint8_t PDM_BUFFER[pdm_b_size * pdm_b_count] __attribute__((aligned (16)));
 
@@ -118,6 +119,36 @@ void Recorder::config_callback(SensorConfigurationPacket *config) {
 
     // Make sure that pdm mic is not running already!
     recorder.stop();
+
+    // find the next available file name for the recording
+    const String recording_dir = "Recordings";
+
+    if (!sd_manager.exists(recording_dir)) sd_manager.mkdir(recording_dir);
+
+    ExFile file;
+    ExFile dir = sd_manager.sd->open(recording_dir);
+
+    char fileName[64];
+    char * split;
+
+    int n = 1;
+
+    // find highest Recording number
+    while (file = dir.openNextFile()) {
+        file.getName(fileName, sizeof(fileName));
+
+        split = strtok(fileName, "_");
+        if (strcmp(split,"Recording") == 0) {
+            split = strtok(NULL, "_");
+            n = max(n, atoi(split) + 1);
+        }
+    }
+
+    // file name of the new recording
+    String file_name = "/" + recording_dir + "/Recording_" + String(n) + "_" + String(millis()) + ".wav";
+
+    // set WaveRecorder
+    recorder.setTarget(new WavRecorder(file_name));
 
     // Start pdm mic
     recorder.record();

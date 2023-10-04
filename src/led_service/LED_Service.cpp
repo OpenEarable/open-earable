@@ -3,7 +3,7 @@
 
 void LED_Service::begin() {
     _ledService = new BLEService(ledServiceUuid);
-    _ledSetStateC = new BLECharacteristic(ledSetStatusUuid, BLEWrite, 3);
+    _ledSetStateC = new BLECharacteristic(ledSetStatusUuid, BLEWrite | BLERead, 3);
 
     BLE.setAdvertisedService(*_ledService);
     _ledService->addCharacteristic(*_ledSetStateC);

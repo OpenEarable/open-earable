@@ -45,6 +45,8 @@ public:
         _interface = new SensorManager_Earable();
         _battery = new Battery_Service();
 
+        sd_manager.begin();
+
         edge_ml_generic.set_config_callback(config_callback);
         //edge_ml_generic.set_data_callback(data_callback);
 
@@ -122,7 +124,7 @@ public:
         recorder.setSampleRate(sampleRate);
     };
 
-    void setGain(int gain) {
+    void setPDMGain(int gain) {
         pdm_mic.setGain(gain);
     };
 

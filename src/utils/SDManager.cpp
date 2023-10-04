@@ -9,17 +9,13 @@ SDManager::~SDManager() {
 }
 
 bool SDManager::begin() {
-    usage_count++;
-    if (ready) return true;
-    ready = true;
-    return sd->begin(SPI_CC, SPI_SPEED);
+    if (_available) return true;
+    _available = sd->begin(SPI_CC, SPI_SPEED);
+    return _available;
 }
 
 void SDManager::end() {
-    usage_count--;
-    if (usage_count > 0) return;
-    if (!ready) return;
-    ready = false;
+    if (!_available) return;
     if (_lastFile) {
         closeFile(_lastFile);
     }
@@ -27,6 +23,7 @@ void SDManager::end() {
 }
 
 ExFatFile SDManager::openFile(const String& name, bool write) {
+    if (!_available) begin();
     return write ? sd->open(name, FILE_WRITE) : sd->open(name, FILE_READ);
 }
 
@@ -37,6 +34,7 @@ void SDManager::closeFile(ExFatFile *file) {
 }
 
 bool SDManager::exists(const String& name) {
+    if (!_available) begin();
     return sd->exists(name);
 }
 

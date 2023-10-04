@@ -33,6 +33,8 @@ public:
 private:
     bool ready = false;
 
+    bool _available = false;
+
     int usage_count = 0;
 
     ExFatFile * _lastFile;

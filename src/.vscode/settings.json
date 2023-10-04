@@ -9,6 +9,7 @@
         "__locale": "cpp",
         "string": "cpp",
         "string_view": "cpp",
-        "__string": "cpp"
+        "__string": "cpp",
+        "istream": "cpp"
     }
 }

@@ -15,7 +15,7 @@ bool WAVWriter::begin() {
 
 void WAVWriter::end() {
     sd_manager.closeFile(&file);
-    sd_manager.end();
+    //sd_manager.end();
 }
 
 void WAVWriter::setSampleRate(int sampleRate) {

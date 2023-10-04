@@ -104,7 +104,6 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
                 setSource(new ToneGenerator(tone->frequency,tone->amplitude,(Waveform)(configuration.size-1)));
                 break;
             case 3:
-                Serial.println(configuration.size);
                 setSource(JinglePlayer::getJingle((Jingle) (configuration.size - 1)));
                 break;
             }

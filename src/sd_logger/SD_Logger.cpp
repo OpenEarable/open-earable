@@ -18,7 +18,7 @@ bool SD_Logger::begin() {
 }
 
 void SD_Logger::end() {
-    sd_manager.end();
+    //sd_manager.end();
 }
 
 void SD_Logger::set_name(String name) {
