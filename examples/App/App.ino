@@ -1,14 +1,15 @@
 /* 
- * This sketch allows you to connect your Earable to Edge-ML over Web Bluetooth.
+ * This sketch let's you control OpenEarable via the provided dashboard or edge-ml.org (embedded ML no-code framework).
  * 
- * app.edge-ml.org
+ * OpenEarable Dashboard: openearable.github.io/dashboard/
+ * edge-ml: app.edge-ml.org
  * 
- * Firmware-version: 1.0.0
- * Release-date: 23.08.2022
+ * Firmware-version: 1.3.0
+ * Release-date: 6.10.2023
 */
 
 #include "Arduino.h"
-#include "EdgeML_Earable.h"
+#include "OpenEarable.h"
 
 // Set DEBUG to true in order to enable debug print
 #define DEBUG false
@@ -17,14 +18,14 @@ void setup()
 {
 #if DEBUG
   Serial.begin(115200);
-  edge_ml_earable.debug(Serial);
+  open_earable.debug(Serial);
 #endif
 
-    edge_ml_earable.begin();
+    open_earable.begin();
 }
 
 void loop()
 {
   // Update and then sleep
-    edge_ml_earable.update();
+    open_earable.update();
 }
