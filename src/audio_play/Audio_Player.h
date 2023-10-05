@@ -11,6 +11,7 @@
 #include "utils/SDManager.h"
 
 #include "AudioSource.h"
+#include "OutputDevice.h"
 #include "utils/BufferedInputStream.h"
 #include "Equalizer.h"
 
@@ -40,13 +41,17 @@ public:
     void ble_configuration(WAVConfigurationPacket& configuration);
 
     void setSource(AudioSource * source);
+    void setDevice(OutputDevice * device);
 
     bool available();
     
     AudioSource * source;
+    OutputDevice * device;
 private:
     bool _running = false;
     bool _available = false;
+
+    int _sampleRate = 44100;
 
     //bool check_completed();
 };

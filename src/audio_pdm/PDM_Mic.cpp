@@ -88,7 +88,7 @@ bool PDM_Mic::begin() {
             nrf_pdm_clock_set(NRF_PDM_FREQ_4000K);
             break;
         default:
-            Serial.print("unsupported sample rate: ");
+            Serial.print("Error: Unsupported PDM sample rate: ");
             Serial.println(_sampleRate);
             return false; // unsupported
     }
@@ -103,7 +103,7 @@ bool PDM_Mic::begin() {
             break;
 
         default:
-            Serial.print("unsupported number of channels: ");
+            Serial.print("Error: Unsupported number of PDM channels: ");
             Serial.println(_channels);
             return false; // unsupported
     }

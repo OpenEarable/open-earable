@@ -3,10 +3,6 @@
 
 void i2s_irq_handler(void);
 
-sampling_mode file_mode = {NRF_I2S_MCK_32MDIV23, NRF_I2S_RATIO_32X};
-sampling_mode const_freq = {NRF_I2S_MCK_32MDIV11, NRF_I2S_RATIO_64X};
-
-
 I2S_Player::I2S_Player(bool use_eq) {
     this->use_eq = use_eq;
 
@@ -31,8 +27,9 @@ bool I2S_Player::consume() {
     return stream->available();
 }
 
-void I2S_Player::begin() {
-    if (_available) return;
+bool I2S_Player::begin() {
+    if (_available) return true;
+    if (!sample_rate) return false;
 
     //initializing i2s pins
     nrf_i2s_pins_set(NRF_I2S,
@@ -42,7 +39,6 @@ void I2S_Player::begin() {
                      digitalPinToPinName(_sdoutPin),
                      NC);
 
-    sampling_mode * mode = &file_mode;
     //if (!play_mode_file) mode = &const_freq;
 
 
@@ -53,8 +49,8 @@ void I2S_Player::begin() {
                                           NRF_I2S_ALIGN_LEFT,                 //Alignment of sample within a frame
                                           NRF_I2S_SWIDTH_16BIT,               //Sample width
                                           NRF_I2S_CHANNELS_LEFT,            //Enabled channels
-                                          mode->nrf_i2s_mck,                //Master clock generator setup
-                                          mode->nrf_i2s_ratio                  //MCK/LRCK ratio
+                                          clock.nrf_i2s_mck,                //Master clock generator setup
+                                          clock.nrf_i2s_ratio                  //MCK/LRCK ratio
     );
 
     // Original NRF_I2S_MCK_32MDIV3 and NRF_I2S_RATIO_256X  41667Hz
@@ -86,6 +82,8 @@ void I2S_Player::begin() {
     NRFX_IRQ_ENABLE(I2S_IRQn);
 
     _available = _i2s_config_status;
+
+    return _available;
 }
 
 void I2S_Player::end() {
@@ -130,10 +128,6 @@ void I2S_Player::i2s_interrupt() {
     }
 }
 
-void I2S_Player::setBuffer(uint8_t *buffer, int blockSize, int blockCount) {
-    stream->buffer.set_buffer(buffer, blockSize, blockCount);
-}
-
 CircularBlockBuffer *I2S_Player::get_buffer() {
     return &(stream->buffer);
 }
@@ -152,4 +146,37 @@ bool I2S_Player::is_running() {
     return _running;
 }
 
-I2S_Player i2s_player;
+int I2S_Player::setSampleRate(int _sampleRate) {
+    sample_rate = _sampleRate;
+    switch (_sampleRate)
+    {
+    case 16000:
+        clock = {NRF_I2S_MCK_32MDIV63, NRF_I2S_RATIO_32X};
+        break;
+    case 32000:
+        clock = {NRF_I2S_MCK_32MDIV31, NRF_I2S_RATIO_32X};
+        break;
+    case 41667:
+        clock = {NRF_I2S_MCK_32MDIV11, NRF_I2S_RATIO_64X};
+        break;
+    case 44100:
+        clock = {NRF_I2S_MCK_32MDIV23, NRF_I2S_RATIO_32X};
+        break;
+    case 62500:
+        clock = {NRF_I2S_MCK_32MDIV16, NRF_I2S_RATIO_32X};
+        break;
+    default:
+        Serial.print("Error: Unsupported I2S sampling rate: ");
+        Serial.println(_sampleRate);
+        sample_rate = 0;
+        break;
+    }
+
+    return _sampleRate;
+}
+
+int I2S_Player::getSampleRate() {
+    return sample_rate;
+}
+
+I2S_Player i2s_player(true);

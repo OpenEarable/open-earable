@@ -10,6 +10,7 @@
         "string": "cpp",
         "string_view": "cpp",
         "__string": "cpp",
-        "istream": "cpp"
+        "istream": "cpp",
+        "*.txt": "cpp"
     }
 }

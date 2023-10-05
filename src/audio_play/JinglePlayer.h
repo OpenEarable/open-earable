@@ -11,7 +11,8 @@ enum Jingle {
     ALARM,
     PING,
     OPEN,
-    CLOSE
+    CLOSE,
+    CLICK
 };
 
 class JinglePlayer : public AudioSource {
@@ -34,7 +35,7 @@ public:
 private:
     bool _available = false;
 
-    int _preload_blocks = 6; // 12
+    const int _preload_blocks = 6; // 12
 
     void preload_buffer();
 

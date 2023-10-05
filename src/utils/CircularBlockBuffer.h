@@ -62,7 +62,7 @@ private:
     volatile int _underflow_count = 0;
     volatile int _overflow_count = 0;
 
-    volatile int _buffer_fill = _blockCount;
+    volatile int _buffer_fill = 0;
 };
 
 

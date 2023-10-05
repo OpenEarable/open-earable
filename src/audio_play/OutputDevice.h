@@ -5,9 +5,18 @@
 
 class OutputDevice : public Consumer {
 public:
+    virtual bool begin() = 0;
+    virtual void end() = 0;
     virtual void start() = 0;
     virtual void stop() = 0;
+    virtual bool available() = 0;
     //BufferedInputStream * stream;
+
+    virtual int setSampleRate(int _sampleRate) = 0;
+    virtual int getSampleRate() = 0;
+    void setBuffer(uint8_t * buffer, int blockSize, int blockCount) {
+        stream->buffer.set_buffer(buffer, blockSize, blockCount);
+    }
 };
 
 #endif

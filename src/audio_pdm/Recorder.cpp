@@ -97,6 +97,7 @@ void Recorder::setDevice(InputDevice * device) {
 
 void Recorder::setTarget(AudioTarget * target) {
     this->target = target;
+    if (!target) return;
     target->setSampleRate(_sampleRate);
     if (device) this->target->setStream(&(device->stream));
 }

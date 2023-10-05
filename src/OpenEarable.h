@@ -64,6 +64,7 @@ public:
         bool success = recorder.begin();
         if (_debug) success ? _debug->println("PDM Ready!") : _debug->println("PDM FAIL!");
 
+        audio_player.setDevice(&i2s_player);
         success = audio_player.begin();
         if (_debug) success ? _debug->println("Player Ready!") : _debug->println("Player FAIL!");
 
@@ -160,9 +161,6 @@ void data_callback(int id, unsigned int timestamp, uint8_t * data, int size) {
 }
 
 void config_callback(SensorConfigurationPacket *config) {
-    Serial.print("Configuration: ");
-    Serial.println(config->sensorId);
-    Serial.println(config->sampleRate);
     Recorder::config_callback(config);
     Configuration_Handler::config_callback(config);
 }

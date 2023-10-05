@@ -22,19 +22,35 @@ bool Audio_Player::available() {
 
 bool Audio_Player::begin() {
     if (_available) return true;
-    i2s_player.setBuffer(AUDIO_BUFFER, audio_b_size, audio_b_count);
-    if (!source) return false;
+    if (!source || !device) return false;
+    device->setBuffer(AUDIO_BUFFER, audio_b_size, audio_b_count);
     source->begin();
+    //_sampleRate = source.get
     if (!source->available()) return false;
-    i2s_player.begin();
-    _available = i2s_player.available();
+    _sampleRate = device->setSampleRate(_sampleRate);
+    device->begin();
+    _available = device->available();
     if (!_available) source->end();
     return _available;
 }
 
 void Audio_Player::setSource(AudioSource * source) {
     this->source = source;
-    if (source) source->setStream(&(i2s_player.stream));
+    if (!source || !device) return;
+    device->setSampleRate(_sampleRate);
+    source->setStream(&(device->stream));
+}
+
+void Audio_Player::setDevice(OutputDevice * device) {
+    this->device = device;
+    if (!device) return;
+    _sampleRate = device->setSampleRate(_sampleRate);
+
+    if (source) {
+        source->setStream(&(device->stream));
+        //source->setSampleRate(_sampleRate);
+        // TODO: device set samplerate
+    }
 }
 
 void Audio_Player::play() {
@@ -43,7 +59,8 @@ void Audio_Player::play() {
     if (!_available) begin();
 
     if (!source->available()) {
-        i2s_player.reset_buffer();
+        //device->reset_buffer();
+        //source->stream.buffer->reset();
 
         source->begin();
         if (!source->available()) return;
@@ -51,14 +68,14 @@ void Audio_Player::play() {
 
     _running = true;
 
-    i2s_player.start();
+    device->start();
 }
 
 void Audio_Player::end() {
     if (!_available) return;
 
     stop();
-    i2s_player.end();
+    device->end();
 
     _available = false;
 }
@@ -66,14 +83,14 @@ void Audio_Player::end() {
 void Audio_Player::pause() {
     if (!_available || !_running) return;
     _running = false;
-    i2s_player.stop();
+    device->stop();
 }
 
 void Audio_Player::stop() {
     if (!_available || !_running) return;
     _running = false;
-    i2s_player.stop();
-    i2s_player.end();
+    device->stop();
+    device->end();
     source->end();
 }
 
@@ -87,6 +104,7 @@ void Audio_Player::stop() {
 
 void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
     Tone * tone;
+
     switch(configuration.state) {
     case 1:
         if (configuration.size) {
@@ -101,6 +119,7 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
                 break;
             case 2:
                 tone = (Tone*)(configuration.name);
+                Serial.println(tone->amplitude);
                 setSource(new ToneGenerator(tone->frequency,tone->amplitude,(Waveform)(configuration.size-1)));
                 break;
             case 3:
@@ -118,6 +137,8 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
         break;
     }
 }
+
+
 
 WAVConfigurationPacket Audio_Player::make_wav_config() {
     return source ? source->get_config() : WAVConfigurationPacket();

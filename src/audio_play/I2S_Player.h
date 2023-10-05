@@ -18,13 +18,10 @@
 #define NC 0xFFFFFFFF   //Not connected
 #define WORD_SIZE 4     // 1 word = 4 bytes
 
-struct sampling_mode {
+struct clock_ratio {
     nrf_i2s_mck_t nrf_i2s_mck;
     nrf_i2s_ratio_t nrf_i2s_ratio;
 };
-
-extern sampling_mode file_mode;
-extern sampling_mode const_freq;
 
 class I2S_Player : public OutputDevice {
 public:
@@ -34,18 +31,20 @@ public:
     Equalizer * eq;
 
     void setBlockBufferSizes(int blockSize, int blockCount);
-    void setBuffer(uint8_t * buffer, int blockSize, int blockCount);
 
     void start() override;
     void stop() override;
 
     void reset_buffer();
 
-    void begin();
-    void end();
+    bool begin() override;
+    void end() override;
 
-    bool available();
+    bool available() override;
     void clear_buffer();
+
+    int setSampleRate(int _sampleRate) override;
+    int getSampleRate() override;
 
     CircularBlockBuffer * get_buffer();
 
@@ -64,6 +63,9 @@ private:
     bool consume() override;
 
     bool use_eq = false;
+
+    int sample_rate;
+    clock_ratio clock = {NRF_I2S_MCK_32MDIV23, NRF_I2S_RATIO_32X};
 };
 
 extern I2S_Player i2s_player;
