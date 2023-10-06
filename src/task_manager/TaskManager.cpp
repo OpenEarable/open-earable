@@ -7,7 +7,7 @@ void TaskManager::update() {
     _buffer_flag = true;
 
     const int _min_blocks = 2;
-    const int _max_blocks = 2;
+    const int _max_blocks = 4;
     //const float STD = 0.5;
 
     /*Serial.print("Play: ");

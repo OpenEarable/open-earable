@@ -87,9 +87,10 @@ void Audio_Player::pause() {
 }
 
 void Audio_Player::stop() {
-    if (!_available || !_running) return;
+    if (!_available) return;
+    if (_running) device->stop();
     _running = false;
-    device->stop();
+    
     device->end();
     source->end();
 }

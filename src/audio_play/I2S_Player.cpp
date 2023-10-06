@@ -179,4 +179,4 @@ int I2S_Player::getSampleRate() {
     return sample_rate;
 }
 
-I2S_Player i2s_player(true);
+I2S_Player i2s_player(false);
