@@ -1,0 +1,28 @@
+
+
+Tests:
+
+###########
+EdgeML Inactive
+Bridge normal processing
+###########
+
+Only PDM 6                Pass
+Only Play                 Pass
+
+PDM 4 & Play              Pass
+PDM 6 & Play              FAIL
+
+
+
+
+###########
+Separate benchmark
+###########
+
+PDM 6 & Play & 15ms        FAIL
+PDM 6 & Play & 10ms        FAIL
+
+PDM 6 & Play & 5ms         Pass
+
+PDM 6 & Play & 8ms         Pass         After optimization

@@ -1,1 +1,0 @@
-For the Earable use the EdgeML-Earable code.
