@@ -74,11 +74,11 @@ To fully integrate the optimized SPI files, changes to the Arduino Nano 33 BLE b
 
 6. Locate the existing `SPI` library folder within this directory. It needs to be swapped with the provided folder named "SPI" in "resources/spi_files" found in this repository.
 
-7. Similarly, navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/cores/arduino/mbed/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/drivers/include`.
+7. Similarly, navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/cores/arduino/mbed/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/drivers`.
 
-8. In this directory, locate the file named `nrfx_spi.h` and replace it with the provided `nrfx_spi.h` file from the `resources/spi_files` folder of this repository.
+8. In the subdirectory `include`, locate the file named `nrfx_spi.h` and replace it with the provided `nrfx_spi.h` file from the `resources/spi_files` folder of this repository.
 
-9. In the same directory, replace the `nrfx_spim.c` file with the `nrfx_spim.c` file provided under `resources/spi_files` of this repository.
+9. In the subdirectory `src`, place the `nrfx_spim.c` file provided under `resources/spi_files` of this repository.
 
 ### sdFat Library Setup
 One of the library dependencies is the SdFat library from Bill Greiman.
@@ -208,37 +208,88 @@ With this characteristic the parsing scheme information can be requested from th
 The parsing scheme is needed to convert a received data package to usable values.
 More information about parsing the scheme can be found in the [EdgeML-Arduino](https://github.com/edge-ml/EdgeML-Arduino) library.
 
-#### WAV Play Characteristic
+#### Audio Play Service
+The Audio Player service consists of two characteristics. One to set the audio source and one two controll the playing state of the player. To properly set a new source.
+
+#### Source Characteristic
 Permissions: Read/Write
 
-This characteristic is used to send commands to the audio WAV player.
+This characteristic is used to set the source of the audio player. Writing to this characteristic will result in stopping the player and playing from the new source.
 
+The first byte of the characteristic indicates the source type being:
+- 0: Idle
+- 1: Mono WAV File from SD Card
+- 2: Single Tone between 300-22000 Hz
+- 3: Jingle (chosen from a list of predefined sounds)
 
-WAV Play Package:
+The meaning of the remaining remaining bytes depends on the source type and is given for each type below.
 
+Play Package:
+
+##### Idle
 | Byte 0 | Byte 1    | Byte 2-X     |
 |--------|-----------|--------------|
-| State  | Size      | Name         |
+| 0      | -         | -            |
 | uint8  | uint8     | char array   |
 
+##### WAV File
+| Byte 0 | Byte 1      | Byte 2-X     |
+|--------|-------------|--------------|
+| 1      | name length | file name    |
+| uint8  | uint8       | char array   |
 
-State: Controls player
-- 0: Stop/End
-- 1: Start
+##### Constant Tone
+| Byte 0 | Byte 1    | Byte 2-6     | Byte 7-11        |
+|--------|-----------|--------------|------------------|
+| 2      | Waveform  | frequency    | amplitude [0, 1] |
+| uint8  | uint8     | float        | float            |
+
+Available Waveforms are:
+- 0: Sine
+- 1: Square
+- 2: Triangle
+- 3: Saw
+
+##### Jingle Player
+| Byte 0 | Byte 1    | Byte 2-X     |
+|--------|-----------|--------------|
+| 3      | ID        | -            |
+| uint8  | uint8     | char array   |
+
+Jingle IDs:
+- 1: Notification
+- 2: Success
+- 3: Error
+- 4: Alarm
+- 5: Ping
+- 6: Open 
+- 7: Close
+- 8: Click
+
+#### State Characteristic
+Permissions: Read/Write/Notify
+Sets the state of the player.
+
+State (uint8):
+- 0: Undefined (Idle)
+- 1: Play
 - 2: Pause
 - 3: Unpause
-
-Additionally, when either stopping or starting a name for an audio file can be transmitted as well.
-Size: Size of char array.<br>
-Name: Name of file.
-
-
-Changing the audio file name is optional! If audio file should not change set Size to 0.
 
 #### Battery Level Characteristic
 Permissions: Read/Notify
 
 Read the current battery level. The read value is a 1 byte int from 0-100 representing battery charge in percent.
+
+#### Battery State Characteristic
+Permissions: Read/Notify
+
+Read the current charging state:
+
+The read value is a 1 byte uint8
+- 0: battery
+- 1: charging
+- 2: fully charged
 
 #### Button State Characteristic
 Permissions: Read/Notify
@@ -252,19 +303,14 @@ The states are:
 - 2: HELD
 
 #### LED Set State
-Permissions: Write
+Permissions: Read/Write
 
-Set LED state as 1 byte int.
+Set LED state as 3 byte RGB value.
 
-The states are:
-- 0: OFF
-- 1: RED
-- 2: GREEN
-- 3: BLUE
-- 4: CYAN
-- 5: YELLOW
-- 6: MAGENTA
-- 7: WHITE
+| Byte 0    | Byte 1      | Byte 2-X     |
+|-----------|-------------|--------------|
+| Red value | Green value | Blue value   |
+| uint8     | uint8       | uint8        |
 
 ## Firmware Internals
 
@@ -349,7 +395,7 @@ Sets the gain of the PDM Mic. The default value is `20` and the maximum is `80`.
 Instead of saving the data to an SD card it can also be sent via the USB Serial port.
 The raw PDM stream consisting of shorts will be sent via USB Serial if enabled.
 
-By default seral sending is disabled.
+By default serial sending is disabled.
 
 #### `void configure_sensor(SensorConfigurationPacket& config)`
 
@@ -435,20 +481,6 @@ Most recommended are:
 - 41667Hz
 - 62500Hz
 
-#### PLAYER
-Sensor ID: 3
-
-The Player sensor controls the playback of audio.
-The sample rate files serves multiple purposes depending on its value:
-
-- 0: Stops the current playback
-- 1: Play the currently set file
-- 2: Pause
-- 3: Unpause
-- 300-22000: Plays a constant tone with the sample rate representing the integer frequency. (Min. 300Hz, max. 22000kHz)
-
-NOTE: Playing a tone takes ~1.5 seconds to initialize and may disturb a running audio recording
-
 #### CONFIGURATION
 Sensor ID: 4
 
@@ -458,13 +490,7 @@ This is NECESSARY if the audio elements are supposed to run alongside the other 
 The sample rate represents the chosen Configuration Number.
 
 Here the latency field becomes important. It controls the activity of the audio playback.<br>
-The following cases for latency can be distinguished:
-- 0: Ignore audio player (doesn't stop current playback if active)
-- 1: Stop playback
-- 2: Play current file
-- 3: Pause
-- 4: Unpause
-- 300-22000: Plays a constant tone with the sample rate representing the integer frequency. (Min. 300Hz, max. 22000kHz)
+The latency property will be ignored.
 
 Note: Once a new configuration is received all sensors will be stopped before the new configuration is started.
 
@@ -490,7 +516,7 @@ Available configurations
 | 15                   | -     | -      | 16000 Hz |
 
 
-__NOTE: Config 1 and 2 are unstable if used together with the Audio playback__
+__NOTE: Config 1 and 2 may be unstable if used together with the Audio playback__
 
 ### Button
 
@@ -531,30 +557,12 @@ It includes the following functionality:
 
 #### `void set_color(Color col);
 
-Set color of LED according to Color enum.
+Set the RGB color of the LED.
 
 ```c++
-earable_led.set_color(RED);
+RGBColor red = {255,0,0};
+earable_led.set_color(red);
 ```
-
-Available Colors:
-
-```c++
-enum Color {
-    OFF,
-    GREEN,
-    BLUE,
-    RED,
-    CYAN,
-    YELLOW,
-    MAGENTA,
-    WHITE
-};
-```
-
-#### `void invert();
-
-Invert color state.
 
 ## Cite
 ```bib

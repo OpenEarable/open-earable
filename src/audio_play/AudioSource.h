@@ -15,6 +15,7 @@ struct __attribute__((packed)) WAVConfigurationPacket {
 class AudioSource : public Provider {
 public:
     virtual WAVConfigurationPacket get_config() = 0;
+    virtual float getSampleRate() = 0;
 };
 
 #endif

@@ -125,7 +125,7 @@ int JinglePlayer::provide(int n) {
     return cont;
 }
 
-unsigned int JinglePlayer::get_sample_rate() {
+float JinglePlayer::getSampleRate() {
     if (!_available) return -1;
     return 44100;
 }

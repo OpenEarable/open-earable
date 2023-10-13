@@ -25,7 +25,7 @@ bool Audio_Player::begin() {
     if (!source || !device) return false;
     device->setBuffer(AUDIO_BUFFER, audio_b_size, audio_b_count);
     source->begin();
-    //_sampleRate = source.get
+    _sampleRate = source->getSampleRate();
     if (!source->available()) return false;
     _sampleRate = device->setSampleRate(_sampleRate);
     device->begin();
@@ -37,20 +37,17 @@ bool Audio_Player::begin() {
 void Audio_Player::setSource(AudioSource * source) {
     this->source = source;
     if (!source || !device) return;
+    _sampleRate = source->getSampleRate();
     device->setSampleRate(_sampleRate);
     source->setStream(&(device->stream));
 }
 
 void Audio_Player::setDevice(OutputDevice * device) {
     this->device = device;
-    if (!device) return;
+    if (!device || !source) return;
+    _sampleRate = source->getSampleRate();
     _sampleRate = device->setSampleRate(_sampleRate);
-
-    if (source) {
-        source->setStream(&(device->stream));
-        //source->setSampleRate(_sampleRate);
-        // TODO: device set samplerate
-    }
+    source->setStream(&(device->stream));
 }
 
 void Audio_Player::play() {

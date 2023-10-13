@@ -49,10 +49,8 @@ bool LED::init() {
     return true;
 }
 
-void LED::set_color(const uint8_t col[3]) {
+void LED::set_color(const RGBColor col) {
     seq0_values = {col[0],col[1],col[2],0};
 }
 
 LED earable_led(EPIN_RGB_R, EPIN_RGB_G, EPIN_RGB_B);
-
-

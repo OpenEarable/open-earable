@@ -92,7 +92,7 @@ unsigned int WavPlayer::sd_to_buffer(int multi) {
     return blocks_read;
 }
 
-unsigned int WavPlayer::get_sample_rate() {
+float WavPlayer::getSampleRate() {
     if (!_available) return -1;
     return info.sampleRate;
 }
