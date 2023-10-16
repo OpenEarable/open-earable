@@ -19,14 +19,17 @@ void WAVWriter::end() {
 }
 
 void WAVWriter::setSampleRate(int sampleRate) {
-    _sampleRate = sampleRate;
-    _byteRate = _channels * _sampleRate * _bitsPerSample/8;
+    /*_sampleRate = sampleRate;
+    _byteRate = _channels * _sampleRate * _bitsPerSample/8;*/
+    info.setSampleRate(sampleRate);
 }
 
 void WAVWriter::setChannels(int channels) {
-    _channels = channels;
+    /*_channels = channels;
     _byteRate = _channels * _sampleRate * _bitsPerSample/8;
-    _blockAlign = _channels * _bitsPerSample/8;
+    _blockAlign = _channels * _bitsPerSample/8;*/
+
+    info.setNumChannels(channels);
 }
 
 void WAVWriter::setName(String name) {
@@ -39,11 +42,11 @@ bool WAVWriter::writeHeader() {
 
     if (!file) return false;
 
-    uint32_t subChunk2Size = 0;
-    uint32_t chunkSize = 36;
+    //uint32_t subChunk2Size = 0;
+    //uint32_t chunkSize = 36;
 
     file.seekSet(0);
-    file.write(_chunkID,4);                  // Offset 0
+    /*file.write(_chunkID,4);                  // Offset 0
     file.write((byte*)&chunkSize,4);         // Offset 4
     file.write(_format,4);                   // Offset 8
     file.write(_subChunk1ID,4);              // Offset 12
@@ -56,30 +59,34 @@ bool WAVWriter::writeHeader() {
     file.write((byte*)&_bitsPerSample,2);    // Offset 34
     file.write(_subChunk2ID,4);              // Offset 36
     file.write((byte*)&subChunk2Size,4);     // Offset 40
+    */
+
+   file.write((byte*)&info,sizeof(info));
 
     sd_manager.closeFile(&file);
     return true;
 }
 
 bool WAVWriter::writeHeaderSizes() {
-    sd_manager.write_block_at(&file, 40, (byte*)&_subChunk2Size,4);
+    sd_manager.write_block_at(&file, 40, (byte*)&info.subchunk2Size,4);
 
-    _chunkSize = 36 + _subChunk2Size;
-    sd_manager.write_block_at(&file, 4, (byte*)&_chunkSize,4);
+    info.chunkSize = 36 + info.subchunk2Size;
+    sd_manager.write_block_at(&file, 4, (byte*)&info.chunkSize,4);
 
     return true;
 }
 
 bool WAVWriter::writeChunk(uint8_t *block, int size) {
     unsigned int written = sd_manager.write_block(&file, block, size);
-    _subChunk2Size += written;
+    info.subchunk2Size += written;
     return written;
 }
 
 bool WAVWriter::startRecording() {
     file = sd_manager.openFile(_name);
-    _subChunk2Size = 0;
-    _chunkSize = 36;
+
+    info.subchunk2Size = 0;
+    info.chunkSize = 36;
     return file;
 }
 

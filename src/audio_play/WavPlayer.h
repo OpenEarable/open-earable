@@ -40,6 +40,7 @@ private:
     int _preload_blocks = 6; // 12
 
     bool sd_setup();
+    bool check_format();
 
     void preload_buffer();
     unsigned int sd_to_buffer(int multi);

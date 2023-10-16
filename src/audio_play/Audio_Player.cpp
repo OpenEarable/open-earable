@@ -26,6 +26,8 @@ bool Audio_Player::begin() {
     device->setBuffer(AUDIO_BUFFER, audio_b_size, audio_b_count);
     source->begin();
     _sampleRate = source->getSampleRate();
+    Serial.print("sampleRate: ");
+    Serial.println(_sampleRate);
     if (!source->available()) return false;
     _sampleRate = device->setSampleRate(_sampleRate);
     device->begin();

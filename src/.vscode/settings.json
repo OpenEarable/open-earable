@@ -11,6 +11,7 @@
         "string_view": "cpp",
         "__string": "cpp",
         "istream": "cpp",
-        "*.txt": "cpp"
+        "*.txt": "cpp",
+        "cstddef": "cpp"
     }
 }

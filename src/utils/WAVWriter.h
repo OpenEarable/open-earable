@@ -5,6 +5,8 @@
 
 #include "SDManager.h"
 
+#include "WaveInfo.h"
+
 
 class WAVWriter {
 public:
@@ -32,7 +34,7 @@ private:
     String _name = "Recording.wav";
 
     // Wav Header def
-    char _chunkID[4] = {'R', 'I', 'F', 'F'};
+    /*char _chunkID[4] = {'R', 'I', 'F', 'F'};
     char _format[4] = {'W', 'A', 'V', 'E'};
     char _subChunk1ID[4] = {'f', 'm', 't', ' '};
     uint16_t _audioFormat = 1; // indicates compression
@@ -53,7 +55,9 @@ private:
     uint32_t _subChunk2Size = 0;
     uint32_t _chunkSize = 36;
 
-    unsigned int _header_size = 44;
+    unsigned int _header_size = 44;*/
+
+    WaveInfo info;
 
     bool writeHeaderSizes();
 };
