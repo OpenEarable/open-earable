@@ -4,7 +4,6 @@
 #include "Arduino.h"
 #define PCM 1
 
-//#pragma pack (44)
 struct WaveInfo {
     char chunkID[4] = {'R', 'I', 'F', 'F'};
     uint32_t chunkSize = 36;

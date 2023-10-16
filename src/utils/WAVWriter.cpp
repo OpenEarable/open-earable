@@ -42,26 +42,9 @@ bool WAVWriter::writeHeader() {
 
     if (!file) return false;
 
-    //uint32_t subChunk2Size = 0;
-    //uint32_t chunkSize = 36;
-
     file.seekSet(0);
-    /*file.write(_chunkID,4);                  // Offset 0
-    file.write((byte*)&chunkSize,4);         // Offset 4
-    file.write(_format,4);                   // Offset 8
-    file.write(_subChunk1ID,4);              // Offset 12
-    file.write((byte*)&_subChunk1Size,4);    // Offset 16
-    file.write((byte*)&_audioFormat,2);      // Offset 20
-    file.write((byte*)&_channels,2);         // Offset 22
-    file.write((byte*)&_sampleRate,4);       // Offset 24
-    file.write((byte*)&_byteRate,4);         // Offset 28
-    file.write((byte*)&_blockAlign,2);       // Offset 32
-    file.write((byte*)&_bitsPerSample,2);    // Offset 34
-    file.write(_subChunk2ID,4);              // Offset 36
-    file.write((byte*)&subChunk2Size,4);     // Offset 40
-    */
 
-   file.write((byte*)&info,sizeof(info));
+    file.write((byte*)&info,sizeof(info));
 
     sd_manager.closeFile(&file);
     return true;
