@@ -19,16 +19,10 @@ void WAVWriter::end() {
 }
 
 void WAVWriter::setSampleRate(int sampleRate) {
-    /*_sampleRate = sampleRate;
-    _byteRate = _channels * _sampleRate * _bitsPerSample/8;*/
     info.setSampleRate(sampleRate);
 }
 
 void WAVWriter::setChannels(int channels) {
-    /*_channels = channels;
-    _byteRate = _channels * _sampleRate * _bitsPerSample/8;
-    _blockAlign = _channels * _bitsPerSample/8;*/
-
     info.setNumChannels(channels);
 }
 
@@ -62,7 +56,7 @@ bool WAVWriter::writeHeaderSizes() {
 bool WAVWriter::writeChunk(uint8_t *block, int size) {
     unsigned int written = sd_manager.write_block(&file, block, size);
     info.subchunk2Size += written;
-    return written;
+    return written == size;
 }
 
 bool WAVWriter::startRecording() {

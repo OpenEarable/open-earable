@@ -34,6 +34,10 @@ private:
     bool _available = false;
 
     ExFatFile * _lastFile;
+
+    bool sd_inserted = false;
+
+    static void _read_sd_state();
 };
 
 extern SDManager sd_manager;
