@@ -11,13 +11,16 @@ class Play_Service {
 public:
     void begin();
 private:
-    BLEService * _wavPlayService{};
-    BLECharacteristic * _wavPlayC{};
+    BLEService * _wavPlayService;
+    BLECharacteristic * _wavPlayC;
+    BLECharacteristic * _playerStateC;
 
-    static BLECharacteristic * _wavPlayC_static;
+    //static BLECharacteristic * _wavPlayC_static;
     static WAVConfigurationPacket _current;
+    static uint8_t _player_state;
 
     void static receiveWavConfig(BLEDevice central, BLECharacteristic characteristic);
+    void static receivePlayerState(BLEDevice central, BLECharacteristic characteristic);
 };
 
 extern Play_Service play_service;

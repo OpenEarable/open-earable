@@ -142,7 +142,6 @@ WAVConfigurationPacket ToneGenerator::get_config() {
     String _name = String(_tone.frequency) + "Hz";
 
     WAVConfigurationPacket wav_packet;
-    wav_packet.state = 0;
     wav_packet.size = _name.length();
 
     for (int i=0; i<_name.length(); i++) {
