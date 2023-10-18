@@ -5,16 +5,7 @@
 #include "Earable_Pins.h"
 #include <nrfx_pwm.h>
 
-/*enum Color {
-    OFF,
-    GREEN,
-    BLUE,
-    RED,
-    CYAN,
-    YELLOW,
-    MAGENTA,
-    WHITE
-};*/
+typedef uint8_t RGBColor[3];
 
 class LED {
 public:
@@ -22,8 +13,7 @@ public:
 
     bool init();
 
-    //void set_color(Color col);
-    void set_color(const uint8_t col[3]);
+    void set_color(const RGBColor col);
 
 private:
     int _r,_g,_b;

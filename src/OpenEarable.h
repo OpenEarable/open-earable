@@ -11,12 +11,14 @@
 #include "led_service/LED_Service.h"
 
 #include <audio_pdm/PDM_Mic.h>
-#include <audio_pdm/Recorder.h>
 #include <audio_pdm/WavRecorder.h>
+#include <audio_pdm/Recorder.h>
+
+#include <audio_play/WavPlayer.h>
+#include <audio_play/JinglePlayer.h>
+#include <audio_play/ToneGenerator.h>
 
 #include <audio_play/Audio_Player.h>
-#include <audio_play/WavPlayer.h>
-#include <audio_play/ToneGenerator.h>
 
 #include <custom_sensor/SensorManager_Earable.h>
 #include <configuration_handler/Configuration_Handler.h>

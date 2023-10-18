@@ -17,9 +17,9 @@ bool WavPlayer::begin() {
 
     if (!_available) return false;
 
-    // read info
-    _cur_read_sd = sizeof(info);
-    sd_manager.read_block(&_file, (uint8_t*)&info, sizeof(info));
+    _available = check_format();
+
+    if (!_available) return false;
 
     preload_buffer();
 
@@ -63,8 +63,48 @@ int WavPlayer::provide(int n) {
 
 bool WavPlayer::sd_setup() {
     if(!sd_manager.begin()) return false;
-    open_file();
-    return _file.isOpen();
+    return open_file();
+}
+
+bool WavPlayer::check_format() {
+    if(!sd_manager.begin()) return false;
+    if (!_file.isOpen() || !open_file()) return false;
+    
+    // read info
+    _cur_read_sd = sizeof(info);
+    sd_manager.read_block(&_file, (uint8_t*)&info, sizeof(info));
+
+    for (int i = 0; i < 4; i++) {
+        if (info.chunkID[i] != PLAYER_FORMAT.chunkID[i]
+        || info.format[i] != PLAYER_FORMAT.format[i]
+        || info.subchunk1ID[i] != PLAYER_FORMAT.subchunk1ID[i]) {
+            Serial.println("Error: The Audio Player requires the file format to be WAV!");
+            return false;
+        }
+    }
+
+    if (info.numChannels != PLAYER_FORMAT.numChannels) {
+        Serial.print("Error: The Audio Player requires the number of channels to be ");
+        Serial.print(PLAYER_FORMAT.numChannels);
+        Serial.println("!");
+        return false;
+    }
+
+    if (info.sampleRate != PLAYER_FORMAT.sampleRate) {
+        Serial.print("Error: The Audio Player requires the sample rate to be ");
+        Serial.print(PLAYER_FORMAT.sampleRate);
+        Serial.println("!");
+        return false;
+    }
+
+    if (info.formatTag != PLAYER_FORMAT.formatTag) {
+        Serial.print("Error: The Audio Player requires the format tag to be ");
+        Serial.print(PLAYER_FORMAT.formatTag);
+        Serial.println(" (PCM)!");
+        return false;
+    }
+
+    return true;
 }
 
 void WavPlayer::preload_buffer() {
@@ -92,7 +132,7 @@ unsigned int WavPlayer::sd_to_buffer(int multi) {
     return blocks_read;
 }
 
-unsigned int WavPlayer::get_sample_rate() {
+float WavPlayer::getSampleRate() {
     if (!_available) return -1;
     return info.sampleRate;
 }
@@ -113,9 +153,7 @@ bool WavPlayer::open_file() {
 WAVConfigurationPacket WavPlayer::get_config() {
     WAVConfigurationPacket wav_packet;
 
-    wav_packet.state = 0;
     wav_packet.size = _name.length();
-
     memcpy(wav_packet.name, _name.c_str(), _name.length());
 
     /*for (int i=0; i<_name.length(); i++) {

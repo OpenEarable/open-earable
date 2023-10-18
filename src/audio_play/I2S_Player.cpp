@@ -150,20 +150,36 @@ int I2S_Player::setSampleRate(int _sampleRate) {
     sample_rate = _sampleRate;
     switch (_sampleRate)
     {
-    case 16000:
+    case 16000: case (int)1e6/63:
         clock = {NRF_I2S_MCK_32MDIV63, NRF_I2S_RATIO_32X};
         break;
-    case 32000:
+    case 32000: case (int)1e6/31:
         clock = {NRF_I2S_MCK_32MDIV31, NRF_I2S_RATIO_32X};
         break;
     case 41667:
-        clock = {NRF_I2S_MCK_32MDIV11, NRF_I2S_RATIO_64X};
+        clock = {NRF_I2S_MCK_32MDIV3, NRF_I2S_RATIO_256X};
         break;
-    case 44100:
+    case 44100: case (int)1e6/23:
         clock = {NRF_I2S_MCK_32MDIV23, NRF_I2S_RATIO_32X};
+        //clock = {NRF_I2S_MCK_32MDIV15, NRF_I2S_RATIO_48X};
         break;
-    case 62500:
-        clock = {NRF_I2S_MCK_32MDIV16, NRF_I2S_RATIO_32X};
+    case 50000:
+        clock = {NRF_I2S_MCK_32MDIV10, NRF_I2S_RATIO_64X};
+        break;
+    case (int)1e6/18: //55555
+        //clock = {NRF_I2S_MCK_32MDIV10, NRF_I2S_RATIO_64X};
+        clock = {NRF_I2S_MCK_32MDIV6, NRF_I2S_RATIO_96X};
+        break;
+    // not working for some reason
+    /*case 62500:
+        //clock = {NRF_I2S_MCK_32MDIV10, NRF_I2S_RATIO_64X};
+        clock = {NRF_I2S_MCK_32MDIV4, NRF_I2S_RATIO_128X};
+        break;*/
+    case (int)1e6/15:
+        clock = {NRF_I2S_MCK_32MDIV5, NRF_I2S_RATIO_96X};
+        break;
+    case (int)1e6/12:
+        clock = {NRF_I2S_MCK_32MDIV3, NRF_I2S_RATIO_128X};
         break;
     default:
         Serial.print("Error: Unsupported I2S sampling rate: ");
@@ -172,7 +188,7 @@ int I2S_Player::setSampleRate(int _sampleRate) {
         break;
     }
 
-    return _sampleRate;
+    return sample_rate;
 }
 
 int I2S_Player::getSampleRate() {

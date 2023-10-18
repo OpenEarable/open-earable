@@ -15,13 +15,13 @@ float saw(float f) {
     return f / pi - (f > pi ? 2 : 0);
 }
 
-ToneGenerator::ToneGenerator(float frequency, float amplitude, Waveform type) {
+ToneGenerator::ToneGenerator(float frequency, float amplitude, Waveform type, float sample_rate) : _sample_rate(sample_rate), _frequency_high(sample_rate/2) {
     set_frequency(frequency);
     set_amplitude(amplitude);
     set_waveform(type);
 }
 
-ToneGenerator::ToneGenerator(Tone (*modulation)(), int call_every, Waveform type) {
+ToneGenerator::ToneGenerator(Tone (*modulation)(), int call_every, Waveform type, float sample_rate) : _sample_rate(sample_rate), _frequency_high(sample_rate/2) {
     _modulation = modulation;
     this->call_every = call_every;
     set_waveform(type);
@@ -58,7 +58,6 @@ void ToneGenerator::set_waveform(Waveform type) {
         wave = sinf;
         break;
     }
-    
 }
 
 bool ToneGenerator::begin() {
@@ -135,11 +134,14 @@ int ToneGenerator::get_min_frequency() {
     return _frequency_low;
 }
 
+float ToneGenerator::getSampleRate() {
+    return _sample_rate;
+}
+
 WAVConfigurationPacket ToneGenerator::get_config() {
     String _name = String(_tone.frequency) + "Hz";
 
     WAVConfigurationPacket wav_packet;
-    wav_packet.state = 0;
     wav_packet.size = _name.length();
 
     for (int i=0; i<_name.length(); i++) {

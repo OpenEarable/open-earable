@@ -30,7 +30,8 @@ public:
 
     WAVConfigurationPacket get_config() override;
 
-    unsigned int get_sample_rate();
+    float getSampleRate() override;
+
     unsigned int get_size();
 private:
     bool _available = false;

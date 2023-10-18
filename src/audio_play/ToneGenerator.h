@@ -18,8 +18,8 @@ enum Waveform {
 
 class ToneGenerator : public AudioSource {
 public:
-    ToneGenerator(float frequency = 440, float amplitude = 0.5, Waveform type = SINE);
-    ToneGenerator(Tone (*modulation)(), int call_every = 16, Waveform type = SINE);
+    ToneGenerator(float frequency = 440, float amplitude = 0.5, Waveform type = SINE, float sample_rate = 1e6/23);
+    ToneGenerator(Tone (*modulation)(), int call_every = 16, Waveform type = SINE, float sample_rate = 1e6/23);
     ~ToneGenerator();
 
     void set_frequency(float frequency);
@@ -36,6 +36,7 @@ public:
     int get_min_frequency();
 
     WAVConfigurationPacket get_config() override;
+    float getSampleRate() override;
 
 private:
     bool _available = false;
@@ -59,7 +60,7 @@ private:
 
     void update();
 
-    float (*wave)(float) = sinf;
+    float (* wave)(float) = sinf;
 };
 
 #endif //OPEN_EARABLE_TONE_H

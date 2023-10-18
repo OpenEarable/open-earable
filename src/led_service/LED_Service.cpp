@@ -14,7 +14,7 @@ void LED_Service::begin() {
 }
 
 void LED_Service::receiveState(BLEDevice central, BLECharacteristic characteristic) {
-    uint8_t data[3];
+    RGBColor data;
     characteristic.readValue(&data, sizeof(data));
     earable_led.set_color(data);
 }

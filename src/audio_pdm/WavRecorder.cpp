@@ -44,14 +44,23 @@ int WavRecorder::provide(int max_cont) {
     if (!cont) return 0;
 
     if (initial_drop > 0) {
-        (*stream)->provide(min(initial_drop, cont));
-        initial_drop -= min(initial_drop, cont);
+        const int n = min(initial_drop, cont);
+        (*stream)->provide(n);
+        initial_drop -= n;
+        cont -= n;
+
+        if (!cont) return n;
     }
 
     uint8_t *read_pointer = (*stream)->buffer.getReadPointer();
     int size = (int) (*stream)->buffer.getBlockSize() * cont;
 
-    _wavWriter->writeChunk(read_pointer, size);
+    bool written = _wavWriter->writeChunk(read_pointer, size);
+
+    if (!written) {
+        (*stream)->close();
+        return 0;
+    }
 
     (*stream)->provide(cont);
 

@@ -24,7 +24,7 @@ public:
     //void ble_configuration(WAVConfigurationPacket& configuration);
 
     //void set_name(String name);
-    unsigned int get_sample_rate();
+    float getSampleRate() override;
     unsigned int get_size();
 private:
     ExFatFile _file;
@@ -35,15 +35,14 @@ private:
     
     String _name;
 
-    //int _default_offset = 44;
     unsigned int _cur_read_sd = 0;
 
     int _preload_blocks = 6; // 12
 
     bool sd_setup();
+    bool check_format();
 
     void preload_buffer();
-    //unsigned int sd_to_buffer();
     unsigned int sd_to_buffer(int multi);
 
     bool open_file();

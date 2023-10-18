@@ -39,6 +39,7 @@ public:
 
     WAVConfigurationPacket make_wav_config();
     void ble_configuration(WAVConfigurationPacket& configuration);
+    void set_state(int state);
 
     void setSource(AudioSource * source);
     void setDevice(OutputDevice * device);

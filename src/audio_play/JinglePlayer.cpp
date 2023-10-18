@@ -1,5 +1,7 @@
 #include "JinglePlayer.h"
 
+#ifndef NO_JINGLES
+
 const uint16_t NOTIFICATION_WAV[] PROGMEM = {
     #include "jingles/NOTIFICATION_WAV.txt"
 };
@@ -31,6 +33,26 @@ const uint16_t OPEN_WAV[] PROGMEM = {
 const uint16_t CLOSE_WAV[] PROGMEM = {
     #include "jingles/CLOSE_WAV.txt"
 };
+
+#else
+
+const uint16_t NOTIFICATION_WAV[] PROGMEM = {};
+
+const uint16_t ERROR_WAV[] PROGMEM = {};
+
+const uint16_t SUCCESS_WAV[] PROGMEM = {};
+
+const uint16_t ALARM_WAV[] PROGMEM = {};
+
+const uint16_t CLICK_WAV[] PROGMEM = {};
+
+const uint16_t PING_WAV[] PROGMEM = {};
+
+const uint16_t OPEN_WAV[] PROGMEM = {};
+
+const uint16_t CLOSE_WAV[] PROGMEM = {};
+
+#endif
 
 
 JinglePlayer * JinglePlayer::getJingle(Jingle jingle) {
@@ -125,7 +147,7 @@ int JinglePlayer::provide(int n) {
     return cont;
 }
 
-unsigned int JinglePlayer::get_sample_rate() {
+float JinglePlayer::getSampleRate() {
     if (!_available) return -1;
     return 44100;
 }
