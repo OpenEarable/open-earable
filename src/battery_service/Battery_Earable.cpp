@@ -66,17 +66,17 @@ int Battery_Earable::_map_to_percentage(int value) const {
     const int a3 = int(0.14 * _uniform_max);
     const int p3 = 15;
 
-    int percentage;
+    int _new_battery_level;
 
-    if (value > _uniform_max) percentage = 100;
-    else if (value > a1) percentage =  map(value, a1, _uniform_max, p1, 100);
-    else if (value > a2) percentage = map(value, a2, a1, p2, p1);
-    else if (value > a3) percentage = map(value, a3, a2, p3, p2);
-    else if (value > 0) percentage = map(value, 0, a3, 0, p3);
+    if (value > _uniform_max) _new_battery_level = 100;
+    else if (value > a1) _new_battery_level =  map(value, a1, _uniform_max, p1, 100);
+    else if (value > a2) _new_battery_level = map(value, a2, a1, p2, p1);
+    else if (value > a3) _new_battery_level = map(value, a3, a2, p3, p2);
+    else if (value > 0) _new_battery_level = map(value, 0, a3, 0, p3);
 
     // charging state based adjustment
-    if (_charging_state == CHARGING) return min(percentage, 99);
+    if (_charging_state == CHARGING) return min(_new_battery_level, 99);
     else if (_charging_state == FULLY_CHARGED) return 100;
-    // Battery
-    else return max(1, percentage);
+    // Battery mode: new battery lebal is between 1 and old _battery_level
+    else return max(1, min(_new_battery_level, _battery_level));
 }
