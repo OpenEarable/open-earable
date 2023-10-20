@@ -46,8 +46,8 @@ bool Battery_Earable::check_battery() {
 void Battery_Earable::_update_battery() {
     int adc_value = analogRead(EPIN_BAT_REF);
     int uniform = _map_to_uniform(adc_value);
-    _battery_level = _map_to_percentage(uniform);
     _charging_state = _update_charging_state();
+    _battery_level = _map_to_percentage(uniform);
 }
 
 int Battery_Earable::_map_to_uniform(int value) const {
@@ -66,11 +66,17 @@ int Battery_Earable::_map_to_percentage(int value) const {
     const int a3 = int(0.14 * _uniform_max);
     const int p3 = 15;
 
-    if (value > _uniform_max) return 100;
-    else if (value > a1) return map(value, a1, _uniform_max, p1, 100);
-    else if (value > a2) return map(value, a2, a1, p2, p1);
-    else if (value > a3) return map(value, a3, a2, p3, p2);
-    else if (value > 0) return map(value, 0, a3, 0, p3);
+    int percentage;
 
-    return 0;
+    if (value > _uniform_max) percentage = 100;
+    else if (value > a1) percentage =  map(value, a1, _uniform_max, p1, 100);
+    else if (value > a2) percentage = map(value, a2, a1, p2, p1);
+    else if (value > a3) percentage = map(value, a3, a2, p3, p2);
+    else if (value > 0) percentage = map(value, 0, a3, 0, p3);
+
+    // charging state based adjustment
+    if (_charging_state == CHARGING) return min(percentage, 99);
+    else if (_charging_state == FULLY_CHARGED) return 100;
+    // Battery
+    else return max(1, percentage);
 }
