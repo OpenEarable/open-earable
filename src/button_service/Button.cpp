@@ -2,17 +2,34 @@
 
 Button::Button(int pin) {
     _pin = pin;
+}
+
+void Button::begin() {
     pinMode(_pin, INPUT);
+
+    // prevent multiattachment of the interrupt
+    detachInterrupt(digitalPinToInterrupt(_pin));
+    attachInterrupt(digitalPinToInterrupt(_pin), _earable_btn_read_state, CHANGE);
 }
 
-void Button::inverted() {
-    _inverted = true;
+
+void Button::end() {
+    detachInterrupt(digitalPinToInterrupt(_pin));
 }
 
-void Button::update() {
+void Button::inverted(bool _inverted) {
+    this->_inverted = _inverted;
+}
+
+void Button::_earable_btn_read_state() {
+    earable_btn._read_state();
+}
+
+void Button::_read_state() {
     bool reading = digitalRead(_pin);
 
-    if (_inverted) reading = !reading;
+    //if (_inverted) reading = !reading;
+    reading = _inverted ^ reading;
 
     unsigned long now = millis();
 
@@ -23,24 +40,25 @@ void Button::update() {
         _buttonState = IDLE;
         _lastDebounceTime = now;
         _pressStartTime = now;
-        _pressed_flag = 1;
-        _held_flag = 1;
+        //_pressed_flag = 1;
+        //_held_flag = 1;
         return;
     }
 
     if (now - _lastDebounceTime < _debounceDelay) return;
     _buttonState = PRESSED;
-    if (_pressed_flag == 1) {
+    /*if (_pressed_flag == 1) {
         _pressed_flag = 0;
         button_service.write_state(PRESSED);
-    }
+    }*/
+    button_service.write_state(_buttonState);
 
-    if (now - _pressStartTime < _holdDelay) return;
+    /*if (now - _pressStartTime < _holdDelay) return;
     _buttonState = HELD;
     if (_held_flag == 1) {
         _held_flag = 0;
         button_service.write_state(HELD);
-    }
+    }*/
 }
 
 ButtonState Button::getState() const {
@@ -51,7 +69,7 @@ void Button::setDebounceTime(unsigned long debounceTime) {
     _debounceDelay = debounceTime;
 }
 
-void Button::setHoldTime(unsigned long holdTime) {
+/*void Button::setHoldTime(unsigned long holdTime) {
     _holdDelay = holdTime;
 }
 
@@ -73,6 +91,6 @@ bool Button::get_held_once() {
     if (_held_flag) return false;
     _held_flag = 2;
     return get_held();
-}
+}*/
 
 Button earable_btn(EPIN_BTN);

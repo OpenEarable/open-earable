@@ -75,6 +75,7 @@ public:
         edge_ml_generic.set_custom(_interface);
         edge_ml_generic.begin();
 
+        earable_btn.begin();
         _battery->begin();
         play_service.begin();
         button_service.begin();
@@ -91,7 +92,8 @@ public:
         //conf_handler.update();
         task_manager.update();
 
-        earable_btn.update();
+        //interrupt based
+        //earable_btn.update();
     };
 
     void debug(Stream &stream) {
