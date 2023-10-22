@@ -52,7 +52,7 @@ The following Arduino Libraries have to be installed in your Arduino IDE by navi
 
 
 ### SD Card Setup
-In order to be compatible with the open earable library the SD card needs to be formatted with the exFAT format.
+In order to be compatible with the OpenEarable library the SD card needs to be formatted with the exFAT format.
 Make sure to have a sufficiently fast SD card. (Recommended SD Card: SandDisk class 10 and class A30)
 
 ### SPI Setup
@@ -112,7 +112,7 @@ void loop()
 }
 ```
 
-With this minimum sketch, all internal functionality is activated and the Open Earable becomes controllable via our [Dashboard](https://github.com/OpenEarable/dashboard), via [EdgeML](https://edge-ml.org/), and via the BLE API.
+With this minimum sketch, all internal functionality is activated and OpenEarable becomes controllable via our [Dashboard](https://github.com/OpenEarable/dashboard), via [EdgeML](https://edge-ml.org/), and via the BLE API.
 
 ### Defaults
 Since the SD card is used to facilitate the audio functionality and sensor data logging, certain file name defaults are already set in the firmware.
@@ -130,7 +130,7 @@ OpenEarable can be directly connected to our [Dashboard](https://github.com/Open
 
 ### edge-ml
 
-Open Earable is seamlessly integrated with [edge-ml.org](https://edge-ml.org/), an open-source and browser-based toolchain for machine learning on microcontrollers.
+OpenEarable is seamlessly integrated with [edge-ml.org](https://edge-ml.org/), an open-source and browser-based toolchain for machine learning on microcontrollers.
 
 ### BLE Specification
 
@@ -353,7 +353,7 @@ edge_ml_earable.debug(Serial);
 
 Enables or disables SD card data logging. Recorded sensor values are automatically saved to the SD card. (enabled by default)
 
-When enabled, Open Earable creates a ".csv" file on the SD card with a standardized header format consisting of:
+When enabled, OpenEarable creates a ".csv" file on the SD card with a standardized header format consisting of:
 
 `ID, TIMESTAMP, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9`
 
