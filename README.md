@@ -238,6 +238,13 @@ Play Package:
 | 1      | name length | file name    |
 | uint8  | uint8       | char array   |
 
+The file on the SD Card has to be in the format:
+- File type: WAV
+- Format tag: PCM
+- Number of Channels: 1 (Mono)
+- Sample rate: 44100
+- Bits per Sample: 16
+
 ##### Constant Tone
 | Byte 0 | Byte 1    | Byte 2-6     | Byte 7-11        |
 |--------|-----------|--------------|------------------|

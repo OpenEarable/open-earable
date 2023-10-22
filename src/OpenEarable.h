@@ -90,7 +90,6 @@ public:
     void update() {
         _battery->update();
 
-        //conf_handler.update();
         task_manager.update();
 
         //interrupt based
