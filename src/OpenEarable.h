@@ -29,7 +29,8 @@
 
 #include <utility>
 
-const String device_version = "1.3.0";
+const String firmware_version = "1.3.0";
+const String hardware_version = "1.3.0";
 const String device_name = "OpenEarable";
 
 bool _data_logger_flag = false;
@@ -71,7 +72,7 @@ public:
         if (_debug) success ? _debug->println("Player Ready!") : _debug->println("Player FAIL!");
 
         edge_ml_generic.ble_manual_advertise();
-        edge_ml_generic.set_ble_config(device_name, device_version);
+        edge_ml_generic.set_ble_config(device_name, firmware_version, hardware_version);
         edge_ml_generic.set_custom(_interface);
         edge_ml_generic.begin();
 
