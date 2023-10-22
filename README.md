@@ -16,9 +16,9 @@ OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing 
   - [SPI Setup](#SPI-Setup)
   - [sdfat Library Setup](#sdfat-Library-Setup)
 - [Usage](#Usage)
-  - [Example](#Example)
+  - [Default Firmware](#Example)
   - [Dashboard](#Dashboard)
-  - [edge-ml](#edge-mlL)
+  - [edge-ml](#edge-ml)
 - [BLE Specification](#BLE-Specification)
 - [Firmware Internals](#Firmware-Internals)
   - [Bootloader](#Bootloader)
@@ -90,22 +90,25 @@ To achieve the desired write speeds of up to 1.5Mbps the library has to be modif
 3. Inside the `src` folder, replace the `SdFatConfig.h` with the provided `SdFatConfig.h` file found in the `resources/sdfat_config` folder of this repository.
 
 ## Usage
-### Example
-The easiest way to use open earable is with the provided App sketch. 
-It can be found within Arduino under `File -> Examples-> EdgeML-Earable -> App`.
+### Default Firmware
+The easiest way to use OpenEarable is with the provided App sketch. 
+It can be found within Arduino under `File -> Examples-> OpenEarable -> App`.
 
 
 The absolute minimum needed to run the code successfully is the following:
 
 ```c++
-#include "EdgeML_Earable.h"
+include "Arduino.h"
+#include "OpenEarable.h"
 
-void setup() {
-  edge_ml_earable.begin();
+void setup()
+{
+    open_earable.begin();
 }
 
-void loop() {
-  edge_ml_earable.update();
+void loop()
+{
+    open_earable.update();
 }
 ```
 
