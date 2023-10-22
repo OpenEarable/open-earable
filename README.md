@@ -18,7 +18,7 @@ OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing 
 - [Usage](#Usage)
   - [Example](#Example)
   - [Dashboard](#Dashboard)
-  - [EdgeML](#EdgeML)
+  - [edge-ml](#edge-mlL)
 - [BLE Specification](#BLE-Specification)
 - [Firmware Internals](#Firmware-Internals)
   - [Bootloader](#Bootloader)
@@ -123,11 +123,11 @@ Note that for the data logging ".csv" file format is used. The standardized head
 
 ### Dashboard
 
-The Open Earable can be directly connected to our [Dashboard](https://github.com/OpenEarable/dashboard).
+OpenEarable can be directly connected to our [Dashboard](https://github.com/OpenEarable/dashboard).
 
-### EdgeML
+### edge-ml
 
-Open Earable is seamlessly integrated with [EdgeML](https://edge-ml.org/), an open-source and browser-based toolchain for machine learning on microcontrollers.
+Open Earable is seamlessly integrated with [edge-ml.org](https://edge-ml.org/), an open-source and browser-based toolchain for machine learning on microcontrollers.
 
 ### BLE Specification
 
