@@ -38,23 +38,23 @@ void IMU_Sensor::get_data(int sensorID, byte *data) {
     float * floatArray = (float*)data;
 
     get_acc(x,y,z);
-    floatArray[0+index] = x;
-    floatArray[1+index] = y;
-    floatArray[2+index] = z;
+    floatArray[0+index] = -x;
+    floatArray[1+index] = z;
+    floatArray[2+index] = y;
 
     index += 3;
 
     get_gyro(x,y,z);
-    floatArray[0+index] = x;
-    floatArray[1+index] = y;
-    floatArray[2+index] = z;
+    floatArray[0+index] = -x;
+    floatArray[1+index] = z;
+    floatArray[2+index] = y;
 
     index += 3;
 
     get_mag(x,y,z);
-    floatArray[0+index] = x;
-    floatArray[1+index] = y;
-    floatArray[2+index] = z;
+    floatArray[0+index] = -x;
+    floatArray[1+index] = z;
+    floatArray[2+index] = y;
 }
 
 void IMU_Sensor::get_acc(float &x, float &y, float &z) {

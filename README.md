@@ -18,9 +18,9 @@ OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing 
   - [SPI Setup](#SPI-Setup)
   - [sdfat Library Setup](#sdfat-Library-Setup)
 - [Usage](#Usage)
-  - [Example](#Example)
+  - [Default Firmware](#Example)
   - [Dashboard](#Dashboard)
-  - [EdgeML](#EdgeML)
+  - [edge-ml](#edge-ml)
 - [BLE Specification](#BLE-Specification)
 - [Firmware Internals](#Firmware-Internals)
   - [Bootloader](#Bootloader)
@@ -54,7 +54,7 @@ The following Arduino Libraries have to be installed in your Arduino IDE by navi
 
 
 ### SD Card Setup
-In order to be compatible with the open earable library the SD card needs to be formatted with the exFAT format.
+In order to be compatible with the OpenEarable library the SD card needs to be formatted with the exFAT format.
 Make sure to have a sufficiently fast SD card. (Recommended SD Card: SandDisk class 10 and class A30)
 
 ### SPI Setup
@@ -92,26 +92,29 @@ To achieve the desired write speeds of up to 1.5Mbps the library has to be modif
 3. Inside the `src` folder, replace the `SdFatConfig.h` with the provided `SdFatConfig.h` file found in the `resources/sdfat_config` folder of this repository.
 
 ## Usage
-### Example
-The easiest way to use open earable is with the provided App sketch. 
-It can be found within Arduino under `File -> Examples-> EdgeML-Earable -> App`.
+### Default Firmware
+The easiest way to use OpenEarable is with the provided App sketch. 
+It can be found within Arduino under `File -> Examples-> OpenEarable -> App`.
 
 
 The absolute minimum needed to run the code successfully is the following:
 
 ```c++
-#include "EdgeML_Earable.h"
+include "Arduino.h"
+#include "OpenEarable.h"
 
-void setup() {
-  edge_ml_earable.begin();
+void setup()
+{
+    open_earable.begin();
 }
 
-void loop() {
-  edge_ml_earable.update();
+void loop()
+{
+    open_earable.update();
 }
 ```
 
-With this minimum sketch, all internal functionality is activated and the Open Earable becomes controllable via our [Dashboard](https://github.com/OpenEarable/dashboard), via [EdgeML](https://edge-ml.org/), and via the BLE API.
+With this minimum sketch, all internal functionality is activated and OpenEarable becomes controllable via our [Dashboard](https://github.com/OpenEarable/dashboard), via [EdgeML](https://edge-ml.org/), and via the BLE API.
 
 ### Defaults
 Since the SD card is used to facilitate the audio functionality and sensor data logging, certain file name defaults are already set in the firmware.
@@ -125,11 +128,11 @@ Note that for the data logging ".csv" file format is used. The standardized head
 
 ### Dashboard
 
-The Open Earable can be directly connected to our [Dashboard](https://github.com/OpenEarable/dashboard).
+OpenEarable can be directly connected to our [Dashboard](https://github.com/OpenEarable/dashboard).
 
-### EdgeML
+### edge-ml
 
-Open Earable is seamlessly integrated with [EdgeML](https://edge-ml.org/), an open-source and browser-based toolchain for machine learning on microcontrollers.
+OpenEarable is seamlessly integrated with [edge-ml.org](https://edge-ml.org/), an open-source and browser-based toolchain for machine learning on microcontrollers.
 
 ### BLE Specification
 
@@ -240,6 +243,13 @@ Play Package:
 | 1      | name length | file name    |
 | uint8  | uint8       | char array   |
 
+The file on the SD Card has to be in the format:
+- File type: WAV
+- Format tag: PCM
+- Number of Channels: 1 (Mono)
+- Sample rate: 44100
+- Bits per Sample: 16
+
 ##### Constant Tone
 | Byte 0 | Byte 1    | Byte 2-6     | Byte 7-11        |
 |--------|-----------|--------------|------------------|
@@ -345,7 +355,7 @@ edge_ml_earable.debug(Serial);
 
 Enables or disables SD card data logging. Recorded sensor values are automatically saved to the SD card. (enabled by default)
 
-When enabled, Open Earable creates a ".csv" file on the SD card with a standardized header format consisting of:
+When enabled, OpenEarable creates a ".csv" file on the SD card with a standardized header format consisting of:
 
 `ID, TIMESTAMP, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9`
 

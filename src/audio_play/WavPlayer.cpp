@@ -97,6 +97,13 @@ bool WavPlayer::check_format() {
         return false;
     }
 
+    if (info.bitsPerSample != PLAYER_FORMAT.bitsPerSample) {
+        Serial.print("Error: The Audio Player requires each sample to have ");
+        Serial.print(PLAYER_FORMAT.bitsPerSample);
+        Serial.println(" Bits!");
+        return false;
+    }
+
     if (info.formatTag != PLAYER_FORMAT.formatTag) {
         Serial.print("Error: The Audio Player requires the format tag to be ");
         Serial.print(PLAYER_FORMAT.formatTag);

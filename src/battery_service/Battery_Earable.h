@@ -36,7 +36,7 @@ private:
     unsigned long _last = -1;
     unsigned long _battery_interval = 5000;
 
-    int _battery_level = 0;
+    int _battery_level = 100; //100 since battery level can only go down
 
     //const _AnalogReferenceMode _internal_ref = AR_INTERNAL1V2;
     const int _adc_min = 734;

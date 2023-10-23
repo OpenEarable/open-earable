@@ -8,27 +8,21 @@
 enum ButtonState {
     IDLE,
     PRESSED,
-    HELD
+    //HELD
 };
 
 class Button {
 public:
     Button(int pin);
 
-    void inverted();
+    void begin();
+    void end();
 
-    void update();
+    void inverted(bool _inverted = true);
 
     ButtonState getState() const;
 
-    bool get_pressed();
-    bool get_held();
-
-    bool get_pressed_once();
-    bool get_held_once();
-
     void setDebounceTime(unsigned long debounceTime);
-    void setHoldTime(unsigned long holdTime);
 
 private:
     int _pin;
@@ -36,13 +30,11 @@ private:
     unsigned long _lastDebounceTime;
     unsigned long _pressStartTime;
     unsigned long _debounceDelay = 25;
-    unsigned long _holdDelay = 1000;
-
-
-    int _pressed_flag = 1;
-    int _held_flag = 1;
 
     ButtonState _buttonState = IDLE;
+
+    void _read_state();
+    static void _earable_btn_read_state();
 };
 
 extern Button earable_btn;
