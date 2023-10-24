@@ -44,7 +44,7 @@ private:
     float _default_loop_rate = 20;
 
     void update_edge_ml();
-    int update(Provider * provider, int n);
+    int update_audio(Provider * provider, int n);
     bool check_overlap(Provider * provider);
 };
 

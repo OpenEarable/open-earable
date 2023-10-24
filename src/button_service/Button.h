@@ -7,8 +7,7 @@
 
 enum ButtonState {
     IDLE,
-    PRESSED,
-    //HELD
+    PRESSED
 };
 
 class Button {

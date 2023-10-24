@@ -36,7 +36,7 @@ void TaskManager::update() {
 
         long start = millis();
         //_blocks_handled += update(provider, min(blocks,(*provider->stream)->ready()));
-        int cont = update(provider, min(blocks,(*provider->stream)->ready()));
+        int cont = update_audio(provider, min(blocks,(*provider->stream)->ready()));
         float _time = millis() - start;
         
         _blocks_handled += cont;
@@ -86,7 +86,7 @@ void TaskManager::update_edge_ml() {
     BLE.poll();
 }
 
-int TaskManager::update(Provider * provider, int max_buffers) {
+int TaskManager::update_audio(Provider * provider, int max_buffers) {
     if (max_buffers <= 0 || (*provider->stream)->ready() == 0) return 0;
 
     int cont = provider->provide(max_buffers);
@@ -107,6 +107,8 @@ void TaskManager::begin(float edge_rate) {
     _edge_ml_last = millis();
 
     _buffer_interval_time = _edge_ml_delay - _overlap;
+
+    _buffer_flag = false;
 }
 
 bool TaskManager::check_overlap(Provider * provider) {
