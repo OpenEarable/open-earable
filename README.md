@@ -307,7 +307,6 @@ A notification is sent once a change of button state has occurred.
 The states are:
 - 0: IDLE
 - 1: PRESSED
-- 2: HELD
 
 #### LED Set State
 Permissions: Read/Write
@@ -346,67 +345,13 @@ Set a IO stream for debugging purposes.
 edge_ml_earable.debug(Serial);
 ```
 
-#### `void set_sd_logging(bool enabled)`
-
-Enables or disables SD card data logging. Recorded sensor values are automatically saved to the SD card. (enabled by default)
-
-When enabled, Open Earable creates a ".csv" file on the SD card with a standardized header format consisting of:
-
-`ID, TIMESTAMP, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9`
-
-#### `void disable_sd_logging()`
-
-#### `void set_logger_file_name(String name)`
-
-Set name of logging file. (".csv" file preferred)
-
-#### `void set_player_file_name(String name)`
-
-Set name for file that should be played.
-
-```c++
-edge_ml_earable.set_player_name("Play.wav");
-```
-
-#### `void set_recorder_file_name(String name)`
-
-Set name of recording file. (".wav" file preferred)
-
-#### `void setSampleRate(int sampleRate)`
-
-Sets the sampling rate of the PDM Mic. The default value is 41667Hz.
-
-The available sampling rates are:
-
-- 16000Hz
-- 20000Hz
-- 25000Hz
-- 31250Hz
-- 33333Hz
-- 40000Hz
-- 41667Hz
-- 50000Hz
-- 62500Hz
-
-Most recommended are:
-- 16000Hz
-- 41667Hz
-- 62500Hz
-
-#### `void setGain(int gain)`
-
-Sets the gain of the PDM Mic. The default value is `20` and the maximum is `80`.
-
-#### `void use_serial_data_transmission(bool enabled)`
-
-Instead of saving the data to an SD card it can also be sent via the USB Serial port.
-The raw PDM stream consisting of shorts will be sent via USB Serial if enabled.
-
-By default serial sending is disabled.
-
 #### `void configure_sensor(SensorConfigurationPacket& config)`
 
 Send a configuration package from within the code.
+
+#### `void stop_all_sensors()`
+
+Turn of all sensors and stop streaming sensor data via ble.
 
 ### Sensor Configuration
 
@@ -529,32 +474,19 @@ __NOTE: Config 1 and 2 may be unstable if used together with the Audio playback_
 
 The earable features a button at its side. A software debounced interface is already included with the `earable_btn` Button instance.
 
-It includes the following functionality: 
+It includes the following functionality:
 
-#### `bool get_pressed()`
+#### `ButtonState getState()`
 
-Get state of the button.
+Returns the button state either being
+- 0: IDLE
+- 1: PRESSED
 
-#### `bool get_held()`
-
-If the button is held down for more than a predetermined time, `true` is returned. (Default time: 1s)
-
-#### `bool get_pressed_once()`
-
-Checks if the button is pressed. If button is pressed it returns `true` once until the button is released and pressed again.
-
-
-#### `bool get_held_once()`
-
-Checks if the button is held. If button is held it returns `true` once until the button is released and held again.
+The button state is updated by interrupt.
 
 #### `void setDebounceTime(unsigned long debounceTime)`
 
-Set debounce time in ms. (Default 50ms)
-
-#### `void setHoldTime(unsigned long holdTime)`
-
-Set hold time in ms. (Default 1000ms)
+Set debounce time in ms. (Default 25ms)
 
 ## LED
 
