@@ -3,23 +3,19 @@
 
 #include "EdgeML_Custom.h"
 
-const int SENSOR_COUNT = 5;
+const int SENSOR_COUNT = 3;
 const int MODULE_COUNT_PHYSICAL = 3;
-const int SPECIAL_SENSOR_COUNT = 3;
+const int SPECIAL_SENSOR_COUNT = 1;
 
 // In correct order ID ascending
 enum SensorID {
     ACC_GYRO_MAG,
     BARO_TEMP,
-    PDM_MIC,
-    PLAYER,
-    CONFIGURATION
+    PDM_MIC
 };
 
 const int SpecialSensors[SPECIAL_SENSOR_COUNT] = {
-        PDM_MIC,
-        PLAYER,
-        CONFIGURATION
+        PDM_MIC
 };
 
 // In correct order ID ascending
@@ -43,7 +39,7 @@ const SensorComponent ACC_COMPONENTS[] = {
 
 const SensorComponent PRESSURE_TEMP_COMPONENTS[] = {
         {"TEMP", PARSE_TYPE_FLOAT, "Temperature", "°C"},
-        {"BARO", PARSE_TYPE_FLOAT, "Pressure", "kPa"}
+        {"BARO", PARSE_TYPE_FLOAT, "Pressure", "Pa"}
 };
 
 
@@ -65,20 +61,6 @@ const SensorConfig CONFIG[SENSOR_COUNT] = {
         {
                 "PDM MIC",
                 PDM_MIC,
-                MODULE_DUMMY,
-                0,
-                {}
-        },
-        {
-                "PLAYER",
-                PLAYER,
-                MODULE_DUMMY,
-                0,
-                {}
-        },
-        {
-                "Configuration",
-                CONFIGURATION,
                 MODULE_DUMMY,
                 0,
                 {}
