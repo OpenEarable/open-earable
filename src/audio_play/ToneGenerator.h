@@ -60,6 +60,10 @@ private:
 
     void update();
 
+    void preload_buffer();
+
+    const int _preload_blocks = 6;
+
     float (* wave)(float) = sinf;
 };
 

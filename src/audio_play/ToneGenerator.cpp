@@ -73,12 +73,7 @@ bool ToneGenerator::begin() {
     _t = 0;
     t_call = 0;
 
-    const int _preload_blocks = 6;
-
-    int cont = provide(_preload_blocks);
-
-    Serial.print("preload blocks: ");
-    Serial.println(cont);
+    preload_buffer();
 
     _available = true;
 
@@ -98,6 +93,15 @@ void ToneGenerator::end() {
 void ToneGenerator::setStream(BufferedStream ** stream) {
     if (_available) end();
     this->stream = stream;
+}
+
+void ToneGenerator::preload_buffer() {
+    int cont = provide(_preload_blocks);
+
+    if (_preload_blocks - cont > 0) cont += provide(_preload_blocks - cont);
+
+    Serial.print("preload blocks: ");
+    Serial.println(cont);
 }
 
 int ToneGenerator::provide(int n) {

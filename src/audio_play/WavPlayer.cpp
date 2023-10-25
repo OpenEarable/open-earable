@@ -30,7 +30,10 @@ bool WavPlayer::begin() {
 
 void WavPlayer::end() {
     sd_manager.closeFile(&_file);
+    _opened = false;
     (*stream)->close();
+    _available = false;
+    (*stream)->buffer.clear();
 }
 
 bool WavPlayer::available() {
@@ -62,6 +65,7 @@ int WavPlayer::provide(int n) {
 }
 
 bool WavPlayer::sd_setup() {
+    _cur_read_sd = 0;
     if(!sd_manager.begin()) return false;
     return open_file();
 }
@@ -98,9 +102,9 @@ bool WavPlayer::check_format() {
     }
 
     if (info.bitsPerSample != PLAYER_FORMAT.bitsPerSample) {
-        Serial.print("Error: The Audio Player requires each sample to have ");
+        Serial.print("Error: The Audio Player requires a sample resolution of ");
         Serial.print(PLAYER_FORMAT.bitsPerSample);
-        Serial.println(" Bits!");
+        Serial.println(" Bit!");
         return false;
     }
 
@@ -116,6 +120,8 @@ bool WavPlayer::check_format() {
 
 void WavPlayer::preload_buffer() {
     int cont = provide(_preload_blocks);
+
+    if (_preload_blocks - cont > 0) cont += provide(_preload_blocks - cont);
 
     Serial.print("preload blocks: ");
     Serial.println(cont);

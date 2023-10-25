@@ -68,6 +68,8 @@ void Audio_Player::play() {
     _running = true;
 
     device->start();
+
+    play_service.writePlayerState(PLAY);
 }
 
 void Audio_Player::end() {
@@ -83,6 +85,8 @@ void Audio_Player::pause() {
     if (!_available || !_running) return;
     _running = false;
     device->stop();
+
+    play_service.writePlayerState(PAUSE);
 }
 
 void Audio_Player::stop() {
@@ -90,8 +94,10 @@ void Audio_Player::stop() {
     if (_running) device->stop();
     _running = false;
     
-    device->end();
     source->end();
+    //source->begin();
+
+    play_service.writePlayerState(STOP);
 }
 
 /*bool Audio_Player::check_completed() {
@@ -101,6 +107,12 @@ void Audio_Player::stop() {
     }
     return false;
 }*/
+
+void Audio_Player::completed() {
+    _running = false;
+    source->end();
+    play_service.writePlayerState(STOP);
+}
 
 void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
     Tone * tone;
@@ -116,7 +128,6 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
         break;
     case 2:
         tone = (Tone*)(configuration.name);
-        Serial.println(tone->amplitude);
         setSource(new ToneGenerator(tone->frequency,tone->amplitude,(Waveform)(configuration.size-1)));
         break;
     case 3:
@@ -128,13 +139,13 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
 
 void Audio_Player::set_state(int state) {
     switch(state) {
-    case 1:
+    case PLAY:
         play();
         break;
-    case 2:
+    case PAUSE:
         pause();
         break;
-    case 3:
+    case STOP:
         stop();
         break;
     }

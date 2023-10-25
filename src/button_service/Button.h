@@ -6,7 +6,7 @@
 #include "Button_Service.h"
 
 enum ButtonState {
-    IDLE,
+    RELEASED,
     PRESSED
 };
 
@@ -30,7 +30,7 @@ private:
     unsigned long _pressStartTime;
     unsigned long _debounceDelay = 25;
 
-    ButtonState _buttonState = IDLE;
+    ButtonState _buttonState = RELEASED;
 
     void _read_state();
     static void _earable_btn_read_state();

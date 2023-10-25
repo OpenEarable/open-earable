@@ -6,8 +6,8 @@ uint8_t Play_Service::_player_state = 0;
 
 void Play_Service::begin() {
     _wavPlayService = new BLEService(wavPlayServiceUuid);
-    _wavPlayC = new BLECharacteristic(wavPlayUuid, BLEWrite|BLERead, sizeof(WAVConfigurationPacket));
-    _playerStateC = new BLECharacteristic(playerStateUuid, BLEWrite|BLERead, 1);
+    _wavPlayC = new BLECharacteristic(wavPlayUuid, BLEWrite|BLERead|BLENotify, sizeof(WAVConfigurationPacket));
+    _playerStateC = new BLECharacteristic(playerStateUuid, BLEWrite|BLERead|BLENotify, 1);
 
     //_wavPlayC_static = _wavPlayC_static;
 
@@ -20,6 +20,8 @@ void Play_Service::begin() {
 
     _current = audio_player.make_wav_config();
     _wavPlayC->writeValue(&_current, sizeof(WAVConfigurationPacket));
+
+    _available = true;
 }
 
 void Play_Service::receiveWavConfig(BLEDevice central, BLECharacteristic characteristic) {
@@ -34,6 +36,13 @@ void Play_Service::receiveWavConfig(BLEDevice central, BLECharacteristic charact
 void Play_Service::receivePlayerState(BLEDevice central, BLECharacteristic characteristic) {
     characteristic.readValue(&_player_state, sizeof(_player_state));
     audio_player.set_state(_player_state);
+}
+
+void Play_Service::writePlayerState(uint8_t state) {
+    if (!_available) return;
+
+    _player_state = state;
+    _playerStateC->writeValue(&_player_state, sizeof(_player_state));
 }
 
 Play_Service play_service;

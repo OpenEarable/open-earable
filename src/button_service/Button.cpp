@@ -34,10 +34,10 @@ void Button::_read_state() {
     unsigned long now = millis();
 
     if (!reading) {
-        if (_buttonState != IDLE) {
-            button_service.write_state(IDLE);
+        if (_buttonState != RELEASED) {
+            button_service.write_state(RELEASED);
         }
-        _buttonState = IDLE;
+        _buttonState = RELEASED;
         _lastDebounceTime = now;
         _pressStartTime = now;
         return;

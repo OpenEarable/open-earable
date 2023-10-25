@@ -1,5 +1,6 @@
 #include "I2S_Player.h"
 #include "Arduino.h"
+#include "Audio_Player.h"
 
 void i2s_irq_handler(void);
 
@@ -99,6 +100,9 @@ void I2S_Player::end() {
 
 void I2S_Player::start() {
     if (!_available) return;
+    nrf_i2s_tx_buffer_set(NRF_I2S, (uint32_t const *)stream->buffer.getReadPointer());
+    if (use_eq) eq->update((int16_t *)stream->buffer.getReadPointer(), stream->buffer.getBlockSize() / sizeof(int16_t));
+
     nrf_i2s_task_trigger(NRF_I2S, NRF_I2S_TASK_START);
     _running = true;
 }
@@ -124,7 +128,10 @@ void I2S_Player::i2s_interrupt() {
         if (stream->remaining()) {
             nrf_i2s_tx_buffer_set(NRF_I2S, (uint32_t const *)stream->buffer.getReadPointer());
             if (use_eq) eq->update((int16_t *)stream->buffer.getReadPointer(), stream->buffer.getBlockSize() / sizeof(int16_t));
-        } else if (!stream_available) stop();
+        } else if (!stream_available) {
+            stop();
+            audio_player.completed();
+        }
     }
 }
 

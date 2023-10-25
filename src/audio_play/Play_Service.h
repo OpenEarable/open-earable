@@ -10,12 +10,14 @@ struct WAVConfigurationPacket;
 class Play_Service {
 public:
     void begin();
+
+    void writePlayerState(uint8_t state);
 private:
+    bool _available = false;
     BLEService * _wavPlayService;
     BLECharacteristic * _wavPlayC;
     BLECharacteristic * _playerStateC;
 
-    //static BLECharacteristic * _wavPlayC_static;
     static WAVConfigurationPacket _current;
     static uint8_t _player_state;
 

@@ -19,6 +19,13 @@ const int audio_b_size = 4096;
 const int audio_b_count = 8;
 extern uint8_t AUDIO_BUFFER[audio_b_size * audio_b_count] __attribute__((aligned (16)));
 
+enum PlayerState {
+    IDLE,
+    PLAY,
+    PAUSE,
+    STOP
+};
+
 /*
 State Controller
 */
@@ -33,6 +40,7 @@ public:
     void play();
     void stop();
     void pause();
+    void completed();
 
     unsigned int get_sample_rate();
     unsigned int get_size();
