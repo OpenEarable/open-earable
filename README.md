@@ -114,16 +114,6 @@ void loop()
 
 With this minimum sketch, all internal functionality is activated and OpenEarable becomes controllable via our [Dashboard](https://github.com/OpenEarable/dashboard), via [EdgeML](https://edge-ml.org/), and via the BLE API.
 
-### Defaults
-Since the SD card is used to facilitate the audio functionality and sensor data logging, certain file name defaults are already set in the firmware.
-- Audio playback: "Play.wav"
-- Audio recording: "Recording.wav"
-- Date logging: "Log.csv"
-
-Note that for the data logging ".csv" file format is used. The standardized header format is:
-
-`ID, TIMESTAMP, Data1, Data2, Data3, Data4, Data5, Data6, Data7, Data8, Data9`
-
 ### Dashboard
 
 OpenEarable can be directly connected to our [Dashboard](https://github.com/OpenEarable/dashboard).
@@ -385,6 +375,7 @@ Each sensor or audio IO can be enabled individually or together at the same time
 It is recommended to use the predefined configurations.
 
 The available predefined Sensors:
+
 #### IMU
 Sensor ID: 0
 
@@ -435,43 +426,6 @@ Most recommended are:
 - 16000Hz
 - 41667Hz
 - 62500Hz
-
-#### CONFIGURATION
-Sensor ID: 4
-
-With the "virtual" configuration sensor a predefined configuration of different activated sensors can be  selected.
-This is NECESSARY if the audio elements are supposed to run alongside the other sensors.
-
-The sample rate represents the chosen Configuration Number.
-
-Here the latency field becomes important. It controls the activity of the audio playback.<br>
-The latency property will be ignored.
-
-Note: Once a new configuration is received all sensors will be stopped before the new configuration is started.
-
-Available configurations
-
-| Configuration Number | IMU   | BME280 | PDM      |
-|----------------------|-------|--------|----------|
-| 0                    | OFF   | OFF    | OFF      |
-| 1                    | 30 Hz | 30 Hz  | 62500 Hz |
-| 2                    | 30 Hz | 30 Hz  | 41667 Hz |
-| 3                    | 30 Hz | 30 Hz  | 16000 Hz |
-| 4                    | 30 Hz | 30 Hz  | -        |
-| 5                    | 20 Hz | 20 Hz  | 62500 Hz |
-| 6                    | 20 Hz | 20 Hz  | 41667 Hz |
-| 7                    | 20 Hz | 20 Hz  | 16000 Hz |
-| 8                    | 20 Hz | 20 Hz  | -        |
-| 9                    | 10 Hz | 10 Hz  | 62500 Hz |
-| 10                   | 10 Hz | 10 Hz  | 41667 Hz |
-| 11                   | 10 Hz | 10 Hz  | 16000 Hz |
-| 12                   | 10 Hz | 10 Hz  | -        |
-| 13                   | -     | -      | 62500 Hz |
-| 14                   | -     | -      | 41667 Hz |
-| 15                   | -     | -      | 16000 Hz |
-
-
-__NOTE: Config 1 and 2 may be unstable if used together with the Audio playback__
 
 ### Button
 
