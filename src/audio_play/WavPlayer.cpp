@@ -119,6 +119,8 @@ bool WavPlayer::check_format() {
 }
 
 void WavPlayer::preload_buffer() {
+    uint8_t * ptr = (*stream)->buffer.getWritePointer();
+    sd_manager.read_block(&_file, ptr, 100);
     int cont = provide(_preload_blocks);
 
     if (_preload_blocks - cont > 0) cont += provide(_preload_blocks - cont);
