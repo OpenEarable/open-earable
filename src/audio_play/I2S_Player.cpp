@@ -54,14 +54,6 @@ bool I2S_Player::begin() {
                                           clock.nrf_i2s_ratio                  //MCK/LRCK ratio
     );
 
-    // Original NRF_I2S_MCK_32MDIV3 and NRF_I2S_RATIO_256X  41667Hz
-    // Alternate NRF_I2S_MCK_32MDIV23 and NRF_I2S_RATIO_32X
-
-    // Do buffer reset externally!
-
-    // Ignore first block in buffer
-    consume(); // Requires buffer to be filled with at least 2 blocks
-
     //setting up the I2S transfer
     nrf_i2s_transfer_set(NRF_I2S, stream->buffer.getBlockSize()/WORD_SIZE, NULL, (uint32_t const *)stream->buffer.getReadPointer());
 
@@ -99,7 +91,7 @@ void I2S_Player::end() {
 }
 
 void I2S_Player::start() {
-    if (!_available) return;
+    if (!_available || _running) return;
     nrf_i2s_tx_buffer_set(NRF_I2S, (uint32_t const *)stream->buffer.getReadPointer());
     if (use_eq) eq->update((int16_t *)stream->buffer.getReadPointer(), stream->buffer.getBlockSize() / sizeof(int16_t));
 
@@ -108,7 +100,7 @@ void I2S_Player::start() {
 }
 
 void I2S_Player::stop() {
-    if (!_available) return;
+    if (!_available || !_running) return;
     nrf_i2s_task_trigger(NRF_I2S, NRF_I2S_TASK_STOP);
     _running = false;
 }
@@ -118,14 +110,14 @@ bool I2S_Player::available() {
 }
 
 void I2S_Player::i2s_interrupt() {
-//Checking TXPTRUPD event
+    //Checking TXPTRUPD event
     if (nrf_i2s_event_check(NRF_I2S, NRF_I2S_EVENT_TXPTRUPD)) {
         //clear TXPTRUPD event
         nrf_i2s_event_clear(NRF_I2S, NRF_I2S_EVENT_TXPTRUPD);
 
         bool stream_available = consume();
 
-        if (stream->remaining()) {
+        if (stream->remaining() > 0) {
             nrf_i2s_tx_buffer_set(NRF_I2S, (uint32_t const *)stream->buffer.getReadPointer());
             if (use_eq) eq->update((int16_t *)stream->buffer.getReadPointer(), stream->buffer.getBlockSize() / sizeof(int16_t));
         } else if (!stream_available) {
