@@ -168,6 +168,7 @@ bool WavPlayer::open_file() {
 WAVConfigurationPacket WavPlayer::get_config() {
     WAVConfigurationPacket wav_packet;
 
+    wav_packet.mode = 1;
     wav_packet.size = _name.length();
     memcpy(wav_packet.name, _name.c_str(), _name.length());
 

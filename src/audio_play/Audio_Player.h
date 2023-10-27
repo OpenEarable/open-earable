@@ -45,7 +45,7 @@ public:
     unsigned int get_sample_rate();
     unsigned int get_size();
 
-    WAVConfigurationPacket make_wav_config();
+    WAVConfigurationPacket get_config();
     void ble_configuration(WAVConfigurationPacket& configuration);
     void set_state(int state);
 

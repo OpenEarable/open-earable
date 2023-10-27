@@ -139,8 +139,8 @@ Specification Table:
 | Device Info Service | `45622510-6468-465a-b141-0b9b0f96b468`   | Device Identifier    | `45622511-6468-465a-b141-0b9b0f96b468`  | Read        |
 |                     |                                          | Device Generation    | `45622512-6468-465a-b141-0b9b0f96b468`  | Read        |
 | Parse Info Service  | `caa25cb7-7e1b-44f2-adc9-e8c06c9ced43`   | Scheme               | `caa25cb8-7e1b-44f2-adc9-e8c06c9ced43`  | Read        |
-| Audio Service    | `5669146e-476d-11ee-be56-0242ac120002`   | State             | `566916a8-476d-11ee-be56-0242ac120002`  | Read/Notify/Write  |
-|   |   | Source            | `566916a9-476d-11ee-be56-0242ac120002`  | Read/Notify/Write  |
+| Audio Service    | `5669146e-476d-11ee-be56-0242ac120002`   | Source             | `566916a8-476d-11ee-be56-0242ac120002`  | Read/Notify/Write  |
+|   |   | State            | `566916a9-476d-11ee-be56-0242ac120002`  | Read/Notify/Write  |
 | Battery Service     | `180F`                                   | Battery Level        | `2A19`                                  | Read/Notify |
 | Button Service      | `29c10bdc-4773-11ee-be56-0242ac120002`   | Button State         | `29c10f38-4773-11ee-be56-0242ac120002`  | Read/Notify |
 | LED Service         | `81040a2e-4819-11ee-be56-0242ac120002`   | LED Set State        | `81040e7a-4819-11ee-be56-0242ac120002`  | Write       |

@@ -143,13 +143,10 @@ float ToneGenerator::getSampleRate() {
 }
 
 WAVConfigurationPacket ToneGenerator::get_config() {
-    String _name = String(_tone.frequency) + "Hz";
-
     WAVConfigurationPacket wav_packet;
-    wav_packet.size = _name.length();
-
-    for (int i=0; i<_name.length(); i++) {
-        wav_packet.name[i] = _name[i];
-    }
+    wav_packet.mode = 2;
+    memcpy(wav_packet.name, &_tone, sizeof(_tone));
+    wav_packet.size += 1;
+        
     return wav_packet;
 }

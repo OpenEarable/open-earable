@@ -12,6 +12,7 @@ public:
     void begin();
 
     void writePlayerState(uint8_t state);
+    void writeSource(WAVConfigurationPacket packet);
 private:
     bool _available = false;
     BLEService * _wavPlayService;

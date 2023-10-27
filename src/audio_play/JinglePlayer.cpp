@@ -168,6 +168,8 @@ unsigned int JinglePlayer::get_size() {
 WAVConfigurationPacket JinglePlayer::get_config() {
     WAVConfigurationPacket wav_packet;
 
+    wav_packet.mode = 3;
+
     /*wav_packet.state = 0;
     wav_packet.size = _name.length();
 

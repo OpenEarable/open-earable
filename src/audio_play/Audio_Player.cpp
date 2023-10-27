@@ -23,11 +23,12 @@ bool Audio_Player::available() {
 bool Audio_Player::begin() {
     if (_available) return true;
     if (!source || !device) return false;
+    source->setStream(&(device->stream));
     device->setBuffer(AUDIO_BUFFER, audio_b_size, audio_b_count);
     source->begin();
     _sampleRate = source->getSampleRate();
-    Serial.print("sampleRate: ");
-    Serial.println(_sampleRate);
+    //Serial.print("sampleRate: ");
+    //Serial.println(_sampleRate);
     if (!source->available()) return false;
     _sampleRate = device->setSampleRate(_sampleRate);
     device->begin();
@@ -37,30 +38,34 @@ bool Audio_Player::begin() {
 }
 
 void Audio_Player::setSource(AudioSource * source) {
+    if (_available) {
+        Serial.println("The audio player needs to be ended to change the source.");
+        return;
+    }
     this->source = source;
-    if (!source || !device) return;
+    /*if (!source || !device) return;
     _sampleRate = source->getSampleRate();
     device->setSampleRate(_sampleRate);
-    source->setStream(&(device->stream));
+    source->setStream(&(device->stream));*/
+    play_service.writeSource(get_config());
 }
 
 void Audio_Player::setDevice(OutputDevice * device) {
+    if (_available) {
+        Serial.println("The audio player needs to be ended to change the device.");
+        return;
+    }
     this->device = device;
-    if (!device || !source) return;
+    /*if (!device || !source) return;
     _sampleRate = source->getSampleRate();
     _sampleRate = device->setSampleRate(_sampleRate);
-    source->setStream(&(device->stream));
+    source->setStream(&(device->stream));*/
 }
 
 void Audio_Player::play() {
-    if (!source || _running) return;
-
-    if (!_available) begin();
+    if (!_available || !source || _running) return;
 
     if (!source->available()) {
-        //device->reset_buffer();
-        //source->stream.buffer->reset();
-
         source->begin();
         if (!source->available()) return;
     }
@@ -134,6 +139,7 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
         setSource(JinglePlayer::getJingle((Jingle) (configuration.size - 1)));
         break;
     }
+    if (!_available) begin();
     play();
 }
 
@@ -151,7 +157,7 @@ void Audio_Player::set_state(int state) {
     }
 }
 
-WAVConfigurationPacket Audio_Player::make_wav_config() {
+WAVConfigurationPacket Audio_Player::get_config() {
     return source ? source->get_config() : WAVConfigurationPacket();
 }
 
