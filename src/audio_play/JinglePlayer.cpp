@@ -96,12 +96,10 @@ bool JinglePlayer::begin() {
 
     // to enable preload
     _available = true;
+    index = 0;
 
     //preload buffer
-    int cont = provide(_preload_blocks);
-
-    Serial.print("preload blocks: ");
-    Serial.println(cont);
+    preload_buffer();
 
     (*stream)->open();
     _available = (*stream)->available();
@@ -110,6 +108,8 @@ bool JinglePlayer::begin() {
 
 void JinglePlayer::end() {
     (*stream)->close();
+    (*stream)->buffer.clear();
+    _available = false;
 }
 
 bool JinglePlayer::available() {
@@ -119,6 +119,15 @@ bool JinglePlayer::available() {
 void JinglePlayer::setStream(BufferedStream ** stream) {
     if (_available) end();
     this->stream = stream;
+}
+
+void JinglePlayer::preload_buffer() {
+    int cont = provide(_preload_blocks);
+
+    if (_preload_blocks - cont > 0) cont += provide(_preload_blocks - cont);
+
+    Serial.print("preload blocks: ");
+    Serial.println(cont);
 }
 
 int JinglePlayer::provide(int n) {
@@ -158,6 +167,8 @@ unsigned int JinglePlayer::get_size() {
 
 WAVConfigurationPacket JinglePlayer::get_config() {
     WAVConfigurationPacket wav_packet;
+
+    wav_packet.mode = 3;
 
     /*wav_packet.state = 0;
     wav_packet.size = _name.length();

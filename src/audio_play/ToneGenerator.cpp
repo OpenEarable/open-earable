@@ -73,12 +73,7 @@ bool ToneGenerator::begin() {
     _t = 0;
     t_call = 0;
 
-    const int _preload_blocks = 6;
-
-    int cont = provide(_preload_blocks);
-
-    Serial.print("preload blocks: ");
-    Serial.println(cont);
+    preload_buffer();
 
     _available = true;
 
@@ -98,6 +93,15 @@ void ToneGenerator::end() {
 void ToneGenerator::setStream(BufferedStream ** stream) {
     if (_available) end();
     this->stream = stream;
+}
+
+void ToneGenerator::preload_buffer() {
+    int cont = provide(_preload_blocks);
+
+    if (_preload_blocks - cont > 0) cont += provide(_preload_blocks - cont);
+
+    Serial.print("preload blocks: ");
+    Serial.println(cont);
 }
 
 int ToneGenerator::provide(int n) {
@@ -139,13 +143,10 @@ float ToneGenerator::getSampleRate() {
 }
 
 WAVConfigurationPacket ToneGenerator::get_config() {
-    String _name = String(_tone.frequency) + "Hz";
-
     WAVConfigurationPacket wav_packet;
-    wav_packet.size = _name.length();
-
-    for (int i=0; i<_name.length(); i++) {
-        wav_packet.name[i] = _name[i];
-    }
+    wav_packet.mode = 2;
+    memcpy(wav_packet.name, &_tone, sizeof(_tone));
+    wav_packet.size += 1;
+        
     return wav_packet;
 }

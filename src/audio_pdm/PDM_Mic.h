@@ -79,6 +79,7 @@ private:
     void (*_onReceive)(void);
 
     bool _available = false;
+    bool _running = false;
 
     bool checkSampleRateValid(int sampleRate);
 };

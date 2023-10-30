@@ -21,7 +21,7 @@
 #include <audio_play/Audio_Player.h>
 
 #include <custom_sensor/SensorManager_Earable.h>
-#include <configuration_handler/Configuration_Handler.h>
+//#include <configuration_handler/Configuration_Handler.h>
 
 #include <task_manager/TaskManager.h>
 
@@ -29,9 +29,9 @@
 
 #include <utility>
 
+const String device_name = "OpenEarable";
 const String firmware_version = "1.3.0";
 const String hardware_version = "1.3.0";
-const String device_name = "OpenEarable";
 
 bool _data_logger_flag = false;
 
@@ -101,74 +101,55 @@ public:
         edge_ml_generic.debug(stream);
     };
 
-    // SD LOGGING
-    void set_sd_logging(bool enabled) {
-        _data_logger_flag = enabled;
-    }
-
-    void set_logger_file_name(String name) {
-        if (!_data_logger_flag) return;
-        SD_Logger::set_name(std::move(name));
-    }
-
-    void set_player_file_name(String name) {
-        audio_player.setSource(new WavPlayer(name));
-    }
-
-    void set_tone_freq(float frequency) {
-        audio_player.setSource(new ToneGenerator(frequency));
-    }
-
-    void set_recorder_file_name(String name) {
-        //pdm_mic_sensor.set_name(std::move(name));
-        recorder.setTarget(new WavRecorder(name));
-    }
-
-    // Possibly not needed (done with config)
-    void setSampleRate(int sampleRate) {
-        recorder.setSampleRate(sampleRate);
-    };
-
-    void setPDMGain(int gain) {
-        pdm_mic.setGain(gain);
-    };
-
-    void use_serial_data_transmission(bool enabled) {
-        /* TODO: replace
-        */
-        //if (enabled) pdm_mic_sensor.enable_serial_data();
-        //else pdm_mic_sensor.disable_serial_data();
-    }
-
     void configure_sensor(SensorConfigurationPacket& config) {
+        if (config.sensorId != PDM_MIC) {
+            config.sampleRate = config.sampleRate * _rate_factor;
+        }
+
         edge_ml_generic.configure_sensor(config);
     };
 
-    String parse_to_string(int sensorID, byte * data) {
-        return edge_ml_generic.parse_to_string(sensorID, data);
-    }
+    void stop_all_sensors() {
+        SensorConfigurationPacket config;
+        config.sampleRate = 0;
+        config.latency = 0;
+
+        for (int i=0; i<SENSOR_COUNT; i++) {
+            config.sensorId = i;
+            edge_ml_generic.configure_sensor(config);
+        }
+    };
 
 private:
     SensorManager_Earable * _interface{};   // Created new
     Battery_Service * _battery{};           // Created new
 
     Stream * _debug{};
+
+    float baro_samplerate = 0;
+    float imu_samplerate = 0;
+
+    const float _rate_factor = 1.5;
+
+    static void data_callback(int id, unsigned int timestamp, uint8_t * data, int size) {
+        if (_data_logger_flag) {
+            String data_string = edge_ml_generic.parse_to_string(id, data);
+            SD_Logger::data_callback(id, timestamp, data_string);
+        }
+    }
+
+    static void config_callback(SensorConfigurationPacket *config);
 };
 
 OpenEarable open_earable;
 
-void data_callback(int id, unsigned int timestamp, uint8_t * data, int size) {
-    if (_data_logger_flag) {
-        String data_string = open_earable.parse_to_string(id, data);
-        SD_Logger::data_callback(id, timestamp, data_string);
-    }
-}
-
-void config_callback(SensorConfigurationPacket *config) {
+void OpenEarable::config_callback(SensorConfigurationPacket *config) {
     Recorder::config_callback(config);
-    Configuration_Handler::config_callback(config);
+
+    if (config->sensorId == BARO_TEMP) open_earable.baro_samplerate = config->sampleRate / open_earable._rate_factor;
+    if (config->sensorId == ACC_GYRO_MAG) open_earable.imu_samplerate = config->sampleRate / open_earable._rate_factor;
+
+    task_manager.begin(max(open_earable.baro_samplerate, open_earable.imu_samplerate));
 }
-
-
 
 #endif //EDGE_ML_EARABLE_EDGEML_EARABLE_H

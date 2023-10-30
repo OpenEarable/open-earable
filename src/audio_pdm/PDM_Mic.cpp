@@ -153,9 +153,10 @@ bool PDM_Mic::available() {
 }
 
 void PDM_Mic::start() {
-    if (!_available) return;
+    if (!_available || _running) return;
 
     _first = true;
+    _running = true;
     
     // enable and trigger start task
     nrf_pdm_enable();
@@ -164,7 +165,9 @@ void PDM_Mic::start() {
 }
 
 void PDM_Mic::stop() {
+    if (!_available || !_running) return;
     nrf_pdm_task_trigger(NRF_PDM_TASK_STOP);
+    _running = false;
 }
 
 void PDM_Mic::end() {
@@ -180,7 +183,8 @@ void PDM_Mic::end() {
 
     pinMode(_clkPin, INPUT);
 
-    _available = false;;
+    _available = false;
+    _running = false;
 }
 
 void PDM_Mic::onReceive(void(*function)(void)) {

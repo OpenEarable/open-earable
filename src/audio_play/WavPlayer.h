@@ -37,7 +37,7 @@ private:
 
     unsigned int _cur_read_sd = 0;
 
-    int _preload_blocks = 6; // 12
+    const int _preload_blocks = 6; // 12
 
     bool sd_setup();
     bool check_format();

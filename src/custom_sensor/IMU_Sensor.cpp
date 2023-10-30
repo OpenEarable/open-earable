@@ -38,23 +38,23 @@ void IMU_Sensor::get_data(int sensorID, byte *data) {
     float * floatArray = (float*)data;
 
     get_acc(x,y,z);
-    floatArray[0+index] = -x;
-    floatArray[1+index] = z;
-    floatArray[2+index] = y;
+    floatArray[0+index] = x;
+    floatArray[1+index] = y;
+    floatArray[2+index] = z;
 
     index += 3;
 
     get_gyro(x,y,z);
-    floatArray[0+index] = -x;
-    floatArray[1+index] = z;
-    floatArray[2+index] = y;
+    floatArray[0+index] = x;
+    floatArray[1+index] = y;
+    floatArray[2+index] = z;
 
     index += 3;
 
     get_mag(x,y,z);
-    floatArray[0+index] = -x;
-    floatArray[1+index] = z;
-    floatArray[2+index] = y;
+    floatArray[0+index] = x;
+    floatArray[1+index] = y;
+    floatArray[2+index] = z;
 }
 
 void IMU_Sensor::get_acc(float &x, float &y, float &z) {
@@ -62,9 +62,9 @@ void IMU_Sensor::get_acc(float &x, float &y, float &z) {
         return;
     }
 
-    x = (float) accel_data.x;
-    y = (float) accel_data.y;
-    z = (float) accel_data.z;
+    x = (float) -accel_data.x;
+    y = (float) accel_data.z;
+    z = (float) accel_data.y;
 }
 
 void IMU_Sensor::get_gyro(float &x, float &y, float &z) {
@@ -72,9 +72,9 @@ void IMU_Sensor::get_gyro(float &x, float &y, float &z) {
         return;
     }
 
-    x = (float) gyro_data.x;
-    y = (float) gyro_data.y;
-    z = (float) gyro_data.z;
+    x = (float) -gyro_data.x;
+    y = (float) gyro_data.z;
+    z = (float) gyro_data.y;
 }
 
 void IMU_Sensor::get_mag(float &x, float &y, float &z) {
@@ -82,9 +82,9 @@ void IMU_Sensor::get_mag(float &x, float &y, float &z) {
         return;
     }
 
-    x = (float) magno_data.x;
-    y = (float) magno_data.y;
-    z = (float) magno_data.z;
+    x = (float) -magno_data.x;
+    y = (float) magno_data.z;
+    z = (float) magno_data.y;
 }
 
 int IMU_Sensor::get_sensor_count() {

@@ -49,10 +49,10 @@ void Recorder::print_info() {
     if (target) {
         Serial.println("SET");
         if (target->available()) {
-            Serial.println("taget: available");
+            Serial.println("target: available");
             //Serial.print("taget samplerate: ");
             //Serial.println(target->);
-        } else Serial.println("taget: not available");
+        } else Serial.println("target: not available");
     } else Serial.println("NOT SET");
 
     Serial.print("device: ");
