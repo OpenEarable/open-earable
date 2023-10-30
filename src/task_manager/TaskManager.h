@@ -8,18 +8,24 @@
 
 class TaskManager {
 public:
-    void begin(float edge_rate = 0);
+    void begin(float baro_samplerate = -1, float imu_samplerate = -1);
     void update();
 private:
     int _current_conf_num;
 
-    float _rate_factor = 1.25;
+    const int _default_loop_delay = 50;
+    int _baro_delay = _default_loop_delay;
+    int _imu_delay = _default_loop_delay;
 
-    unsigned int _edge_ml_delay;
+    //float _rate_factor = 1.25;
+
+    int _edge_ml_delay;
     unsigned int _edge_ml_last;
+    unsigned int _baro_last;
+    unsigned int _imu_last;
 
-    unsigned int _overlap = 2; // Overlap time in ms
-    unsigned int _buffer_interval_time;
+    int _overlap = 2; // Overlap time in ms
+    int _buffer_interval_time;
 
     bool _buffer_flag = false;
 
@@ -38,10 +44,6 @@ private:
     float _mean_i2s = 5.7;
     const float _std_i2s = 1.7;
     float _var_i2s = _std_i2s * _std_i2s; // * 1.7;
-
-    //I2S: 9.12, 3.63 PDM: 13.76, 6.26
-
-    float _default_loop_rate = 20;
 
     void update_edge_ml();
     int update_audio(Provider * provider, int n);
