@@ -182,13 +182,14 @@ This Characteristic is responsible for sending data packages from the Earable to
 
 Data Package:
 
-| Byte 0   | Byte 1-4   | Byte 5-X   |
-|----------|------------|------------|
-| SensorID | Time Stamp | Data Array |
-| uint8    | uint32     | ---        |
+| Byte 0   | Byte 1 | Byte 1-4   | Byte 5-X   |
+|----------|--------|------------|------------|
+| SensorID | Size   | Time Stamp | Data Array |
+| uint8    | uint8  | uint32     | ---        |
 
 
 SensorID: ID of the sensor.<br>
+Size: Length of the data array.<br>
 Time Stamp:  Timestamp in milliseconds.<br>
 Data Array: Array of bytes, which need to be parsed according the sensors parsing scheme.
 
