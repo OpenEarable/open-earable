@@ -17,8 +17,10 @@ OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing 
   - [SD Card Setup](#SD-Card-Setup)
   - [SPI Setup](#SPI-Setup)
   - [sdfat Library Setup](#sdfat-Library-Setup)
+  - [BMP280 Library Setup](#BMP280-Library-Setup)
 - [Usage](#Usage)
-  - [Default Firmware](#Example)
+  - [Install OpenEarable](#Install-OpenEarable)
+  - [Default Firmware](#Default-Firmware)
   - [Dashboard](#Dashboard)
   - [edge-ml](#edge-ml)
 - [BLE Specification](#BLE-Specification)
@@ -97,6 +99,15 @@ The BMP280 library has to be slightly modified.
 2. Replace the files `Adafruit_BMP280.cpp` and `Adafruit_BMP280.h` with the files found in the `resources/Adafruit_BMP280_Library` folder of this repository.
 
 ## Usage
+### Install OpenEarable
+Now that all dependencies are configured, the last step is to install this repository as a library as follows:
+
+1. In your Arduino IDE click on `Sketch -> Include Library -> Add .ZIP Library....`
+2. Navigate to the location where you saved the downloaded zip file.
+3. Select the zip file and click Open.
+
+Once done, the library should be available in the `Sketch -> Include Library` menu.
+
 ### Default Firmware
 The easiest way to use OpenEarable is with the provided App sketch. 
 It can be found within Arduino under `File -> Examples-> OpenEarable -> App`.
