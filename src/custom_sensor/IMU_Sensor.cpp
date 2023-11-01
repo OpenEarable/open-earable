@@ -7,9 +7,8 @@ IMU_Sensor::IMU_Sensor() {
 }
 
 void IMU_Sensor::start() {
-    if (available) {
-        return;
-    }
+    if (available) return;
+    
     Wire1.begin();
     if (IMU->begin()) {
         available = true;
@@ -17,9 +16,8 @@ void IMU_Sensor::start() {
 }
 
 void IMU_Sensor::end() {
-    if (!available) {
-        return;
-    }
+    if (!available) return;
+    
     IMU->softReset();
     available = false;
 }
@@ -58,9 +56,7 @@ void IMU_Sensor::get_data(int sensorID, byte *data) {
 }
 
 void IMU_Sensor::get_acc(float &x, float &y, float &z) {
-    if (!available) {
-        return;
-    }
+    if (!available) return;
 
     x = (float) -accel_data.x;
     y = (float) accel_data.z;
@@ -68,9 +64,7 @@ void IMU_Sensor::get_acc(float &x, float &y, float &z) {
 }
 
 void IMU_Sensor::get_gyro(float &x, float &y, float &z) {
-    if (!available) {
-        return;
-    }
+    if (!available) return;
 
     x = (float) -gyro_data.x;
     y = (float) gyro_data.z;
@@ -78,9 +72,7 @@ void IMU_Sensor::get_gyro(float &x, float &y, float &z) {
 }
 
 void IMU_Sensor::get_mag(float &x, float &y, float &z) {
-    if (!available) {
-        return;
-    }
+    if (!available) return;
 
     x = (float) -magno_data.x;
     y = (float) magno_data.z;
@@ -92,8 +84,7 @@ int IMU_Sensor::get_sensor_count() {
 }
 
 void IMU_Sensor::get_all() {
-    if (!available) {
-        return;
-    }
+    if (!available) return;
+    
     IMU->getAllData(&magno_data, &gyro_data, &accel_data);
 }

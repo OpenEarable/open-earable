@@ -103,7 +103,7 @@ public:
 
     void configure_sensor(SensorConfigurationPacket& config) {
         if (config.sensorId != PDM_MIC) {
-            config.sampleRate = config.sampleRate * _rate_factor;
+            config.sampleRate = config.sampleRate; // * _rate_factor;
         }
 
         edge_ml_generic.configure_sensor(config);
@@ -126,11 +126,6 @@ private:
 
     Stream * _debug{};
 
-    float baro_samplerate = 0;
-    float imu_samplerate = 0;
-
-    const float _rate_factor = 1.5;
-
     static void data_callback(int id, unsigned int timestamp, uint8_t * data, int size) {
         if (_data_logger_flag) {
             String data_string = edge_ml_generic.parse_to_string(id, data);
@@ -144,12 +139,10 @@ private:
 OpenEarable open_earable;
 
 void OpenEarable::config_callback(SensorConfigurationPacket *config) {
-    Recorder::config_callback(config);
-
-    if (config->sensorId == BARO_TEMP) open_earable.baro_samplerate = config->sampleRate / open_earable._rate_factor;
-    if (config->sensorId == ACC_GYRO_MAG) open_earable.imu_samplerate = config->sampleRate / open_earable._rate_factor;
-
-    task_manager.begin(max(open_earable.baro_samplerate, open_earable.imu_samplerate));
+    if (config->sensorId == PDM_MIC) Recorder::config_callback(config);
+    else if (config->sensorId == BARO_TEMP) task_manager.begin(config->sampleRate, -1); // / open_earable._rate_factor;
+    else if (config->sensorId == ACC_GYRO_MAG) task_manager.begin(-1, config->sampleRate); // / open_earable._rate_factor;
+    //else task_manager.begin();
 }
 
 #endif //EDGE_ML_EARABLE_EDGEML_EARABLE_H

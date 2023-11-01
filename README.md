@@ -78,11 +78,17 @@ To fully integrate the optimized SPI files, changes to the Arduino Nano 33 BLE b
 
 6. Locate the existing `SPI` library folder within this directory. It needs to be swapped with the provided folder named "SPI" in "resources/spi_files" found in this repository.
 
-7. Similarly, navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/cores/arduino/mbed/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/drivers`.
+7. Locate the existing `Wire` library folder within this directory. It needs to be swapped with the provided folder named "Wire" in "resources/wire_files" found in this repository.
 
-8. In the subdirectory `include`, locate the file named `nrfx_spi.h` and replace it with the provided `nrfx_spi.h` file from the `resources/spi_files` folder of this repository.
+8. Navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/cores/api`.
 
-9. In the subdirectory `src`, place the `nrfx_spim.c` file provided under `resources/spi_files` of this repository.
+9. Place the files `RingBuffer.h` and `RingBuffer.cpp` from "resources/wire_files" into this folder.
+
+10. Similarly, navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/cores/arduino/mbed/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/drivers`.
+
+11. In the subdirectory `include`, locate the file named `nrfx_spi.h` and replace it with the provided `nrfx_spi.h` file from the `resources/spi_files` folder of this repository.
+
+12. In the subdirectory `src`, place the `nrfx_spim.c` file provided under `resources/spi_files` of this repository.
 
 ### sdFat Library Setup
 One of the library dependencies is the SdFat library from Bill Greiman.

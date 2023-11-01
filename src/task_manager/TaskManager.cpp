@@ -75,12 +75,25 @@ void TaskManager::update_edge_ml() {
     if (now - _edge_ml_last >= _edge_ml_delay) {
         //Serial.print("delay: ");
         //Serial.println(now - _edge_ml_last - _edge_ml_delay);
+
+        //edge_ml_generic.update(true);
+        sensorProvider.update_manager();
+        if (now - _baro_last >= _baro_delay) {
+            sensorProvider.update_sensor(BARO_TEMP, true);
+            _baro_last = now;
+        }
+        if (now - _imu_last >= _imu_delay) {
+            sensorProvider.update_sensor(ACC_GYRO_MAG, true);
+            _imu_last = now;
+        }
+
+        bleHandler_G.update();
+        //Serial.print(" edge_ml time: ");
+        //Serial.println(millis() - now);
+
         _edge_ml_last = now;
         _buffer_flag = false;
         //now = millis();
-        edge_ml_generic.update();
-        //Serial.print(" edge_ml time: ");
-        //Serial.println(millis() - now);
     }
 
     BLE.poll();
@@ -98,13 +111,22 @@ int TaskManager::update_audio(Provider * provider, int max_buffers) {
     return cont + cont2;
 }
 
-void TaskManager::begin(float edge_rate) {
+void TaskManager::begin(float baro_samplerate, float imu_samplerate) {
+    if (baro_samplerate >= 0) _baro_delay = (int) baro_samplerate > 0 ? (1000.0/baro_samplerate) : _default_loop_delay;
+    if (imu_samplerate >= 0) _imu_delay = (int) imu_samplerate > 0 ? (1000.0/imu_samplerate) : _default_loop_delay;
+
+    _edge_ml_delay = min(_baro_delay, _imu_delay);
+
+    /*float edge_rate = max(baro_samplerate, imu_samplerate);
+
     if (edge_rate <= 0) {
         edge_rate = _default_loop_rate;
     }
 
-    _edge_ml_delay = (int)(1000.0/edge_rate);
+    _edge_ml_delay = (int)(1000.0/edge_rate);*/
     _edge_ml_last = millis();
+    _baro_last = _edge_ml_last;
+    _imu_last = _edge_ml_last;
 
     _buffer_interval_time = _edge_ml_delay - _overlap;
 
