@@ -67,6 +67,10 @@ int WavRecorder::provide(int max_cont) {
     return cont;
 }
 
+String WavRecorder::get_name() {
+    return _name;
+}
+
 void WavRecorder::start() {
     if (_stream) return;
 

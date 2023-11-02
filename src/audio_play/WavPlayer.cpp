@@ -97,7 +97,7 @@ bool WavPlayer::check_format() {
     if (info.sampleRate != PLAYER_FORMAT.sampleRate) {
         Serial.print("Error: The Audio Player requires the sample rate to be ");
         Serial.print(PLAYER_FORMAT.sampleRate);
-        Serial.println("!");
+        Serial.println("Hz!");
         return false;
     }
 

@@ -76,7 +76,7 @@ To fully integrate the optimized SPI files, changes to the Arduino Nano 33 BLE b
 
 7. Locate the existing `Wire` library folder within this directory. It needs to be swapped with the provided folder named "Wire" in "resources/wire_files" found in this repository.
 
-8. Navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/cores/api`.
+8. Navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/cores/arduino`.
 
 9. Place the files `RingBuffer.h` and `RingBuffer.cpp` from "resources/wire_files" into this folder.
 
