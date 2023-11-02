@@ -3,10 +3,10 @@
 OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing applications. It provides a versatile prototyping platform with support for various sensors and actuators, making it suitable for earable research and development.
 
 <kbd> <br> [Get OpenEarable device now!](https://forms.gle/R3LMcqtyKwVH7PZB9) <br> </kbd>
-
-<p align="center" width="100%">
-    <img width="33%" src="./img/earable.png"> 
+<p align="center" width="100%" style="max-width: 300px">
+ <img width="400" src="https://github.com/OpenEarable/open-earable/assets/11386075/e24b08eb-ecaa-4790-9d08-2e192c11fb59">
 </p>
+
 
 
 ## Table of Contents
