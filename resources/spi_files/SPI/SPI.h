@@ -24,10 +24,6 @@
 #include <Arduino.h>
 #include "nrfx_spim.h"
 
-#define SPI_INTERFACES_COUNT 1
-
-#define F_CPU 64000000
-
 // SPI_HAS_TRANSACTION means SPI has
 //   - beginTransaction()
 //   - endTransaction()
@@ -104,11 +100,11 @@ class SPIClass {
     bool initialized;
 };
 
-#if SPI_INTERFACES_COUNT > 0
+#if SPI_HOWMANY > 0
 extern SPIClass SPI;
 #endif
 
-#if SPI_INTERFACES_COUNT > 1
+#if SPI_HOWMANY > 1
 extern SPIClass SPI1;
 #endif
 
