@@ -134,6 +134,9 @@ void loop()
 
 With this minimum sketch, all internal functionality is activated and OpenEarable becomes controllable via our [Dashboard](https://github.com/OpenEarable/dashboard), via [EdgeML](https://edge-ml.org/), and via the BLE API.
 
+### Flashing
+To flash the firmware, make sure you select `Arduino Nano 33 BLE` as target and the port that your OpenEarable is connected to. Then simply press the `Upload` arrow.
+
 ### Dashboard
 
 OpenEarable can be directly connected to our [Dashboard](https://github.com/OpenEarable/dashboard).
