@@ -44,7 +44,7 @@ OpenEarable is controlled and streams sensor data via BLE (Bluetooth Low Energy)
 ## Setup
 
 ### Arduino IDE
-Download and install the Arduino IDE. OpenEarable is based on the "Arduino Nano 33 BLE Sense" board. Therefore, you first have to install the required dependencies in your Arduino IDE following this [Setup Guide](https://docs.arduino.cc/hardware/nano-33-ble-sense).
+Download and install the Arduino IDE. OpenEarable is based on the "Arduino Nano 33 BLE Sense" board. Therefore, you first have to install the required dependencies in your Arduino IDE following this [Setup Guide]([https://docs.arduino.cc/hardware/nano-33-ble-sense](https://docs.arduino.cc/software/ide-v2/tutorials/ide-v2-board-manager#mbed-os-nano)).
 
 ### Arduino Libraries
 The following Arduino Libraries have to be installed in your Arduino IDE by navigating to `Sketch -> Include Library -> Manage Libraries`:
