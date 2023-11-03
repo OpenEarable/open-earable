@@ -140,8 +140,8 @@ OpenEarable open_earable;
 
 void OpenEarable::config_callback(SensorConfigurationPacket *config) {
     if (config->sensorId == PDM_MIC) Recorder::config_callback(config);
-    else if (config->sensorId == BARO_TEMP) task_manager.begin(config->sampleRate, -1); // / open_earable._rate_factor;
-    else if (config->sensorId == ACC_GYRO_MAG) task_manager.begin(-1, config->sampleRate); // / open_earable._rate_factor;
+    else if (config->sensorId == BARO_TEMP) task_manager.begin(config->sampleRate, -1);
+    else if (config->sensorId == ACC_GYRO_MAG) task_manager.begin(-1, config->sampleRate);
     //else task_manager.begin();
 }
 

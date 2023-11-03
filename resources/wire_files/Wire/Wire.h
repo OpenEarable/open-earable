@@ -21,6 +21,7 @@
 #ifndef TwoWire_h
 #define TwoWire_h
 
+#include <Arduino.h>
 #include "nrf.h"
 
 #include "Stream.h"
@@ -28,9 +29,6 @@
 
 // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
-
-// Michael
-#define WIRE_INTERFACES_COUNT 2
 
 class TwoWire : public Stream
 {
@@ -100,12 +98,16 @@ class TwoWire : public Stream
     static const uint32_t TWI_CLOCK = 100000;
 };
 
-#if WIRE_INTERFACES_COUNT > 0
+#if WIRE_HOWMANY > 0
 extern TwoWire Wire;
 #endif
 
-#if WIRE_INTERFACES_COUNT > 1
+#if WIRE_HOWMANY > 1
 extern TwoWire Wire1;
+#endif
+
+#if WIRE_HOWMANY > 2
+extern TwoWire Wire2;
 #endif
 
 #endif

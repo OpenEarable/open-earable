@@ -19,7 +19,10 @@ bool SDManager::begin() {
     detachInterrupt(digitalPinToInterrupt(EPIN_SD_STATE));
     attachInterrupt(digitalPinToInterrupt(EPIN_SD_STATE), _read_sd_state, CHANGE);
 
-    if (!sd_inserted) return false;
+    if (!sd_inserted) {
+        Serial.println("No SD card inserted.");
+        return false;
+    }
 
     _available = sd->begin(SPI_CC, SPI_SPEED);
     return _available;

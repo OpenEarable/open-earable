@@ -26,6 +26,8 @@ public:
 
     void enable_serial_data();
     void disable_serial_data();
+
+    String get_name();
 private:
     bool _stream = false;
 

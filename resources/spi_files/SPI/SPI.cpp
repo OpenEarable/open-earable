@@ -350,12 +350,12 @@ void SPIClass::detachInterrupt() {
   #error "not supported yet"
 #endif
 
-#if SPI_INTERFACES_COUNT >= 1
+#if SPI_HOWMANY >= 1
 // use SPIM3 for highspeed 32Mhz
 SPIClass SPI(_SPI_DEV,  PIN_SPI_MISO,  PIN_SPI_SCK,  PIN_SPI_MOSI);
 #endif
 
-#if SPI_INTERFACES_COUNT >= 2
+#if SPI_HOWMANY >= 2
 SPIClass SPI1(_SPI1_DEV, PIN_SPI1_MISO, PIN_SPI1_SCK, PIN_SPI1_MOSI);
 #endif
 
