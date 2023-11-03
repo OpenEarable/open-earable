@@ -49,8 +49,8 @@ Download and install the Arduino IDE. OpenEarable is based on the "Arduino Nano 
 ### Arduino Libraries
 The following Arduino Libraries have to be installed in your Arduino IDE by navigating to `Sketch -> Include Library -> Manage Libraries`:
 - [EdgeML-Arduino](https://github.com/edge-ml/EdgeML-Arduino), which includes the following dependencies that are also required and automatically installed:
-	- [Adafruit_BMP280](https://github.com/adafruit/Adafruit_BMP280_Library)
 	- [ArduinoBLE](https://github.com/arduino-libraries/ArduinoBLE)
+- [Adafruit_BMP280](https://github.com/adafruit/Adafruit_BMP280_Library)
 - [DFRobot_BMX160](https://github.com/DFRobot/DFRobot_BMX160)
 - [SdFat - Adafruit Fork](https://github.com/adafruit/SdFat)
 
@@ -59,36 +59,32 @@ The following Arduino Libraries have to be installed in your Arduino IDE by navi
 In order to be compatible with the OpenEarable library the SD card needs to be formatted with the exFAT format.
 Make sure to have a sufficiently fast SD card. (Recommended SD Card: SandDisk class 10 and class A30)
 
-### SPI Setup
+### SPI, Wire, and Variant Setup
 
 The default Arduino implementation of the SPI library does not meet the required speed. To address this, optimized SPI files are provided. Follow the steps below to integrate these files into Arduino.
 All referenced files can be found in the "resources" folder in the "spi_files" subfolder.
 
 To fully integrate the optimized SPI files, changes to the Arduino Nano 33 BLE board files have to be made. Follow the steps below to accomplish this:
 
-1. Open the Arduino IDE.
+1. Navigate to the Arduino15 folder as described in [this tutorial](https://support.arduino.cc/hc/en-us/articles/4415103213714-Find-sketches-libraries-board-cores-and-other-files-on-your-computer#boards).
 
-2. In the top left corner, click on "File."
+2. Navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/libraries`. *Please note:* If you have a different version than mbed_nano 4.0.4 installed or you don't have it installed at all, you can change or add it by navigating to `Tools -> Board -> Boards Manager`. Search for `Arduino Mbed OS Nano Boards` and install the desired version.
 
-3. From the dropdown menu, select "Preferences."
+3. Locate the existing `SPI` library folder within this directory. It needs to be swapped with the provided folder named "SPI" in "resources/spi_files" found in this repository.
 
-4. At the bottom of the new window, there is a hyperlink labeled under "More preferences can be edited directly in the file". Click on this hyperlink to access the file explorer.
+4. Locate the existing `Wire` library folder within the libraries folder. It needs to be swapped with the provided folder named "Wire" in "resources/wire_files" found in this repository (make sure to delete the Wire.cpp file).
 
-5. Navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/libraries`. *Please note:* If you have a different version than mbed_nano 4.0.4 installed or you don't have it installed at all, you can change or add it by navigating to `Tools -> Board -> Boards Manager`. Search for `Arduino Mbed OS Nano Boards` and install the desired version.
+5. Navigate to the following directory in the `Arduino15`directory: `packages/arduino/hardware/mbed_nano/4.0.4/cores/arduino`.
 
-6. Locate the existing `SPI` library folder within this directory. It needs to be swapped with the provided folder named "SPI" in "resources/spi_files" found in this repository.
+6. Place the files `RingBuffer.h` and `RingBuffer.cpp` from "resources/wire_files" into this folder.
 
-7. Locate the existing `Wire` library folder within this directory. It needs to be swapped with the provided folder named "Wire" in "resources/wire_files" found in this repository.
+7. Similarly, navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/cores/arduino/mbed/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/drivers`.
 
-8. Navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/cores/arduino`.
+8. In the subdirectory `include`, locate the file named `nrfx_spim.h` and replace it with the provided `nrfx_spim.h` file from the `resources/spi_files` folder of this repository.
 
-9. Place the files `RingBuffer.h` and `RingBuffer.cpp` from "resources/wire_files" into this folder.
-
-10. Similarly, navigate to the following directory: `packages/arduino/hardware/mbed_nano/4.0.4/cores/arduino/mbed/targets/TARGET_NORDIC/TARGET_NRF5x/TARGET_SDK_15_0/modules/nrfx/drivers`.
-
-11. In the subdirectory `include`, locate the file named `nrfx_spi.h` and replace it with the provided `nrfx_spi.h` file from the `resources/spi_files` folder of this repository.
-
-12. In the subdirectory `src`, place the `nrfx_spim.c` file provided under `resources/spi_files` of this repository.
+9. In the subdirectory `src`, place the `nrfx_spim.c` file provided under `resources/spi_files` of this repository (note: you will not find an existing file named nrfx_spim.c).
+    
+10. Navigate back to the `Arduino15` folder. Navigate to `packages/arduino/hardware/mbed_nano/4.0.4/variants/ARDUINO_NANO33BLE`. Replace `pins_arduino.h` and `variant.cpp `with the files provided under `resources/variant` of this repository.
 
 ### sdFat Library Setup
 One of the library dependencies is the SdFat library from Bill Greiman.
