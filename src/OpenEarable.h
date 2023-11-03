@@ -142,6 +142,13 @@ void OpenEarable::config_callback(SensorConfigurationPacket *config) {
     if (config->sensorId == PDM_MIC) Recorder::config_callback(config);
     else if (config->sensorId == BARO_TEMP) task_manager.begin(config->sampleRate, -1);
     else if (config->sensorId == ACC_GYRO_MAG) task_manager.begin(-1, config->sampleRate);
+    else {
+        if (i2s_player.is_running()) {
+            i2s_player.stop();
+            delay(1);
+            i2s_player.start();
+        }
+    }
     //else task_manager.begin();
 }
 
