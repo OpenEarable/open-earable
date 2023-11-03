@@ -2,9 +2,11 @@
 
 OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing applications. It provides a versatile prototyping platform with support for various sensors and actuators, making it suitable for earable research and development.
 
-<p align="center" width="100%">
-    <img width="33%" src="./img/earable.png"> 
+<kbd> <br> [Get OpenEarable device now!](https://forms.gle/R3LMcqtyKwVH7PZB9) <br> </kbd>
+<p align="center" width="100%" style="max-width: 300px">
+ <img width="400" src="https://github.com/OpenEarable/open-earable/assets/11386075/e24b08eb-ecaa-4790-9d08-2e192c11fb59">
 </p>
+
 
 
 ## Table of Contents
@@ -15,8 +17,10 @@ OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing 
   - [SD Card Setup](#SD-Card-Setup)
   - [SPI Setup](#SPI-Setup)
   - [sdfat Library Setup](#sdfat-Library-Setup)
+  - [BMP280 Library Setup](#BMP280-Library-Setup)
 - [Usage](#Usage)
-  - [Default Firmware](#Example)
+  - [Install OpenEarable](#Install-OpenEarable)
+  - [Default Firmware](#Default-Firmware)
   - [Dashboard](#Dashboard)
   - [edge-ml](#edge-ml)
 - [BLE Specification](#BLE-Specification)
@@ -34,7 +38,7 @@ OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing 
 OpenEarable is designed to enable ear-based sensing applications by offering a flexible and open-source hardware platform. It incorporates a range of sensors, including a 9-axis inertial measurement unit, an ear canal pressure and temperature sensor, an inward-facing ultrasound microphone, a speaker, a push button, and a controllable RGB LED. With these features, OpenEarable provides researchers and developers with the ability to explore various application scenarios. 
 For more information visit the [OpenEarable](https://open-earable.teco.edu/) website.
 
-OpenEarable is controlled and streams sensor data via BLE (Bluetooth Low Energy). Audio is played from and recorded to the internal SD card. OpenEarable is compatible with the provided [dashboard](https://github.com/OpenEarable/dashboard) and [edge-ml](https://edge-ml.org/). 
+OpenEarable is controlled and streams sensor data via BLE (Bluetooth Low Energy). Audio is played from and recorded to the internal SD card (recommended card SanDisk Extreme Class 3, must be formatted as exFAT). OpenEarable is compatible with the provided [dashboard](https://github.com/OpenEarable/dashboard) and [edge-ml](https://edge-ml.org/). 
 
 
 ## Setup
@@ -95,7 +99,21 @@ To achieve the desired write speeds of up to 1.5Mbps the library has to be modif
    
 3. Inside the `src` folder, replace the `SdFatConfig.h` with the provided `SdFatConfig.h` file found in the `resources/sdfat_config` folder of this repository.
 
+### BMP280 Library Setup
+The BMP280 library has to be slightly modified.
+1. Go to the `Arduino/libraries` folder (commonly found in your `Documents` folder) and locate the `Adafruit_BMP280_Library` folder.
+2. Replace the files `Adafruit_BMP280.cpp` and `Adafruit_BMP280.h` with the files found in the `resources/Adafruit_BMP280_Library` folder of this repository.
+
 ## Usage
+### Install OpenEarable
+Now that all dependencies are configured, the last step is to install this repository as a library as follows:
+
+1. In your Arduino IDE click on `Sketch -> Include Library -> Add .ZIP Library....`
+2. Navigate to the location where you saved the downloaded zip file.
+3. Select the zip file and click Open.
+
+Once done, the library should be available in the `Sketch -> Include Library` menu.
+
 ### Default Firmware
 The easiest way to use OpenEarable is with the provided App sketch. 
 It can be found within Arduino under `File -> Examples-> OpenEarable -> App`.
@@ -181,13 +199,14 @@ This Characteristic is responsible for sending data packages from the Earable to
 
 Data Package:
 
-| Byte 0   | Byte 1-4   | Byte 5-X   |
-|----------|------------|------------|
-| SensorID | Time Stamp | Data Array |
-| uint8    | uint32     | ---        |
+| Byte 0   | Byte 1 | Byte 1-4   | Byte 5-X   |
+|----------|--------|------------|------------|
+| SensorID | Size   | Time Stamp | Data Array |
+| uint8    | uint8  | uint32     | ---        |
 
 
 SensorID: ID of the sensor.<br>
+Size: Length of the data array.<br>
 Time Stamp:  Timestamp in milliseconds.<br>
 Data Array: Array of bytes, which need to be parsed according the sensors parsing scheme.
 
