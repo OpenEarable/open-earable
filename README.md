@@ -48,10 +48,8 @@ Download and install the Arduino IDE. OpenEarable is based on the "Arduino Nano 
 
 ### Arduino Libraries
 The following Arduino Libraries have to be installed in your Arduino IDE by navigating to `Sketch -> Include Library -> Manage Libraries`:
-- [EdgeML-Arduino](https://github.com/edge-ml/EdgeML-Arduino)
-- [Adafruit_BMP280](https://github.com/adafruit/Adafruit_BMP280_Library)
+- [EdgeML-Arduino](https://github.com/edge-ml/EdgeML-Arduino) (install all dependencies!)
 - [DFRobot_BMX160](https://github.com/DFRobot/DFRobot_BMX160)
-- [ArduinoBLE](https://github.com/arduino-libraries/ArduinoBLE)
 - [SdFat - Adafruit Fork](https://github.com/adafruit/SdFat)
 
 
