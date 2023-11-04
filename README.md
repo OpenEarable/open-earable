@@ -122,7 +122,7 @@ It can be found within Arduino under `File -> Examples-> OpenEarable -> App`.
 The absolute minimum needed to run the code successfully is the following:
 
 ```c++
-include "Arduino.h"
+#include "Arduino.h"
 #include "OpenEarable.h"
 
 void setup()
