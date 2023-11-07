@@ -39,7 +39,7 @@ const SensorComponent ACC_COMPONENTS[] = {
 
 const SensorComponent PRESSURE_TEMP_COMPONENTS[] = {
         {"TEMP", PARSE_TYPE_FLOAT, "Temperature", "°C"},
-        {"BARO", PARSE_TYPE_FLOAT, "Pressure", "Pa"}
+        {"BARO", PARSE_TYPE_FLOAT, "Pressure", "kPa"}
 };
 
 
