@@ -4,26 +4,14 @@
 #define NO_JINGLES
 
 #include <Arduino.h>
-//#include <Thread.h>
 
 #include <arduinoFFT.h>
 
 #include "OpenEarable.h"
 
-String file_name = "play_file_2.wav";
-
-String record_file;
-
-long start;
-
-bool sensor_started = true;
-bool recording_finished = false;
-
 const RGBColor red = {255,0,0};
 const RGBColor green = {0,255,0};
 const RGBColor off = {0,0,0};
-
-//void (*task)();
 
 #define NUM_TESTS 4
 
@@ -120,8 +108,6 @@ void test_imu() {
   if (!was_pressed && button_state) {
     was_pressed = true;
 
-    //float pressure = *(sensor_data[BARO_TEMP][sizeof(float)]);
-
     for (int i = 0; i < 9; i++) {
       /*Serial.print(values[i]);
       Serial.print(", ");*/
@@ -144,7 +130,6 @@ void test_imu() {
 
     float duration = millis() - time_pressed;
 
-    //check acc
     float acc = sqrt(values[0] * values[0] + values[1] * values[1] + values[2] * values[2]);
     
     switch(state) {
@@ -246,9 +231,8 @@ void test_baro() {
     init = false;
   }
 
-  float temp = *((float *) sensor_data[BARO_TEMP]);
+  float temp = *reinterpret_cast<const float*>(sensor_data[BARO_TEMP]);
   float pressure = *reinterpret_cast<const float*>(sensor_data[BARO_TEMP] + sizeof(float));
-  //float pressure = *(sensor_data[BARO_TEMP][sizeof(float)]);
 
   const float alpha = 0.01;
 
@@ -342,9 +326,8 @@ void test_mic() {
 
     /*for (int i = 0; i < 30; i++) {
       Serial.println(vReal[i]);
-    }*/
-
-    //Serial.println();
+    }
+    Serial.println();*/
 
     float freq = FFT.MajorPeakParabola();
 
