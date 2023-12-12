@@ -99,7 +99,7 @@ To achieve the desired write speeds of up to 1.5Mbps the library has to be modif
 The BMP280 library has to be slightly modified.
 1. Go to the `Arduino/libraries` folder (commonly found in your `Documents` folder) and locate the `Adafruit_BMP280_Library` folder.
 2. Replace the files `Adafruit_BMP280.cpp` and `Adafruit_BMP280.h` with the files found in the `resources/Adafruit_BMP280_Library` folder of this repository.
-3. 
+   
 
 ### Reboot
 To make sure that all your changes are applied correctly, restart your computer.
