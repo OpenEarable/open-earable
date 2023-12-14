@@ -133,7 +133,7 @@ void Audio_Player::ble_configuration(WAVConfigurationPacket &configuration) {
         break;
     case 2:
         tone = (Tone*)(configuration.name);
-        setSource(new ToneGenerator(tone->frequency,tone->amplitude,(Waveform)(configuration.size-1)));
+        setSource(new ToneGenerator(tone->frequency,tone->amplitude,(Waveform)(configuration.size-1), 1e6/12));
         break;
     case 3:
         setSource(JinglePlayer::getJingle((Jingle) (configuration.size - 1)));

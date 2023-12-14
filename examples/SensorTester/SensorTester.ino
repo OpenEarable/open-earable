@@ -35,8 +35,6 @@ void setup() {
     edge_ml_generic.set_data_callback(on_sensor_data);
 
     Serial.println("------- Start Test -------");
-
-    start = millis();
 }
 
 void test_button() {
