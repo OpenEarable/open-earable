@@ -32,6 +32,7 @@ public:
     void setTarget(AudioTarget * target);
     void setDevice(InputDevice * device);
     void setSampleRate(int sample_rate);
+    void setChannels(int channels);
 
     void print_info();
 
@@ -43,6 +44,7 @@ public:
     bool available();
 private:
     int _sampleRate;
+    int _channels;
     bool _running = false;
     bool _available = false;
 };

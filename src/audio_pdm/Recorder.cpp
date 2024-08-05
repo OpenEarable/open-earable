@@ -17,12 +17,20 @@ void Recorder::setSampleRate(int sample_rate) {
     if (target) target->setSampleRate(_sampleRate);
 }
 
+void Recorder::setChannels(int channels) {
+    _channels = channels;
+    if (device) _channels = device->setChannels(channels);
+    if (target) target->setChannels(_channels);
+}
+
 bool Recorder::begin() {
     if (_available) return true;
     if (!device || !target) return false;
     device->setBuffer(PDM_BUFFER, pdm_b_size, pdm_b_count);
     _sampleRate = device->setSampleRate(_sampleRate);
+    _channels = device->setChannels(_channels);
     target->setSampleRate(_sampleRate);
+    target->setChannels(_channels);
     target->begin();
     if (!target->available()) return false;
     _available = device->begin();
@@ -43,6 +51,8 @@ void Recorder::end() {
 
 void Recorder::print_info() {
     Serial.println("RECORDER INFO:");
+    Serial.print("channels: ");
+    Serial.println(_channels);
     Serial.print("sample rate: ");
     Serial.println(_sampleRate);
     Serial.print("target: ");
@@ -60,6 +70,8 @@ void Recorder::print_info() {
         Serial.println("SET");
         if (device->available()) {
             Serial.println("device: available");
+            Serial.print("device channels: ");
+            Serial.println(device->getChannels());
             Serial.print("device samplerate: ");
             Serial.println(device->getSampleRate());
         } else  Serial.println("device: not available");
@@ -88,10 +100,12 @@ void Recorder::stop() {
 void Recorder::setDevice(InputDevice * device) {
     this->device = device;
     _sampleRate = device->setSampleRate(_sampleRate);
+    _channels = device->setChannels(_channels);
 
     if (target) {
         target->setStream(&(device->stream));
         target->setSampleRate(_sampleRate);
+        target->setChannels(_channels);
     }
 }
 
@@ -99,6 +113,7 @@ void Recorder::setTarget(AudioTarget * target) {
     this->target = target;
     if (!target) return;
     target->setSampleRate(_sampleRate);
+    target->setChannels(_channels);
     if (device) this->target->setStream(&(device->stream));
 }
 
@@ -117,6 +132,9 @@ void Recorder::config_callback(SensorConfigurationPacket *config) {
 
     // Check for valid sample rate
     recorder.setSampleRate(sample_rate);
+
+    //Test
+    recorder.setChannels(2);
 
     // Make sure that pdm mic is not running already!
     recorder.stop();
