@@ -6,7 +6,6 @@
 //#include <hal/nrf_pdm.h>
 #include "nrf_pdm.h"
 
-#define DEFAULT_PDM_GAIN     20
 #define PDM_IRQ_PRIORITY     7
 
 #define NRF_PDM_FREQ_1280K  (nrf_pdm_freq_t)(0x0A000000UL)               ///< PDM_CLK= 1.280 MHz (32 MHz / 25) => Fs= 20000 Hz [Ratio80 => Fs= 16000 Hz]
@@ -99,7 +98,12 @@ bool PDM_Mic::begin() {
             break;
 
         case 1:
-            nrf_pdm_mode_set(NRF_PDM_MODE_MONO, NRF_PDM_EDGE_LEFTFALLING);
+            if (_gain_l < 0) {
+                nrf_pdm_mode_set(NRF_PDM_MODE_MONO, NRF_PDM_EDGE_LEFTRISING);
+            } else {
+                nrf_pdm_mode_set(NRF_PDM_MODE_MONO, NRF_PDM_EDGE_LEFTFALLING);
+            }
+            
             break;
 
         default:
@@ -108,10 +112,10 @@ bool PDM_Mic::begin() {
             return false; // unsupported
     }
 
-    if(_gain == -1) {
+    /*if(_gain == -1) {
         _gain = DEFAULT_PDM_GAIN;
-    }
-    nrf_pdm_gain_set(_gain, _gain);
+    }*/
+    nrf_pdm_gain_set(MAX(_gain_l, 0), MAX(_gain_r, 0));
 
     // configure the I/O and mux
     pinMode(_clkPin, OUTPUT);
@@ -139,13 +143,6 @@ bool PDM_Mic::begin() {
 
     _available = true;
     return _available;
-}
-
-bool PDM_Mic::begin(int channels, int sampleRate/*, bool high*/) {
-    _channels = channels;
-    _sampleRate = sampleRate;
-
-    return begin();
 }
 
 bool PDM_Mic::available() {
@@ -206,9 +203,13 @@ int PDM_Mic::setSampleRate(int sampleRate) {
     return _sampleRate;
 }
 
-void PDM_Mic::setGain(int gain) {
-    _gain = gain;
-    if (_available) nrf_pdm_gain_set(_gain, _gain);
+void PDM_Mic::setGain(int8_t gain_left, int8_t gain_right) {
+    _gain_l = gain_left;
+    _gain_r = gain_right;
+
+    //setChannels((_gain_l >= 0) + (_gain_r >= 0));
+
+    if (_available) nrf_pdm_gain_set(MAX(_gain_l, 0), MAX(_gain_r, 0));
 }
 
 int PDM_Mic::getSampleRate() {

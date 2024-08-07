@@ -1,5 +1,6 @@
 #include "Recorder.h"
 #include "WavRecorder.h"
+#include "PDM_Mic.h"
 
 uint8_t PDM_BUFFER[pdm_b_size * pdm_b_count] __attribute__((aligned (16)));
 
@@ -133,8 +134,20 @@ void Recorder::config_callback(SensorConfigurationPacket *config) {
     // Check for valid sample rate
     recorder.setSampleRate(sample_rate);
 
-    //Test
-    recorder.setChannels(2);
+    if ((config->latency >> 16) != 0xFFFF) {
+        uint8_t gain_l = config->latency >> 24;
+        uint8_t gain_r = (config->latency >> 16) & 0xFF;
+        
+        // number of channels
+        recorder.setChannels((gain_l >= 0) + (gain_r >= 0));
+
+        pdm_mic.setGain(gain_l, gain_r);
+    } else {
+        // Mono
+        recorder.setChannels(1);
+
+        pdm_mic.setGain(DEFAULT_PDM_GAIN, MIC_OFF);
+    }
 
     // Make sure that pdm mic is not running already!
     recorder.stop();
