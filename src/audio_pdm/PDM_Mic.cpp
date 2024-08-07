@@ -6,7 +6,6 @@
 //#include <hal/nrf_pdm.h>
 #include "nrf_pdm.h"
 
-#define DEFAULT_PDM_GAIN     20
 #define PDM_IRQ_PRIORITY     7
 
 #define NRF_PDM_FREQ_1280K  (nrf_pdm_freq_t)(0x0A000000UL)               ///< PDM_CLK= 1.280 MHz (32 MHz / 25) => Fs= 20000 Hz [Ratio80 => Fs= 16000 Hz]
@@ -96,10 +95,20 @@ bool PDM_Mic::begin() {
     switch (_channels) {
         case 2:
             nrf_pdm_mode_set(NRF_PDM_MODE_STEREO, NRF_PDM_EDGE_LEFTFALLING);
+            nrf_pdm_gain_set(constrain(_gain_l, 0x00, 0x50), constrain(_gain_r, 0x00, 0x50));
             break;
 
         case 1:
-            nrf_pdm_mode_set(NRF_PDM_MODE_MONO, NRF_PDM_EDGE_LEFTFALLING);
+            if (_gain_l < 0) {
+                // right mic
+                nrf_pdm_mode_set(NRF_PDM_MODE_MONO, NRF_PDM_EDGE_LEFTRISING);
+                nrf_pdm_gain_set(constrain(_gain_r, 0x00, 0x50), constrain(_gain_l, 0x00, 0x50));
+            } else {
+                // left mic
+                nrf_pdm_mode_set(NRF_PDM_MODE_MONO, NRF_PDM_EDGE_LEFTFALLING);
+                nrf_pdm_gain_set(constrain(_gain_l, 0x00, 0x50), constrain(_gain_r, 0x00, 0x50));
+            }
+            
             break;
 
         default:
@@ -107,11 +116,6 @@ bool PDM_Mic::begin() {
             Serial.println(_channels);
             return false; // unsupported
     }
-
-    if(_gain == -1) {
-        _gain = DEFAULT_PDM_GAIN;
-    }
-    nrf_pdm_gain_set(_gain, _gain);
 
     // configure the I/O and mux
     pinMode(_clkPin, OUTPUT);
@@ -130,7 +134,7 @@ bool PDM_Mic::begin() {
     // clear the buffer
     stream->buffer.reset();
 
-    nrf_pdm_buffer_set((uint32_t*)stream->buffer.getWritePointer(), stream->buffer.getBlockSize() / (sizeof(int16_t) * _channels));
+    nrf_pdm_buffer_set((uint32_t*)stream->buffer.getWritePointer(), stream->buffer.getBlockSize() / (sizeof(int16_t) * 1));
 
     // set the PDM IRQ priority and enable
     NVIC_SetPriority(PDM_IRQn, PDM_IRQ_PRIORITY);
@@ -139,13 +143,6 @@ bool PDM_Mic::begin() {
 
     _available = true;
     return _available;
-}
-
-bool PDM_Mic::begin(int channels, int sampleRate/*, bool high*/) {
-    _channels = channels;
-    _sampleRate = sampleRate;
-
-    return begin();
 }
 
 bool PDM_Mic::available() {
@@ -196,8 +193,9 @@ void PDM_Mic::setPins(int dinPin, int clkPin) {
     _clkPin = clkPin;
 }
 
-void PDM_Mic::setChannels(int channels) {
-    _channels = channels;
+int PDM_Mic::setChannels(int channels) {
+    _channels = constrain(channels,1,2);
+    return _channels;
 }
 
 int PDM_Mic::setSampleRate(int sampleRate) {
@@ -205,13 +203,21 @@ int PDM_Mic::setSampleRate(int sampleRate) {
     return _sampleRate;
 }
 
-void PDM_Mic::setGain(int gain) {
-    _gain = gain;
-    if (_available) nrf_pdm_gain_set(_gain, _gain);
+void PDM_Mic::setGain(int8_t gain_left, int8_t gain_right) {
+    _gain_l = gain_left;
+    _gain_r = gain_right;
+
+    //setChannels((_gain_l >= 0) + (_gain_r >= 0));
+
+    //if (_available) nrf_pdm_gain_set(constrain(_gain_l, 0x00, 0x50), constrain(_gain_r, 0x00, 0x50));
 }
 
 int PDM_Mic::getSampleRate() {
     return _sampleRate;
+}
+
+int PDM_Mic::getChannels() {
+    return _channels;
 }
 
 void PDM_Mic::IrqHandler(bool halftranfer) {
@@ -226,7 +232,7 @@ void PDM_Mic::IrqHandler(bool halftranfer) {
             }
 
             // switch to the next buffer
-            nrf_pdm_buffer_set((uint32_t*)stream->buffer.getWritePointer(1), stream->buffer.getBlockSize() / (sizeof(int16_t) * _channels));
+            nrf_pdm_buffer_set((uint32_t*)stream->buffer.getWritePointer(1), stream->buffer.getBlockSize() / (sizeof(int16_t) * 1));
             //stream->buffer.incrementWritePointer();
 
             // call receive callback if provided
