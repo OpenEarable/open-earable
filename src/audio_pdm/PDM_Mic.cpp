@@ -95,13 +95,18 @@ bool PDM_Mic::begin() {
     switch (_channels) {
         case 2:
             nrf_pdm_mode_set(NRF_PDM_MODE_STEREO, NRF_PDM_EDGE_LEFTFALLING);
+            nrf_pdm_gain_set(constrain(_gain_l, 0x00, 0x50), constrain(_gain_r, 0x00, 0x50));
             break;
 
         case 1:
             if (_gain_l < 0) {
+                // right mic
                 nrf_pdm_mode_set(NRF_PDM_MODE_MONO, NRF_PDM_EDGE_LEFTRISING);
+                nrf_pdm_gain_set(constrain(_gain_r, 0x00, 0x50), constrain(_gain_l, 0x00, 0x50));
             } else {
+                // left mic
                 nrf_pdm_mode_set(NRF_PDM_MODE_MONO, NRF_PDM_EDGE_LEFTFALLING);
+                nrf_pdm_gain_set(constrain(_gain_l, 0x00, 0x50), constrain(_gain_r, 0x00, 0x50));
             }
             
             break;
@@ -111,11 +116,6 @@ bool PDM_Mic::begin() {
             Serial.println(_channels);
             return false; // unsupported
     }
-
-    /*if(_gain == -1) {
-        _gain = DEFAULT_PDM_GAIN;
-    }*/
-    nrf_pdm_gain_set(MAX(_gain_l, 0), MAX(_gain_r, 0));
 
     // configure the I/O and mux
     pinMode(_clkPin, OUTPUT);
@@ -209,7 +209,7 @@ void PDM_Mic::setGain(int8_t gain_left, int8_t gain_right) {
 
     //setChannels((_gain_l >= 0) + (_gain_r >= 0));
 
-    if (_available) nrf_pdm_gain_set(MAX(_gain_l, 0), MAX(_gain_r, 0));
+    //if (_available) nrf_pdm_gain_set(constrain(_gain_l, 0x00, 0x50), constrain(_gain_r, 0x00, 0x50));
 }
 
 int PDM_Mic::getSampleRate() {

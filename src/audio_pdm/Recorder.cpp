@@ -125,32 +125,25 @@ void Recorder::config_callback(SensorConfigurationPacket *config) {
     // Get sample rate
     int sample_rate = int(config->sampleRate);
 
-    // End sensor if sample rate is 0
-    if (sample_rate == 0) {
-        recorder.stop();
+    // Make sure that pdm mic is not running
+    recorder.stop();
+
+    // only end recording if sample rate is 0 or both mics are turned off
+    if (sample_rate == 0 || (config->latency & 0xFFFF) == 0xFFFF) {
         return;
     }
 
     // Check for valid sample rate
     recorder.setSampleRate(sample_rate);
 
-    if ((config->latency >> 16) != 0xFFFF) {
-        uint8_t gain_l = config->latency >> 24;
-        uint8_t gain_r = (config->latency >> 16) & 0xFF;
-        
-        // number of channels
-        recorder.setChannels((gain_l >= 0) + (gain_r >= 0));
+    int8_t gain_l = config->latency & 0xFF;
+    int8_t gain_r = (config->latency >> 8) & 0xFF;
+    
+    // number of channels
+    recorder.setChannels((gain_l >= 0) + (gain_r >= 0));
 
-        pdm_mic.setGain(gain_l, gain_r);
-    } else {
-        // Mono
-        recorder.setChannels(1);
-
-        pdm_mic.setGain(DEFAULT_PDM_GAIN, MIC_OFF);
-    }
-
-    // Make sure that pdm mic is not running already!
-    recorder.stop();
+    // set gain for each channel
+    pdm_mic.setGain(gain_l, gain_r);
 
     // find the next available file name for the recording
     const String recording_dir = "Recordings";
