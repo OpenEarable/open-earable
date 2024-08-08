@@ -6,6 +6,8 @@ This firmware is compatible with hardware version:
 - 1.3.0 (9-axis IMU, pressure sensor, speaker, in-ear ultrasound microphone)
 - 1.4.0 (adds dual ultrasound microphones support: one in-ear and one out-of-ear)
 
+**⚠️ $${\rm\color{red}Please~Note:}$$ We recommend deploying the firmware using the  [open-earable-PlatformIO wrapper](https://github.com/OpenEarable/open-earable-PlatformIO).**
+
 <kbd> <br> [Get OpenEarable device now!](https://forms.gle/R3LMcqtyKwVH7PZB9) <br> </kbd>
 <p align="center" width="100%" style="max-width: 300px">
  <img width="400" src="https://github.com/OpenEarable/open-earable/assets/11386075/e24b08eb-ecaa-4790-9d08-2e192c11fb59">
@@ -46,6 +48,7 @@ OpenEarable is controlled and streams sensor data via BLE (Bluetooth Low Energy)
 
 
 ## Setup
+**⚠️ $${\rm\color{red}Please~Note:}$$ We recommend deploying the firmware using the  [open-earable-PlatformIO wrapper](https://github.com/OpenEarable/open-earable-PlatformIO).**
 
 ### Arduino IDE
 Download and install the Arduino IDE. OpenEarable is based on the "Arduino Nano 33 BLE Sense" board. Therefore, you first have to install the required dependencies ("Arduino Mbed OS Nano Boards" via boards manager) in your Arduino IDE following this [Setup Guide](https://docs.arduino.cc/software/ide-v2/tutorials/ide-v2-board-manager#mbed-os-nano).
