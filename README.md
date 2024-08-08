@@ -6,7 +6,7 @@ This firmware is compatible with hardware version:
 - 1.3.0 (9-axis IMU, pressure sensor, speaker, in-ear ultrasound microphone)
 - 1.4.0 (adds dual ultrasound microphones support: one in-ear and one out-of-ear)
 
-**⚠️ $${\rm\color{red}Please~Note:}$$ The easiest way to deploy the OpenEarable firmware is by using the  [PlatformIO OpenEarable Wrapper](https://github.com/OpenEarable/open-earable-PlatformIO).**
+**⚠️ $${\rm\color{red}Please~Note:}$$ We recommend deploying the firmware using the  [PlatformIO OpenEarable Wrapper](https://github.com/OpenEarable/open-earable-PlatformIO).**
 
 <kbd> <br> [Get OpenEarable device now!](https://forms.gle/R3LMcqtyKwVH7PZB9) <br> </kbd>
 <p align="center" width="100%" style="max-width: 300px">
