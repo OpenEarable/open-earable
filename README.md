@@ -4,7 +4,7 @@ OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing 
 
 This firmware is compatible with hardware version:
 - 1.3.0
-- 1.4.0
+- 1.4.0 (dual microphones: in-ear and out-of-ear)
 
 <kbd> <br> [Get OpenEarable device now!](https://forms.gle/R3LMcqtyKwVH7PZB9) <br> </kbd>
 <p align="center" width="100%" style="max-width: 300px">
