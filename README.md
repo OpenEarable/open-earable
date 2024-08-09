@@ -8,7 +8,7 @@ This firmware is compatible with hardware version:
 
 **⚠️ $${\rm\color{red}Please~Note:}$$ We recommend deploying the firmware using the  [open-earable-PlatformIO wrapper](https://github.com/OpenEarable/open-earable-PlatformIO).**
 
-<kbd> <br> [Get OpenEarable device now!](https://forms.gle/R3LMcqtyKwVH7PZB9) <br> </kbd>
+<kbd> <br> [Get OpenEarable device now!](https://open-earable.teco.edu/) <br> </kbd>
 <p align="center" width="100%" style="max-width: 300px">
  <img width="400" src="https://github.com/OpenEarable/open-earable/assets/11386075/e24b08eb-ecaa-4790-9d08-2e192c11fb59">
 </p>
