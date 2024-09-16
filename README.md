@@ -1,6 +1,12 @@
-# 🦻 OpenEarable - Firmware v1.3.0
+# 🦻 OpenEarable - Firmware v1.4.0
 
 OpenEarable is a new, open-source, Arduino-based platform for ear-based sensing applications. It provides a versatile prototyping platform with support for various sensors and actuators, making it suitable for earable research and development.
+
+This firmware is compatible with hardware version:
+- 1.3.0 (9-axis IMU, pressure sensor, speaker, in-ear ultrasound microphone)
+- 1.4.0 (adds dual ultrasound microphones support: one in-ear and one out-of-ear)
+
+**⚠️ $${\rm\color{red}Please~Note:}$$ We recommend deploying the firmware using the  [open-earable-PlatformIO wrapper](https://github.com/OpenEarable/open-earable-PlatformIO).**
 
 <kbd> <br> [Get OpenEarable device now!](https://forms.gle/R3LMcqtyKwVH7PZB9) <br> </kbd>
 <p align="center" width="100%" style="max-width: 300px">
@@ -42,6 +48,7 @@ OpenEarable is controlled and streams sensor data via BLE (Bluetooth Low Energy)
 
 
 ## Setup
+**⚠️ $${\rm\color{red}Please~Note:}$$ We recommend deploying the firmware using the  [open-earable-PlatformIO wrapper](https://github.com/OpenEarable/open-earable-PlatformIO).**
 
 ### Arduino IDE
 Download and install the Arduino IDE. OpenEarable is based on the "Arduino Nano 33 BLE Sense" board. Therefore, you first have to install the required dependencies ("Arduino Mbed OS Nano Boards" via boards manager) in your Arduino IDE following this [Setup Guide](https://docs.arduino.cc/software/ide-v2/tutorials/ide-v2-board-manager#mbed-os-nano).
@@ -187,7 +194,7 @@ Configuration Package:
 
 SensorID: ID of the sensor.<br>
 Sample Rate: Desired sample rate. <br>
-Latency: Legacy field which is mostly ignored. However, it has been repurposed as shown later.
+Latency: Legacy field. Repurposed to control microphone gain as shown later.
 
 Each sensor or audio IO can be enabled individually or together at the same time with predefined configurations.
 It is recommended to use the predefined configurations.
@@ -436,7 +443,8 @@ Data Array structure:
 #### PDM MIC
 Sensor ID: 2
 
-The PDM Microphone provides audio data up to 62.5kHz.
+The PDM Microphone provides audio data up to 62.5kHz if using one microphone.
+Since hardware version 1.4, OpenEarable has two microphones, however, if using both microphones the maximum sampling rate of 62.5 kHz can not be achieved because of bandwidth issues.
 The sample rate files of the configuration package is the audio sample rate of the sensor.
 
 The available sampling rates are:
@@ -455,6 +463,8 @@ Most recommended are:
 - 16000Hz
 - 41667Hz
 - 62500Hz
+
+To configure the gain of the microphones, byte 5 and 6 of the sensor configuration package (legacy latency field) can be set (inner / outer microphone). Gain is represtend from 0 to 80 (-20 to +20 dB in 0.5 dB steps) as int_8. If the gain byte has a negative int_8 value, the resepective microphone channel will be disabled.
 
 ### Button
 
