@@ -1,5 +1,6 @@
 #include "Recorder.h"
 #include "WavRecorder.h"
+#include "BLEStream.h"
 #include "PDM_Mic.h"
 
 uint8_t PDM_BUFFER[pdm_b_size * pdm_b_count] __attribute__((aligned (16)));
@@ -173,7 +174,8 @@ void Recorder::config_callback(SensorConfigurationPacket *config) {
     String file_name = "/" + recording_dir + "/Recording_" + String(n) + "_" + String(millis()) + ".wav";
 
     // set WaveRecorder
-    recorder.setTarget(new WavRecorder(file_name));
+    //recorder.setTarget(new WavRecorder(file_name));
+    recorder.setTarget(new BLEStream());
 
     // Start pdm mic
     recorder.record();

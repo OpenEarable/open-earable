@@ -22,7 +22,8 @@ const int SpecialSensors[SPECIAL_SENSOR_COUNT] = {
 enum ModuleID {
     MODULE_IMU,
     MODULE_BARO,
-    MODULE_DUMMY
+    MODULE_PDM,
+    //MODULE_DUMMY
 };
 
 const SensorComponent ACC_COMPONENTS[] = {
@@ -42,6 +43,24 @@ const SensorComponent PRESSURE_TEMP_COMPONENTS[] = {
         {"BARO", PARSE_TYPE_FLOAT, "Pressure", "kPa"}
 };
 
+const SensorComponent PDM_MIC_COMPONENTS[] = {
+        {"MIC", PARSE_TYPE_INT16, "0", "AMP"},
+        {"MIC", PARSE_TYPE_INT16, "1", "AMP"},
+        {"MIC", PARSE_TYPE_INT16, "2", "AMP"},
+        {"MIC", PARSE_TYPE_INT16, "3", "AMP"},
+        {"MIC", PARSE_TYPE_INT16, "4", "AMP"},
+        {"MIC", PARSE_TYPE_INT16, "5", "AMP"},
+        {"MIC", PARSE_TYPE_INT16, "6", "AMP"},
+        {"MIC", PARSE_TYPE_INT16, "7", "AMP"},
+        {"MIC", PARSE_TYPE_INT16, "8", "AMP"},
+        {"MIC", PARSE_TYPE_INT16, "9", "AMP"},
+        {"MIC", PARSE_TYPE_INT16, "10", "AMP"},
+        {"MIC", PARSE_TYPE_INT16, "11", "AMP"},
+        {"MIC", PARSE_TYPE_INT16, "12", "AMP"},
+        {"MIC", PARSE_TYPE_INT16, "13", "AMP"},
+        {"MIC", PARSE_TYPE_INT16, "14", "AMP"},
+        {"MIC", PARSE_TYPE_INT16, "15", "AMP"},
+};
 
 const SensorConfig CONFIG[SENSOR_COUNT] = {
         {
@@ -61,9 +80,9 @@ const SensorConfig CONFIG[SENSOR_COUNT] = {
         {
                 "PDM MIC",
                 PDM_MIC,
-                MODULE_DUMMY,
-                0,
-                {}
+                MODULE_PDM, //MODULE_DUMMY,
+                16,
+                PDM_MIC_COMPONENTS
         },
 };
 
