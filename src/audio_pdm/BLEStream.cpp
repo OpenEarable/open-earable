@@ -16,10 +16,12 @@ const float b[FILT_ORDER][3] = {{9.33498613e-04, 1.86699723e-03, 9.33498613e-04}
                                 {1, 2, 1}};
 
 int16_t ble_buffer[16];
-int16_t sos_buffer[DEFAULT_CBB_BLOCK_SIZE];
+int16_t sos_buffer[pdm_b_size / sizeof(int16_t)];
 int index_ble = 0;
 //const int down_sample = 32;
 const int down_sample = 8;
+
+int last_k = 0;
 
 BLEStream::BLEStream() {
     //_wavWriter = new WAVWriter();
@@ -87,17 +89,12 @@ int BLEStream::provide(int max_cont) {
     const int block_size = (*stream)->buffer.getBlockSize();
     //const int size = block_size * cont;
 
-    //Serial.print("PDM-1: ");
-    //Serial.println(recorder.available() ? (*recorder.target->stream)->remaining() : -1);
-
     for (int i = 0; i<cont; i++) {
-        memcpy(sos_buffer, read_pointer + i * block_size, block_size);
-        //filter->update((int16_t *)(read_pointer + i * block_size), block_size / 2);
-        filter->update((int16_t *) sos_buffer, block_size / 2);
-        for (int k = 0; k < block_size; k+=down_sample * sizeof(int16_t)) {
-            //ble_buffer[index_ble++] = *((int16_t *)(read_pointer + i * block_size + k));
-            ble_buffer[index_ble++] = *((int16_t *)(sos_buffer + k));
-            if (index_ble == 16) {
+        memcpy((uint8_t *) sos_buffer, read_pointer + i * block_size, block_size);
+        filter->update(sos_buffer, block_size / sizeof(int16_t));
+        for (int k = 0; k < block_size / sizeof(int16_t); k+=down_sample) {
+            ble_buffer[index_ble] = sos_buffer[k];
+            if (++index_ble == 16) {
                 index_ble = 0;
 
                 sensorProvider.update_manager();
@@ -106,29 +103,19 @@ int BLEStream::provide(int max_cont) {
                 bleHandler_G.update();
                 BLE.poll();
             }
+            // last_k = k;
         }
+
+        //if (++index_ble == 16) index_ble = 0;
+
+        // Serial.print("index_ble: ");
+        // Serial.print(index_ble);
+        // Serial.print(" k: ");
+        // Serial.println(last_k);
     }
 
-    /*
-    for (int i = 0; i<size; i+=16*sizeof(int16_t)) {
-        sensorProvider.update_manager();
-        pdm_sensor.setBuffer(read_pointer + i);
-        sensorProvider.update_sensor(PDM_MIC, true);
-        bleHandler_G.update();
-        BLE.poll();
-    }*/
-
-    Serial.print("PDM: ");
-    Serial.println(recorder.available() ? (*recorder.target->stream)->remaining() : -1);
-
-    //bool written = _wavWriter->writeChunk(read_pointer, size);
-
-    /*bool written = true;
-
-    if (!written) {
-        (*stream)->close();
-        return 0;
-    }*/
+    // Serial.print("PDM: ");
+    // Serial.println(recorder.available() ? (*stream)->remaining() : -1);
 
     (*stream)->provide(cont);
 
