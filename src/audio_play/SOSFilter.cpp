@@ -7,7 +7,11 @@ SOSFilter::SOSFilter(int order, const float (*b)[3], const float (*a)[3]) {
     this->b = b;
     this->a = a;
 
-    buffer.resize(order, std::vector<float>(2, 0.0f));
+    //buffer.resize(order, std::vector<float>(2, 0.0f));
+    buffer = new float*[order];
+    for (int i = 0; i < order; ++i) {
+        buffer[i] = new float[2]{0.0f, 0.0f};  // Speicher für 2 Verzögerungen pro Sektion
+    }
 }
 
 SOSFilter::~SOSFilter() {
@@ -16,7 +20,8 @@ SOSFilter::~SOSFilter() {
 
 void SOSFilter::reset() {
     for(int i = 0; i < order; i++) {
-        std::memset(buffer[i].data(), 0, 2 * sizeof(float));
+        //std::memset(buffer[i].data(), 0, 2 * sizeof(float));
+        std::memset(buffer[i], 0, 2 * sizeof(float));
     }
 }
 

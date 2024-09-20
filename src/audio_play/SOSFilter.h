@@ -20,7 +20,8 @@ private:
     int order;
     const float (*b)[3];
     const float (*a)[3];
-    std::vector<std::vector<float>> buffer;
+    //std::vector<std::vector<float>> buffer;
+    float **buffer;
 };
 
 #endif //OPEN_EARABLE_AUDIO_PLAYER_H

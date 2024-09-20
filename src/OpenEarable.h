@@ -5,6 +5,9 @@
 #ifndef EDGE_ML_EARABLE_EDGEML_EARABLE_H
 #define EDGE_ML_EARABLE_EDGEML_EARABLE_H
 
+#include <BLEDevice.h>
+//#include <BLEServer.h>
+
 #include "EdgeML.h"
 #include <battery_service/Battery_Service.h>
 #include "button_service/Button.h"
@@ -84,6 +87,7 @@ public:
 
         task_manager.begin();
 
+        BLE.setConnectionInterval(0x0006, 0x000C);
         BLE.advertise();
     };
 
@@ -91,9 +95,6 @@ public:
         _battery->update();
 
         task_manager.update();
-
-        //interrupt based
-        //earable_btn.update();
     };
 
     void debug(Stream &stream) {
