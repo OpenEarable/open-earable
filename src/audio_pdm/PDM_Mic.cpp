@@ -47,6 +47,7 @@ bool PDM_Mic::begin() {
             break;
         case 20000:
             // Untested
+            NRF_PDM->RATIO = ((PDM_RATIO_RATIO_Ratio64 << PDM_RATIO_RATIO_Pos) & PDM_RATIO_RATIO_Msk);
             nrf_pdm_clock_set(NRF_PDM_FREQ_1280K);
             break;
         case 25000:
@@ -56,6 +57,7 @@ bool PDM_Mic::begin() {
             break;
         case 31250:
             // Untested
+            NRF_PDM->RATIO = ((PDM_RATIO_RATIO_Ratio64 << PDM_RATIO_RATIO_Pos) & PDM_RATIO_RATIO_Msk);
             nrf_pdm_clock_set(NRF_PDM_FREQ_2000K);
             break;
         case 33333:
@@ -69,6 +71,7 @@ bool PDM_Mic::begin() {
             nrf_pdm_clock_set(NRF_PDM_FREQ_3200K);
             break;
         case 41667:
+            NRF_PDM->RATIO = ((PDM_RATIO_RATIO_Ratio64 << PDM_RATIO_RATIO_Pos) & PDM_RATIO_RATIO_Msk);
             nrf_pdm_clock_set(NRF_PDM_FREQ_2667K);
             break;
         case 50000:
@@ -84,6 +87,7 @@ bool PDM_Mic::begin() {
             break;
         case 62500:
             // Untested
+            NRF_PDM->RATIO = ((PDM_RATIO_RATIO_Ratio64 << PDM_RATIO_RATIO_Pos) & PDM_RATIO_RATIO_Msk);
             nrf_pdm_clock_set(NRF_PDM_FREQ_4000K);
             break;
         default:
@@ -168,6 +172,8 @@ void PDM_Mic::stop() {
 }
 
 void PDM_Mic::end() {
+    //if (_running) stop();
+
     // disable PDM and IRQ
     nrf_pdm_disable();
 
